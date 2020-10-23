@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1080382637840",
+    "firebase_url": "https://ihike-pak.firebaseio.com",
+    "project_id": "ihike-pak",
+    "storage_bucket": "ihike-pak.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1080382637840:android:18a0f5ac355c0d14f9c795",
+        "android_client_info": {
+          "package_name": "com.ihikepakistan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1080382637840-dpo1qa47kul0vvnpbr58k9sqlq7erou4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLeJxVgy2eo7EnTaTeCfhRUk-hvOl7Y5E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1080382637840-dpo1qa47kul0vvnpbr58k9sqlq7erou4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
