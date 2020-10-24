@@ -55,13 +55,21 @@ class HikeTile extends StatelessWidget {
               children: <Widget>[
                 ListTile(
                   title: Text(hike.title),
-                  subtitle: Text('${(hike.length % 1 == 0) ? hike.length.round() : hike.length}km (${(hike.lengthMiles % 1 == 0) ? hike.lengthMiles.round() : hike.lengthMiles}mi)'),
+                  subtitle: Text(hike.storyShort),
                 ),
                 Image.asset(
-                  hike.photo,
+                  'maps/' + hike.photo,
                   fit: BoxFit.cover,
                   height: 215,
                   width: 300,
+                  errorBuilder: (BuildContext context, Object object, StackTrace stackTrace){
+                    return Image.network(
+                      hike.photos[0],
+                      fit: BoxFit.cover,
+                      height: 215,
+                      width: 300,
+                    );
+                  },
                 ),
                 ButtonBar(
                   alignment: MainAxisAlignment.spaceAround,

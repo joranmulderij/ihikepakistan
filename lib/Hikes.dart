@@ -100,20 +100,21 @@ class Hikes {
     List<Hike> toReturn = [];
     dynamic json = convert.json.decode(MyRemoteConfig.getRemoteConfigValue('hikes'));
     for (var i = 0; i < json.length; i++) {
+      print(json[i]['data']);
       toReturn.add(Hike(
-        height: json[i]['ascent'].toDouble(),
-        heightFeet: json[i]['ascentfeet'].toDouble(),
-        dataString: json[i]['polyline'].toString(),
+        height: json[i]['climb'].toDouble(),
+        //heightFeet: json[i]['ascentfeet'].toDouble(),
+        //dataString: json[i]['polyline'].toString(),
         id: json[i]['id'].toString(),
         title: json[i]['name'].toString(),
-        time: json[i]['hours'].toDouble(),
+        time: json[i]['time'].toDouble(),
         length: json[i]['length'].toDouble(),
-        lengthMiles: json[i]['lengthmiles'].toDouble(),
-        photo: 'maps/' + json[i]['image'].toString(),
+        //lengthMiles: json[i]['lengthmiles'].toDouble(),
+        photo: json[i]['photo'].toString(),
         storyShort: json[i]['storyshort'].toString(),
         story: json[i]['story'].toString(),
         data: json[i]['data'] == null ? null : List.from(json[i]['data']),
-        photos: [],
+        photos: json[i]['photos'].toString().split('<next>'),
       ));
       /*toReturn.add(Hike(
         title: "Trail 3 Fireline",

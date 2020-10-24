@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 class MapState with ChangeNotifier{
-  MapState();
+  final List<double> track;
+  MapState({this.track});
   double _latitude;
   double _longitude;
   double _altitude;
@@ -32,6 +33,7 @@ class MapState with ChangeNotifier{
   bool _showsNotifications = true;
   RecordingState _recordingState = RecordingState.begin;
   double _headingAngle;
+  bool _onTrack = true;
   
   List<mapbox.LatLng> mapboxTrack = [];
 
@@ -64,6 +66,7 @@ class MapState with ChangeNotifier{
   int get mapType => _mapType;
   bool get hasLocation => _hasLocation;
   DateTime get lastLocationTime => _lastLocationTime;
+  bool get onTrack => _onTrack;
 
   double _speedSum = 0;
   double _speedWMovingSum = 0;
@@ -112,6 +115,23 @@ class MapState with ChangeNotifier{
         _maxAltitude = alt;
       if(alt < (_minAltitude??double.maxFinite))
         _minAltitude = alt;
+      bool inRange = (track??[]).length < 4;
+      for (int i = 0; i < track.length - 1; i += 2) {
+        if (maps_toolkit.SphericalUtil.computeDistanceBetween(
+            maps_toolkit.LatLng(_latitude, _longitude),
+            maps_toolkit.LatLng(track[i], track[i + 1])) < 30) inRange = true;
+      }
+      if(!inRange){
+        if(_showsNotifications && _onTrack == true){
+          playAlarm();
+        }
+        _onTrack = false;
+      } else {
+        if(_showsNotifications && !_onTrack){
+          stopAlarm();
+        }
+        _onTrack = true;
+      }
     }
     _latitude = lat;
     _longitude = lng;
@@ -121,12 +141,15 @@ class MapState with ChangeNotifier{
     _speedAccuracy = spdacc;
     _hasLocation = true;
     _lastLocationTime = DateTime.now();
-    playAlarm();
     notifyListeners();
   }
 
   void playAlarm(){
     FlutterRingtonePlayer.playAlarm();
+  }
+
+  void stopAlarm(){
+    FlutterRingtonePlayer.stop();
   }
 
   void stopRecording(){
@@ -148,6 +171,9 @@ class MapState with ChangeNotifier{
   }
   void toggleNotifications(){
     _showsNotifications = !_showsNotifications;
+    if(!_showsNotifications){
+      stopAlarm();
+    }
     notifyListeners();
   }
   void toggleIsCentered(){

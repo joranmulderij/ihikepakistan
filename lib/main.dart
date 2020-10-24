@@ -1,5 +1,6 @@
 //import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:ihikepakistan/HomeScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,21 +13,14 @@ void main() {
 
 
 SharedPreferences prefs;
-/*
-Future<int> getPrefs() async {
-  await MyRemoteConfig.init();
-  return 0;
-  /*if(prefs == null)
-    prefs = await SharedPreferences.getInstance();*/
-  /*prefs.setStringList('myhiketitles', ['Hike 1', 'Hike 2', 'Hike 3', 'Hike 4', 'Hike 5']);
-  prefs.setStringList('myhikelengths', ['12', '5', '6', '7', '9']);
-  prefs.setStringList('myhikelengthmiles', ['9', '3', '4', '5', '6']);
-  prefs.setString('statsorder', "abcdefghijklmnopqrs");*/
-}
-*/
+
+
 class MyApp extends StatelessWidget {
-  FirebaseAnalytics analytics = FirebaseAnalytics();
-  MyApp();
+//  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  final FirebaseAnalytics analytics = FirebaseAnalytics();
+  MyApp(){
+//    _firebaseMessaging.getToken().then((value) => print(value));
+  }
 
   @override
   Widget build(BuildContext context) {

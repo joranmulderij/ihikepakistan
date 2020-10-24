@@ -105,6 +105,19 @@ class InfoBody extends StatelessWidget {
             alignment: Alignment.topCenter,
             fit: BoxFit.cover,
             height: 250,
+            errorBuilder: (BuildContext context, Object object, StackTrace stackTrace){
+              return Image.network(
+                hike.photos[0],
+                alignment: Alignment.topCenter,
+                fit: BoxFit.cover,
+                height: 250,
+                errorBuilder: (BuildContext context, Object object, StackTrace stackTrace){
+                  return Center(
+                    child: Icon(Icons.broken_image, size: 30,),
+                  );
+                },
+              );
+            },
           ),
           /*actions: <Widget>[
             IconButton(icon: Icon(hike.icon), onPressed: null)
@@ -208,8 +221,8 @@ class InfoBody extends StatelessWidget {
                           child: ClipRRect(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                             //child: Image.network(hike.photos[index]),
-                            child: Image.asset(
-                              'images/trail6.jpg',
+                            child: Image.network(
+                              hike.photos[index],
                               fit: BoxFit.cover,
                               errorBuilder: (BuildContext context, Object object, StackTrace stackTrace){
                                 return Center(

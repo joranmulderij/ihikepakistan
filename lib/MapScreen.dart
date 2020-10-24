@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -26,7 +27,7 @@ class MapScreen extends StatelessWidget {
         title: Text(hike.title),
       ),
       body: ListenableProvider<MapState>(
-        create: (_) => MapState(),
+        create: (_) => MapState(track: hike.data),
         child: Map(hike: hike,),
       ),
     );
@@ -43,6 +44,7 @@ class Map extends StatefulWidget {
 class MapboxState extends State<Map> {
   double height = 100;
   final Hike hike;
+  StreamSubscription listener;
   mapbox.MapboxMapController mapboxMapController;
   mapbox.Line myLine;
   MapboxState({this.hike});
@@ -54,7 +56,7 @@ class MapboxState extends State<Map> {
       MapState mapState = context.read<MapState>();
       mapState.setHasLocation(DateTime.now().difference(mapState.lastLocationTime) < Duration(seconds: 10));
     });
-    location.Location.instance.onLocationChanged.listen((location.LocationData data) {
+    listener = location.Location.instance.onLocationChanged.listen((location.LocationData data) {
       print(data.altitude);
       setState(() {
         MapState mapState = context.read<MapState>();
@@ -68,6 +70,12 @@ class MapboxState extends State<Map> {
         );
       });
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    listener.cancel();
   }
 
   @override
