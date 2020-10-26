@@ -21,22 +21,22 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
-  http: ^0.12.1 # # #
-  shared_preferences: ^0.5.7+3 # # #
-  carousel_slider: ^2.2.1
-  photo_view: ^0.9.2
-  url_launcher: ^5.4.11
-  flutter_share_me: ^0.9.1
-  flutter_compass: '^0.4.1'
-  firebase_analytics: ^5.0.16
-  location: ^3.0.0
-  flutter_markdown: ^0.4.4
-  mapbox_gl: ^0.8.0
-  firebase_remote_config: ^0.4.0+2
-  provider: ^4.3.2+2
-  maps_toolkit: ^1.1.0+2
-  flutter_ringtone_player: ^2.0.0
-  firebase_messaging: ^7.0.3
+  http: ^0.12.1 #ios:none
+  shared_preferences: ^0.5.7+3 #ios:none
+  carousel_slider: ^2.2.1 #ios:none
+  photo_view: ^0.9.2 #ios:none
+  url_launcher: ^5.4.11 #ios:none
+  flutter_share_me: ^0.9.1 #ios:none
+  flutter_compass: '^0.4.1' #ios:done
+  firebase_analytics: ^5.0.16 #ios:none
+  location: ^3.0.0 #ios:done
+  flutter_markdown: ^0.4.4 #ios:none
+  mapbox_gl: ^0.8.0 #ios:todo: https://docs.mapbox.com/ios/maps/overview/#add-the-dependency
+  firebase_remote_config: ^0.4.0+2 #ios:todo
+  provider: ^4.3.2+2 #ios:none
+  maps_toolkit: ^1.1.0+2 #ios:none
+  flutter_ringtone_player: ^2.0.0 #ios:none
+  firebase_messaging: ^7.0.3 #ios:todo: https://pub.dev/packages/firebase_messaging
 
 
   flutter:
