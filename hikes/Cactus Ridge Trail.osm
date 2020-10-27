@@ -120,7 +120,7 @@
   <node id='-258388' action='modify' visible='true' lat='33.74224920174' lon='73.05284319484' />
   <node id='-258389' action='modify' visible='true' lat='33.74210540174' lon='73.05290359484' />
   <node id='-258390' action='modify' visible='true' lat='33.74206892999' lon='73.05291289189' />
-  <way id='-102271' action='modify' visible='true'>
+  <way id='-102347' action='modify' visible='true'>
     <nd ref='-258389' />
     <nd ref='-258390' />
     <nd ref='-258306' />
@@ -278,6 +278,7 @@
     <nd ref='-258388' />
     <nd ref='-258389' />
     <tag k='highway' v='footway' />
+    <tag k='length' v='1.91' />
     <tag k='name' v='Cactus Ridge Trail' />
   </way>
 </osm>

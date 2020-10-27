@@ -16,14 +16,14 @@ class InfoScreen extends StatelessWidget {
 
   Widget build(BuildContext context) {
     return Hero(
-      tag: hike.id + 'tag',
+      tag: hike.title + 'tag',
       child: Scaffold(
         appBar: AppBar(
           title: Text(hike.title),
           actions: [IconButton(
               icon: Icon(Icons.edit),
               onPressed: (){
-                url_launcher.launch('https://docs.google.com/forms/d/e/1FAIpQLSfM6y1DTj6oIQD-e1Yzj0KfBcoWLaa-viUKaV_pg7BVS4FWCg/viewform?usp=pp_url&entry.1690278709=${hike.title}&entry.1645486241=${hike.story}&entry.2003551559=${hike.id}', forceWebView: true, enableJavaScript: true);
+                url_launcher.launch('https://docs.google.com/forms/d/e/1FAIpQLSfM6y1DTj6oIQD-e1Yzj0KfBcoWLaa-viUKaV_pg7BVS4FWCg/viewform?usp=pp_url&entry.1690278709=${hike.title}&entry.1645486241=${hike.story}&entry.2003551559=${hike.title}', forceWebView: true, enableJavaScript: true);
               },
           )]
         ),
@@ -150,14 +150,14 @@ class InfoBody extends StatelessWidget {
                   title: Text(
                     'Length:',
                   ),
-                  subtitle: Text('${hike.length}km (${hike.lengthMiles}mi)'),
+                  subtitle: Text('${hike.length}km'),
                 ),
                 ListTile(
                   leading: Icon(Icons.import_export),
                   title: Text(
                     'Climb:',
                   ),
-                  subtitle: Text('${hike.height}m (${hike.heightFeet}ft)'),
+                  subtitle: Text('${hike.height}m'),
                 ),
                 ListTile(
                   leading: Icon(Icons.schedule),
