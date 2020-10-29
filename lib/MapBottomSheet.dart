@@ -156,10 +156,15 @@ class BottomSheetState extends State<MapBottomSheet> {
                         mapState.setMapType(newValue);
                       } : null, tooltip: 'Set Map Type', highlightColor: Colors.transparent, splashColor: Colors.transparent,),
                       IconButton(
-                        icon: Icon(mapState.isCentered ? Icons.gps_fixed : Icons.gps_not_fixed, color: Colors.white,),
+                        icon: Icon({
+                          MapCenterState.none: Icons.gps_not_fixed,
+                          MapCenterState.compass: Icons.explore,
+                          MapCenterState.gps: Icons.navigation,
+                          MapCenterState.centered: Icons.gps_fixed,
+                        }[mapState.mapCenterState], color: Colors.white,),
                         onPressed: height <= 100 ? (){
                           setState(() {
-                            mapState.toggleIsCentered();
+                            mapState.toggleIsCentered(context);
                           });
                         } : null,
                         tooltip: 'Center on Location',

@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:ihikepakistan/ListDialog.dart';
-import 'package:ihikepakistan/main.dart';
 
 class SwitchTile extends StatefulWidget{
   final String title;
@@ -244,3 +243,4 @@ class SettingsTextInputState extends State<SettingsTextInput> {
     );
   }
 }
+*/

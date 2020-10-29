@@ -3,6 +3,7 @@ import 'package:maps_toolkit/maps_toolkit.dart' as maps_toolkit;
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import 'package:toast/toast.dart';
 
 class MapState with ChangeNotifier{
   final List<double> track;
@@ -29,7 +30,8 @@ class MapState with ChangeNotifier{
   Duration _movingTime = Duration(seconds: 0);
   double _distanceWalked = 0;
   int _mapType = 0;
-  bool _isCentered = true;
+  MapCenterState _mapCenterState = MapCenterState.none;
+
   bool _showsNotifications = true;
   RecordingState _recordingState = RecordingState.begin;
   double _headingAngle;
@@ -37,7 +39,6 @@ class MapState with ChangeNotifier{
   
   List<mapbox.LatLng> mapboxTrack = [];
 
-  bool get isCentered => _isCentered;
   bool get showsNotifications => _showsNotifications;
   RecordingState get recordingState => _recordingState;
 
@@ -67,6 +68,7 @@ class MapState with ChangeNotifier{
   bool get hasLocation => _hasLocation;
   DateTime get lastLocationTime => _lastLocationTime;
   bool get onTrack => _onTrack;
+  MapCenterState get mapCenterState => _mapCenterState;
 
   double _speedSum = 0;
   double _speedWMovingSum = 0;
@@ -176,8 +178,25 @@ class MapState with ChangeNotifier{
     }
     notifyListeners();
   }
-  void toggleIsCentered(){
-    _isCentered = !_isCentered;
+  void toggleIsCentered(context){
+    switch(_mapCenterState){
+      case MapCenterState.none:
+        _mapCenterState = MapCenterState.centered;
+        Toast.show('Map Center Mode:\nCentered (no rotation)', context, duration: 3);
+        break;
+      case MapCenterState.centered:
+        _mapCenterState = MapCenterState.gps;
+        Toast.show('Map Center Mode:\nMovement', context, duration: 3);
+        break;
+      case MapCenterState.gps:
+        _mapCenterState = MapCenterState.compass;
+        Toast.show('Map Center Mode:\nCompass', context, duration: 3);
+        break;
+      case MapCenterState.compass:
+        _mapCenterState = MapCenterState.none;
+        Toast.show('Map Center Mode:\nNone', context, duration: 3);
+        break;
+    }
     notifyListeners();
   }
 }
@@ -189,7 +208,7 @@ enum RecordingState{
   finished,
 }
 
-enum mapCenterState{
+enum MapCenterState{
   none,
   centered,
   compass,

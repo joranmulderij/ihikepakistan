@@ -6,6 +6,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:ihikepakistan/Hike.dart';
 import 'package:ihikepakistan/MHNPMapsScreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:search_page/search_page.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 import 'Hikes.dart';
 import 'MapScreen.dart' as mapScreen;
@@ -72,6 +73,28 @@ class HomeState extends State<HomeScreen> {
           appBar: AppBar(
             title: Text('Ihike'),
             actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.search),
+                onPressed: () => showSearch(
+                  context: context,
+                  delegate: SearchPage<Hike>(
+                    builder: (person) => ListTile(
+                      title: Text(person.title),
+                      subtitle: Text(person.difficulty),
+                    ),
+                    filter: (hike) => [
+                      hike.title,
+                      hike.tags,
+                      hike.difficulty,
+                    ],
+                    showItemsOnEmpty: true,
+                    items: Hikes.all,
+                    searchLabel: 'Search Hikes',
+                    suggestion: ListTile(title: Text('Start Typing...'),),
+                    failure: ListTile(title: Text('Could not find any Hikes...'),),
+                  ),
+                )
+              ),
               PopupMenuButton<String>(
                 onSelected: (String item) async {
                   switch (item) {
@@ -97,6 +120,13 @@ class HomeState extends State<HomeScreen> {
                     case 'rate':
                       url_launcher.launch('https://youtube.com/');
                       break;
+                    case 'about':
+                      showAboutDialog(
+                        context: context,
+                        applicationName: 'Ihike Pakistan',
+                        applicationIcon: Image.asset('assets/logo_small.png'),
+                      );
+                      break;
                   }
                 },
                 icon: Icon(Icons.more_vert),
@@ -117,7 +147,11 @@ class HomeState extends State<HomeScreen> {
                     PopupMenuItem(
                       child: Text('Rate this app!'),
                       value: 'rate',
-                    )
+                    ),
+                    PopupMenuItem(
+                      child: Text('About Ihike Pakistan'),
+                      value: 'about',
+                    ),
                   ];
                 },
               ),

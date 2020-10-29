@@ -104,7 +104,12 @@ class MapboxState extends State<Map> {
           builder: (BuildContext context, MapState mapState, Widget widget){
             if(mapboxMapController != null && myLine != null){
               mapboxMapController.updateLine(myLine, mapbox.LineOptions(geometry: mapState.mapboxTrack));
-              mapboxMapController.updateMyLocationTrackingMode(mapState.isCentered ? mapbox.MyLocationTrackingMode.TrackingCompass : mapbox.MyLocationTrackingMode.None);
+              mapboxMapController.updateMyLocationTrackingMode({
+                MapCenterState.none: mapbox.MyLocationTrackingMode.None,
+                MapCenterState.centered: mapbox.MyLocationTrackingMode.Tracking,
+                MapCenterState.gps: mapbox.MyLocationTrackingMode.TrackingGPS,
+                MapCenterState.compass: mapbox.MyLocationTrackingMode.TrackingCompass,
+              }[mapState.mapCenterState]);
             }
             return mapbox.MapboxMap(
               initialCameraPosition: mapbox.CameraPosition(target: (hike.data == null || hike.data.length == 0) ? mapbox.LatLng(33, 73) : mapbox.LatLng(hike.data[0], hike.data[1]), zoom: 15),
@@ -112,8 +117,14 @@ class MapboxState extends State<Map> {
               styleString: "mapbox://styles/mapbox/outdoors-v11",
               myLocationEnabled: true,
               logoViewMargins: Point(0, height),
-              myLocationTrackingMode: mapbox.MyLocationTrackingMode.Tracking,
+              myLocationTrackingMode: mapbox.MyLocationTrackingMode.None,
               compassViewPosition: mapbox.CompassViewPosition.TopLeft,
+              myLocationRenderMode: {
+                MapCenterState.none: mapbox.MyLocationRenderMode.NORMAL,
+                MapCenterState.centered: mapbox.MyLocationRenderMode.NORMAL,
+                MapCenterState.gps: mapbox.MyLocationRenderMode.GPS,
+                MapCenterState.compass: mapbox.MyLocationRenderMode.COMPASS,
+              }[mapState.mapCenterState],
               onMapCreated: (mapbox.MapboxMapController controller) async {
                 List<mapbox.LatLng> track = [];
                 for(int i = 0; i < hike.data.length-1; i+=2){

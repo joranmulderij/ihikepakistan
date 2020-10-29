@@ -10,6 +10,8 @@ class Hike {
   List<String> photos;
   List<double> data;
   String time;
+  String difficulty;
+  String tags;
   //String startTitle;
   //String endTitle;
   //String startSubTitle;
@@ -27,5 +29,7 @@ class Hike {
     this.photos,
     this.time,
     this.storyShort,
+    this.difficulty,
+    this.tags,
   });
 }

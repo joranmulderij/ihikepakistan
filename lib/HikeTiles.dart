@@ -55,7 +55,7 @@ class HikeTile extends StatelessWidget {
               children: <Widget>[
                 ListTile(
                   title: Text(hike.title),
-                  subtitle: Text(hike.storyShort),
+                  subtitle: Text(hike.difficulty),
                 ),
                 Image.asset(
                   'maps/' + hike.photo,
