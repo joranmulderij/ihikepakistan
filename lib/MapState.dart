@@ -1,4 +1,5 @@
 
+import 'package:background_location/background_location.dart';
 import 'package:maps_toolkit/maps_toolkit.dart' as maps_toolkit;
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ class MapState with ChangeNotifier{
     Stream.periodic(Duration(seconds: 1)).listen((event) {
       setHasLocation(DateTime.now().difference(lastLocationTime) < Duration(seconds: 10));
     });
-    location.Location.instance.onLocationChanged.listen((location.LocationData data) {
+    /*location.Location.instance.onLocationChanged.listen((location.LocationData data) {
       setLocation(
         data.latitude,
         data.longitude,
@@ -20,7 +21,26 @@ class MapState with ChangeNotifier{
         data.accuracy,
         data.speedAccuracy,
       );
-    });
+    });*/
+    BackgroundLocation.getPermissions(
+      onGranted: () {
+        BackgroundLocation.setNotificationTitle('Ihike Pakistan is running.');
+        BackgroundLocation.startLocationService();
+        BackgroundLocation.getLocationUpdates((location) {
+          setLocation(
+            location.latitude,
+            location.longitude,
+            location.altitude,
+            location.speed,
+            location.accuracy,
+            0
+          );
+        });
+      },
+      onDenied: () {
+        // Show a message asking the user to reconsider or do something else
+      },
+    );
   }
 
   final List<double> track;
@@ -140,7 +160,7 @@ class MapState with ChangeNotifier{
       for (int i = 0; i < track.length - 1; i += 2) {
         if (maps_toolkit.SphericalUtil.computeDistanceBetween(
             maps_toolkit.LatLng(_latitude, _longitude),
-            maps_toolkit.LatLng(track[i], track[i + 1])) < 30) inRange = true;
+            maps_toolkit.LatLng(track[i], track[i + 1])) < 50) inRange = true;
       }
       if(!inRange){
         if(_showsNotifications && _onTrack == true){

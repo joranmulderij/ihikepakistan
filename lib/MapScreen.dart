@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:background_location/background_location.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:ihikepakistan/MapBottomSheet.dart';
@@ -56,6 +57,7 @@ class MapboxState extends State<Map> {
   @override
   void dispose() {
     super.dispose();
+    BackgroundLocation.stopLocationService();
   }
 
   @override
