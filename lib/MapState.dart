@@ -1,13 +1,32 @@
 
-import 'package:background_location/background_location.dart';
+import 'dart:async';
+
+import 'package:carp_background_location/carp_background_location.dart';
 import 'package:maps_toolkit/maps_toolkit.dart' as maps_toolkit;
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:toast/toast.dart';
-import 'package:location/location.dart' as location;
+//import 'package:location/location.dart' as location;
+
+
 
 class MapState with ChangeNotifier{
+  LocationManager locationManager = LocationManager.instance;
+  Stream<LocationDto> dtoStream;
+  StreamSubscription<LocationDto> dtoSubscription;
+
+  onData(LocationDto data){
+    setLocation(
+      data.latitude,
+      data.longitude,
+      data.altitude,
+      data.speed*3.6,
+      data.accuracy,
+      data.speedAccuracy,
+    );
+  }
+
   MapState({this.track}){
     Stream.periodic(Duration(seconds: 1)).listen((event) {
       setHasLocation(DateTime.now().difference(lastLocationTime) < Duration(seconds: 10));
@@ -22,25 +41,28 @@ class MapState with ChangeNotifier{
         data.speedAccuracy,
       );
     });*/
-    BackgroundLocation.getPermissions(
-      onGranted: () {
-        BackgroundLocation.setNotificationTitle('Ihike Pakistan is running.');
-        BackgroundLocation.startLocationService();
-        BackgroundLocation.getLocationUpdates((location) {
-          setLocation(
-            location.latitude,
-            location.longitude,
-            location.altitude,
-            location.speed,
-            location.accuracy,
-            0
-          );
-        });
-      },
-      onDenied: () {
-        // Show a message asking the user to reconsider or do something else
-      },
-    );
+
+    locationManager.interval = 1;
+    locationManager.distanceFilter = 0;
+    locationManager.notificationTitle = 'Ihike Pakistan';
+    locationManager.notificationMsg = 'Ihike Pakistan is running.';
+    dtoStream = locationManager.dtoStream;
+    //dtoSubscription = dtoStream.listen(onData);
+    startLocationStream();
+  }
+
+  void startLocationStream() async {
+    // Subscribe if it hasn't been done already
+    if (dtoSubscription != null) {
+      dtoSubscription.cancel();
+    }
+    dtoSubscription = dtoStream.listen(onData);
+    await locationManager.start();
+  }
+
+  void stopLocationStream() async {
+    dtoSubscription.cancel();
+    await locationManager.stop();
   }
 
   final List<double> track;

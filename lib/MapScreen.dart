@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:background_location/background_location.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:ihikepakistan/MapBottomSheet.dart';
@@ -57,7 +56,6 @@ class MapboxState extends State<Map> {
   @override
   void dispose() {
     super.dispose();
-    BackgroundLocation.stopLocationService();
   }
 
   @override
@@ -72,7 +70,11 @@ class MapboxState extends State<Map> {
             RaisedButton(onPressed: (){Navigator.pop(context, false);}, child: Text('No'), color: Colors.amber,),
           ],
         ));
-        FlutterRingtonePlayer.stop();
+        if(willPop){
+          FlutterRingtonePlayer.stop();
+          MapState mapState = context.read<MapState>();
+
+        }
         return willPop;
       },
       child: Stack(

@@ -112,7 +112,7 @@ class BottomSheetState extends State<MapBottomSheet> {
                           ),
                           Expanded(child: Center(child: Text({
                             RecordingState.begin : 'Click Start',
-                            RecordingState.recording : (mapState.hasLocation) ? (mapState.onTrack ? 'Started' : 'Off Track!') : 'No Gps!',
+                            RecordingState.recording : (mapState.hasLocation) ? (mapState.onTrack ? 'Running' : 'Off Track!') : 'No Gps!',
                             RecordingState.paused : 'Paused',
                             RecordingState.finished : 'Finished',
                           }[mapState.recordingState], style: TextStyle(fontSize: 16, color: ((!mapState.hasLocation || !mapState.onTrack) && mapState.recordingState == RecordingState.recording) ? Colors.red : Colors.white,), textAlign: TextAlign.center,),),),
