@@ -101,7 +101,7 @@ class InfoBody extends StatelessWidget {
         SliverAppBar(
           expandedHeight: 250,
           flexibleSpace: Image.asset(
-            hike.photo,
+            'maps/' + hike.photo,
             alignment: Alignment.topCenter,
             fit: BoxFit.cover,
             height: 250,

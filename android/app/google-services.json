@@ -30,6 +30,13 @@
             {
               "client_id": "1080382637840-dpo1qa47kul0vvnpbr58k9sqlq7erou4.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1080382637840-4i4uh75i785eiagvm5tmulevq0p0np9o.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ihikepakistan"
+              }
             }
           ]
         }

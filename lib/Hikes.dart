@@ -1,5 +1,4 @@
 import 'package:ihikepakistan/remoteConfig.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
 
 import 'Hike.dart';
 import 'dart:convert' as convert;
@@ -9,13 +8,13 @@ class Hikes {
     List<Hike> toReturn = [];
     dynamic json = convert.json.decode(MyRemoteConfig.getRemoteConfigValue('hikes'));
     for (var i = 0; i < json.length; i++) {
-      print(json[i]['climb']);
       toReturn.add(Hike(
         height: json[i]['climb'].toString(),
         //heightFeet: json[i]['ascentfeet'].toDouble(),
         //dataString: json[i]['polyline'].toString(),
         title: json[i]['name'].toString(),
-        time: json[i]['time'].toInt().toString()+':'+((json[i]['time']%1)*60).toInt().toString().padLeft(2, '0'),
+        //time: json[i]['time'].toInt().toString()+':'+((json[i]['time']%1)*60).toInt().toString().padLeft(2, '0'),
+        time: json[i]['time'].toString(),
         length: json[i]['length'].toString(),
         //lengthMiles: json[i]['lengthmiles'].toDouble(),
         photo: json[i]['photo'].toString(),

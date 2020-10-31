@@ -1,6 +1,5 @@
 //import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_analytics/observer.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:ihikepakistan/HomeScreen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';

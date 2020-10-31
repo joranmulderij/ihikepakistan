@@ -4,6 +4,7 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:ihikepakistan/Hike.dart';
+import 'package:ihikepakistan/InfoScreen.dart';
 import 'package:ihikepakistan/MHNPMapsScreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:search_page/search_page.dart';
@@ -78,9 +79,34 @@ class HomeState extends State<HomeScreen> {
                 onPressed: () => showSearch(
                   context: context,
                   delegate: SearchPage<Hike>(
-                    builder: (person) => ListTile(
-                      title: Text(person.title),
-                      subtitle: Text(person.difficulty),
+                    builder: (hike) => ListTile(
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                        child: Image.asset(
+                          'maps/' + hike.photo,
+                          fit: BoxFit.cover,
+                          height: 60,
+                          width: 80,
+                          errorBuilder: (BuildContext context, Object object, StackTrace stackTrace){
+                            return Image.network(
+                              hike.photos[0],
+                              fit: BoxFit.cover,
+                              height: 60,
+                              width: 80,
+                            );
+                          },
+                        ),
+                      ),
+                      title: Text(hike.title),
+                      subtitle: Text(hike.difficulty),
+                      onTap: (){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => InfoScreen(hike: hike,),
+                          ),
+                        );
+                      },
                     ),
                     filter: (hike) => [
                       hike.title,

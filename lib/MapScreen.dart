@@ -3,12 +3,12 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:ihikepakistan/MapBottomSheet.dart';
 import 'package:flutter/material.dart';
 import 'package:ihikepakistan/MapState.dart';
 import 'package:provider/provider.dart';
 import 'Hike.dart';
-import 'package:location/location.dart' as location;
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 
 
@@ -44,7 +44,6 @@ class Map extends StatefulWidget {
 class MapboxState extends State<Map> {
   double height = 100;
   final Hike hike;
-  StreamSubscription listener;
   mapbox.MapboxMapController mapboxMapController;
   mapbox.Line myLine;
   MapboxState({this.hike});
@@ -52,94 +51,75 @@ class MapboxState extends State<Map> {
   @override
   void initState() {
     super.initState();
-    Stream.periodic(Duration(seconds: 1)).listen((event) {
-      MapState mapState = context.read<MapState>();
-      mapState.setHasLocation(DateTime.now().difference(mapState.lastLocationTime) < Duration(seconds: 10));
-    });
-    listener = location.Location.instance.onLocationChanged.listen((location.LocationData data) {
-      print(data.altitude);
-      setState(() {
-        MapState mapState = context.read<MapState>();
-        mapState.setLocation(
-          data.latitude,
-          data.longitude,
-          data.altitude,
-          data.speed*3.6,
-          data.accuracy,
-          data.speedAccuracy,
-        );
-      });
-    });
   }
 
   @override
   void dispose() {
     super.dispose();
-    listener.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: [
-        /*map.GoogleMap(
-          initialPosition: map.GeoCoord(33, 73),
-          mapType: map.MapType.roadmap,
-          mobilePreferences: map.MobileMapPreferences(
-            compassEnabled: true,
-            mapToolbarEnabled: true,
-            myLocationButtonEnabled: true,
-            myLocationEnabled: true,
-            zoomControlsEnabled: true,
-          ),
-          webPreferences: map.WebMapPreferences(
-            zoomControl: true,
-            rotateControl: true,
-            dragGestures: true,
-          ),
-        ),*/
-        //MapBottomSheet(),
-        Consumer(
-          builder: (BuildContext context, MapState mapState, Widget widget){
-            if(mapboxMapController != null && myLine != null){
-              mapboxMapController.updateLine(myLine, mapbox.LineOptions(geometry: mapState.mapboxTrack));
-              mapboxMapController.updateMyLocationTrackingMode({
-                MapCenterState.none: mapbox.MyLocationTrackingMode.None,
-                MapCenterState.centered: mapbox.MyLocationTrackingMode.Tracking,
-                MapCenterState.gps: mapbox.MyLocationTrackingMode.TrackingGPS,
-                MapCenterState.compass: mapbox.MyLocationTrackingMode.TrackingCompass,
-              }[mapState.mapCenterState]);
-            }
-            return mapbox.MapboxMap(
-              initialCameraPosition: mapbox.CameraPosition(target: (hike.data == null || hike.data.length == 0) ? mapbox.LatLng(33, 73) : mapbox.LatLng(hike.data[0], hike.data[1]), zoom: 15),
-              accessToken: "pk.eyJ1Ijoiam9yYW4tbXVsZGVyaWoiLCJhIjoiY2tnYXB4cGE1MDlqejJ0a3ptY202eTU4YSJ9.A1HkSrcQ7aAbZ9wfa6p_uQ",
-              styleString: "mapbox://styles/mapbox/outdoors-v11",
-              myLocationEnabled: true,
-              logoViewMargins: Point(0, height),
-              myLocationTrackingMode: mapbox.MyLocationTrackingMode.None,
-              compassViewPosition: mapbox.CompassViewPosition.TopLeft,
-              myLocationRenderMode: {
-                MapCenterState.none: mapbox.MyLocationRenderMode.NORMAL,
-                MapCenterState.centered: mapbox.MyLocationRenderMode.NORMAL,
-                MapCenterState.gps: mapbox.MyLocationRenderMode.GPS,
-                MapCenterState.compass: mapbox.MyLocationRenderMode.COMPASS,
-              }[mapState.mapCenterState],
-              onMapCreated: (mapbox.MapboxMapController controller) async {
-                List<mapbox.LatLng> track = [];
-                for(int i = 0; i < hike.data.length-1; i+=2){
-                  track.add(mapbox.LatLng(hike.data[i], hike.data[i+1]));
+    return WillPopScope(
+      onWillPop: () async {
+        bool willPop = await showDialog(context: context, child: AlertDialog(
+          title: Text('Do you want to leave?'),
+          content: Text('If you leave, all your track data will be lost.'),
+          actions: [
+            FlatButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Yes'),),
+            RaisedButton(onPressed: (){Navigator.pop(context, false);}, child: Text('No'), color: Colors.amber,),
+          ],
+        ));
+        FlutterRingtonePlayer.stop();
+        return willPop;
+      },
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          Consumer(
+              builder: (BuildContext context, MapState mapState, Widget widget){
+                if(mapboxMapController != null && myLine != null){
+                  mapboxMapController.updateLine(myLine, mapbox.LineOptions(geometry: mapState.mapboxTrack));
+                  mapboxMapController.updateMyLocationTrackingMode({
+                    MapCenterState.none: mapbox.MyLocationTrackingMode.None,
+                    MapCenterState.centered: mapbox.MyLocationTrackingMode.Tracking,
+                    MapCenterState.gps: mapbox.MyLocationTrackingMode.TrackingGPS,
+                    MapCenterState.compass: mapbox.MyLocationTrackingMode.TrackingCompass,
+                  }[mapState.mapCenterState]);
                 }
-                await Future.delayed(Duration(seconds: 5));
-                mapboxMapController = controller;
-                controller.addLine(mapbox.LineOptions(geometry: track, lineColor: 'red', lineWidth: 2));
-                myLine = await controller.addLine(mapbox.LineOptions(geometry: mapState.mapboxTrack, lineWidth: 2, lineColor: 'purple'));
-              },
-            );
-          }
-            ),
-        MapBottomSheet(),
-      ],
+                return mapbox.MapboxMap(
+                  initialCameraPosition: mapbox.CameraPosition(target: (hike.data == null || hike.data.length == 0) ? mapbox.LatLng(33, 73) : mapbox.LatLng(hike.data[0], hike.data[1]), zoom: 15),
+                  accessToken: "pk.eyJ1Ijoiam9yYW4tbXVsZGVyaWoiLCJhIjoiY2tnYXB4cGE1MDlqejJ0a3ptY202eTU4YSJ9.A1HkSrcQ7aAbZ9wfa6p_uQ",
+                  styleString: mapState.mapStyle,
+                  myLocationEnabled: true,
+                  logoViewMargins: Point(0, height),
+                  myLocationTrackingMode: mapbox.MyLocationTrackingMode.None,
+                  compassViewPosition: mapbox.CompassViewPosition.TopLeft,
+                  myLocationRenderMode: {
+                    MapCenterState.none: mapbox.MyLocationRenderMode.NORMAL,
+                    MapCenterState.centered: mapbox.MyLocationRenderMode.NORMAL,
+                    MapCenterState.gps: mapbox.MyLocationRenderMode.GPS,
+                    MapCenterState.compass: mapbox.MyLocationRenderMode.COMPASS,
+                  }[mapState.mapCenterState],
+                  onMapCreated: (mapbox.MapboxMapController controller) async {
+                    List<mapbox.LatLng> track = [];
+                    for(int i = 0; i < hike.data.length-1; i+=2){
+                      track.add(mapbox.LatLng(hike.data[i], hike.data[i+1]));
+                    }
+                    await Future.delayed(Duration(seconds: 5));
+                    mapboxMapController = controller;
+                    controller.addLine(mapbox.LineOptions(geometry: track, lineColor: 'red', lineWidth: 2));
+                    myLine = await controller.addLine(mapbox.LineOptions(geometry: mapState.mapboxTrack, lineWidth: 2, lineColor: 'purple'));
+                  },
+                  onStyleLoadedCallback: (){
+                    print('stylecallback');
+                  },
+                );
+              }
+          ),
+          MapBottomSheet(),
+        ],
+      ),
     );
   }
 

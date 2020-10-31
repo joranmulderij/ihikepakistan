@@ -1,10 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:ihikepakistan/GpxProvider.dart';
 import 'package:ihikepakistan/MapState.dart';
 
-import 'AddMarkerDialog.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:share/share.dart';
 import 'ListDialog.dart';
 import 'MapBottomBody.dart';
 import 'package:provider/provider.dart';
+import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 
 class MapBottomSheet extends StatefulWidget {
   MapBottomSheet();
@@ -98,7 +104,7 @@ class BottomSheetState extends State<MapBottomSheet> {
                             child: Text('Finish'),
                             disabledColor: Colors.grey,
                             disabledElevation: 0,
-                            onPressed: (mapState.recordingState != RecordingState.begin && height != 50 && height != 300) ? (){
+                            onPressed: ((mapState.recordingState == RecordingState.recording || mapState.recordingState == RecordingState.paused) && height != 50 && height != 300) ? (){
                               setState(() {
                                 mapState.stopRecording();
                               });
@@ -106,10 +112,10 @@ class BottomSheetState extends State<MapBottomSheet> {
                           ),
                           Expanded(child: Center(child: Text({
                             RecordingState.begin : 'Click Start',
-                            RecordingState.recording : (mapState.hasLocation) ? 'Started' : 'No Gps!',
+                            RecordingState.recording : (mapState.hasLocation) ? (mapState.onTrack ? 'Started' : 'Off Track!') : 'No Gps!',
                             RecordingState.paused : 'Paused',
                             RecordingState.finished : 'Finished',
-                          }[mapState.recordingState], style: TextStyle(fontSize: 16, color: (!mapState.hasLocation && mapState.recordingState == RecordingState.recording) ? Colors.red : Colors.white,), textAlign: TextAlign.center,),),),
+                          }[mapState.recordingState], style: TextStyle(fontSize: 16, color: ((!mapState.hasLocation || !mapState.onTrack) && mapState.recordingState == RecordingState.recording) ? Colors.red : Colors.white,), textAlign: TextAlign.center,),),),
                           RaisedButton(
                             textColor: Colors.white,
                             color: {
@@ -125,7 +131,7 @@ class BottomSheetState extends State<MapBottomSheet> {
                               RecordingState.paused : 'Start',
                               RecordingState.finished : 'Start',
                             }[mapState.recordingState]),
-                            onPressed: (height != 50 && height != 300) ? (){
+                            onPressed: (mapState.recordingState != RecordingState.finished && height != 50 && height != 300) ? (){
                               setState(() {
                                 mapState.startPause();
                               });
@@ -152,8 +158,17 @@ class BottomSheetState extends State<MapBottomSheet> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: <Widget>[
                       IconButton(icon: Icon(Icons.layers, color: Colors.white,), onPressed: height <= 100 ? () async {
-                        int newValue = await ListDialog(title: 'Map Type', context: context, items: ['Normal', 'Sattelite', 'Terrain', 'Streets', 'Offline Map', 'Blank'], currentValue: mapState.mapType).show();
-                        mapState.setMapType(newValue);
+                        List<String> mapStyles = ['Normal', 'Satellite', 'Hybrid', 'Terrain', 'Light', 'Dark'];
+                        List<String> mapStyleUrls = [
+                          mapbox.MapboxStyles.MAPBOX_STREETS,
+                          mapbox.MapboxStyles.SATELLITE,
+                          mapbox.MapboxStyles.SATELLITE_STREETS,
+                          mapbox.MapboxStyles.OUTDOORS,
+                          mapbox.MapboxStyles.LIGHT,
+                          mapbox.MapboxStyles.DARK,
+                        ];
+                        int newIndex = await ListDialog(title: 'Map Type', context: context, items: mapStyles, currentValue: mapState.mapStyleIndex).show();
+                        mapState.setMapType(mapStyleUrls[newIndex], newIndex);
                       } : null, tooltip: 'Set Map Type', highlightColor: Colors.transparent, splashColor: Colors.transparent,),
                       IconButton(
                         icon: Icon({
@@ -177,10 +192,98 @@ class BottomSheetState extends State<MapBottomSheet> {
                           setState(() {
                             mapState.toggleNotifications();
                           });
-                        } : null, tooltip: mapState.showsNotifications ? 'turn Notification Off' : 'turn Notifications On', highlightColor: Colors.transparent, splashColor: Colors.red,),
-                      IconButton(icon: Icon(Icons.add_location, color: Colors.white,), onPressed: height <= 100 ? (){
-                        showDialog(context: context, child: AddMarkerDialog());
-                      } : null, tooltip: 'Add Marker', highlightColor: Colors.transparent, splashColor: Colors.transparent,),
+                        } : null,
+                        tooltip: mapState.showsNotifications ? 'turn Notification Off' : 'turn Notifications On',
+                        highlightColor: Colors.transparent,
+                        splashColor: Colors.red,
+                      ),
+                      PopupMenuButton(itemBuilder: (context) => [
+                        PopupMenuItem(child: Text('Add to Ihike'), value: 'add_to_ihike',),
+                        PopupMenuItem(child: Text('Export to Gpx'), value: 'get_gpx',),
+                        PopupMenuItem(child: Text('Save'), value: 'save',),
+                      ], child: Icon(Icons.more_vert, color: Colors.white,), onSelected: (String value) async {
+                        switch(value){
+                          case 'add_to_ihike':
+                            TextEditingController controller = TextEditingController();
+                            String track = mapState.myTrack.join(', ');
+                            showDialog(context: context, child: SimpleDialog(
+                              contentPadding: EdgeInsets.all(20),
+                              title: Text('Add to Ihike'),
+                              children: [
+                                TextField(controller: controller, keyboardType: TextInputType.emailAddress, decoration: InputDecoration(labelText: 'Email'),),
+                                ButtonBar(children: [
+                                  FlatButton(
+                                      onPressed: (){
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text('Cancel')
+                                  ),
+                                  RaisedButton(onPressed: (){
+                                    Navigator.pop(context);
+                                    http.get('https://script.google.com/macros/s/AKfycbwZObO3dRciDXBpNfC5p6NNexMIEVHQ4vJb4cL__YUN-N-QW1o/exec?track=$track\n${controller.text}').then((value) => {
+                                      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Your track has been sent for review.\nThank you!'), duration: Duration(seconds: 3), backgroundColor: Colors.amber, behavior: SnackBarBehavior.floating,))
+                                    });
+                                  }, child: Text('Submit for review'), color: Colors.amber,),
+                                ],)
+                              ],
+                            ));
+                            break;
+                          case 'get_gpx':
+                            TextEditingController controller = TextEditingController();
+                            showDialog(context: context, child: SimpleDialog(
+                              contentPadding: EdgeInsets.all(20),
+                              title: Text('Export Gpx'),
+                              children: [
+                                TextField(controller: controller, keyboardType: TextInputType.text, decoration: InputDecoration(labelText: 'Name'),),
+                                ButtonBar(children: [
+                                  FlatButton(
+                                      onPressed: (){
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text('Cancel')
+                                  ),
+                                  RaisedButton(onPressed: () async {
+                                    Directory appDocDir = await getApplicationDocumentsDirectory();
+                                    File file = File(appDocDir.path + '/${controller.text}.gpx');
+                                    RandomAccessFile accessFile = await file.open(mode: FileMode.write);
+                                    await accessFile.writeString(GpxProvider.getGpx(mapState.myTrack, controller.text));
+                                    await accessFile.close();
+                                    Share.shareFiles([file.path]);
+                                    Navigator.pop(context);
+                                  }, child: Text('Export'), color: Colors.amber,),
+                                ],),
+                              ],
+                            ));
+                            break;
+                          case 'save':
+                            TextEditingController controller = TextEditingController();
+                            showDialog(context: context, child: SimpleDialog(
+                              contentPadding: EdgeInsets.all(20),
+                              title: Text('Save'),
+                              children: [
+                                TextField(controller: controller, keyboardType: TextInputType.text, decoration: InputDecoration(labelText: 'Name'),),
+                                ButtonBar(children: [
+                                  FlatButton(
+                                      onPressed: (){
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text('Cancel')
+                                  ),
+                                  RaisedButton(onPressed: () async {
+                                    Directory appDocDir = await getApplicationDocumentsDirectory();
+                                    File file = File(appDocDir.path + '/${controller.text}.gpx');
+                                    RandomAccessFile accessFile = await file.open(mode: FileMode.write);
+                                    await accessFile.writeString(GpxProvider.getGpx(mapState.myTrack, controller.text));
+                                    await accessFile.close();
+                                    Navigator.pop(context);
+                                    Scaffold.of(context).showSnackBar(SnackBar(content: Text('Your track has been saved. In future updates of the app, you will be able to view tracks.\nBe a little patient...'), duration: Duration(seconds: 5), backgroundColor: Colors.amber, behavior: SnackBarBehavior.floating,));
+                                  }, child: Text('Save'), color: Colors.amber,),
+                                ],),
+                              ],
+                            ));
+                            break;
+                        }
+                      },)
                     ],
                   ),
                 ),
@@ -192,3 +295,15 @@ class BottomSheetState extends State<MapBottomSheet> {
     );
   }
 }
+
+
+/*
+
+                            Directory appDocDir = await getApplicationDocumentsDirectory();
+                            File file = File(appDocDir.path + '/temp_gpx.gpx');
+                            RandomAccessFile accessFile = await file.open(mode: FileMode.write);
+                            accessFile.writeString('string');
+                            Share.shareFiles([file.path], );
+
+
+ */
