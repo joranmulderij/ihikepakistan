@@ -14,7 +14,6 @@ class MyApp extends StatelessWidget {
 //  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   final FirebaseAnalytics analytics = FirebaseAnalytics();
   MyApp(){
-//    _firebaseMessaging.getToken().then((value) => print(value));
   }
 
   @override

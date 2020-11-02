@@ -66,8 +66,8 @@ class MapboxState extends State<Map> {
           title: Text('Do you want to leave?'),
           content: Text('If you leave, all your track data will be lost.'),
           actions: [
-            FlatButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Yes'),),
-            RaisedButton(onPressed: (){Navigator.pop(context, false);}, child: Text('No'), color: Colors.amber,),
+            OutlineButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Yes'), borderSide: BorderSide(color: Colors.amber),),
+            FlatButton(onPressed: (){Navigator.pop(context, false);}, child: Text('No'), color: Colors.amber, textColor: Colors.black,),
           ],
         ));
         if(willPop){
@@ -113,10 +113,7 @@ class MapboxState extends State<Map> {
                     await Future.delayed(Duration(seconds: 5));
                     mapboxMapController = controller;
                     controller.addLine(mapbox.LineOptions(geometry: track, lineColor: 'red', lineWidth: 2));
-                    myLine = await controller.addLine(mapbox.LineOptions(geometry: mapState.mapboxTrack, lineWidth: 2, lineColor: 'purple'));
-                  },
-                  onStyleLoadedCallback: (){
-                    print('stylecallback');
+                    myLine = await controller.addLine(mapbox.LineOptions(geometry: mapState.mapboxTrack, lineWidth: 2, lineColor: '#FFA000'));
                   },
                 );
               }
@@ -161,7 +158,6 @@ Widget getMap(Hike hike) {
       }
     }
 
-    print(triangleCoords);
 
     map.Polyline(
       map.PolylineOptions()

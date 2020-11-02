@@ -190,9 +190,6 @@ class SettingsTileState extends State<SettingsTile> {
       this.subtitle});
 
   Widget build(BuildContext context) {
-    //print(title);
-    //print(subtitle);
-    //return Text('sdfsdf');
     if (type == 'switch') {
       return SwitchListTile(
         title: Text(title),

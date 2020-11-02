@@ -17,7 +17,6 @@ class MyRemoteConfig {
     if (remoteConfig == null) {
       return remoteConfigConstValues[valueName];
     }
-    print(remoteConfig.getString('categories'));
     return remoteConfig.getString(valueName);
   }
 }

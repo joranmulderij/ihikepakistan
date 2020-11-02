@@ -68,7 +68,6 @@ class HomeState extends State<HomeScreen> {
             .decode(MyRemoteConfig.getRemoteConfigValue('category_breakpoints')));
         categories = List.from(convert.json
             .decode(MyRemoteConfig.getRemoteConfigValue('categories')));
-        print(categories);
         return Scaffold(
           backgroundColor: Color(0xfffff3d6),
           appBar: AppBar(

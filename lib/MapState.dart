@@ -21,13 +21,15 @@ class MapState with ChangeNotifier {
       data.speed * 3.6,
       data.accuracy,
       data.speedAccuracy,
+      data.heading
     );
   }
 
   MapState({this.track}) {
     Stream.periodic(Duration(seconds: 1)).listen((event) {
       setHasLocation(
-          DateTime.now().difference(lastLocationTime) < Duration(seconds: 10));
+          DateTime.now().difference(_lastLocationTime) < Duration(seconds: 30));
+      _totalTime = (recordingState == RecordingState.recording) ? DateTime.now().difference(_startTime) : Duration(seconds: 0);
     });
     /*location.Location.instance.onLocationChanged.listen((location.LocationData data) {
       setLocation(
@@ -41,7 +43,9 @@ class MapState with ChangeNotifier {
     });*/
 
     locationManager.interval = 1;
-    locationManager.distanceFilter = 2;
+    locationManager.distanceFilter = 0;
+    //TODO:locationaccuracy
+    //locationManager.accuracy = LocationAccuracy.HIGH;
     locationManager.notificationTitle = 'Ihike Pakistan';
     locationManager.notificationMsg = 'Ihike Pakistan is running.';
     dtoStream = locationManager.dtoStream;
@@ -84,6 +88,7 @@ class MapState with ChangeNotifier {
   bool _hasLocation = false;
   Duration _totalTime = Duration(seconds: 0);
   Duration _movingTime = Duration(seconds: 0);
+  Duration _pauseTime = Duration(seconds: 0);
   double _distanceWalked = 0;
   MapCenterState _mapCenterState = MapCenterState.none;
   bool _showsNotifications = true;
@@ -94,9 +99,8 @@ class MapState with ChangeNotifier {
   int _mapStyleIndex = 0;
   List<mapbox.LatLng> mapboxTrack = [];
   List<double> _myTrack = [];
-  double _speedSum = 0;
-  double _speedWMovingSum = 0;
   double _altitudeSum = 0;
+  bool _hasFirstLocation = false;
 
   bool get showsNotifications => _showsNotifications;
   RecordingState get recordingState => _recordingState;
@@ -119,9 +123,9 @@ class MapState with ChangeNotifier {
   DateTime get startTime => _startTime;
   Duration get totalTime => _totalTime;
   Duration get movingTime => _movingTime;
-  Duration get pauseTime => _totalTime - _movingTime;
+  Duration get pauseTime => _pauseTime;
   double get percentageTimeMoving =>
-      _movingTime.inSeconds / _totalTime.inSeconds * 100;
+      _movingTime.inSeconds / (_movingTime.inSeconds + _pauseTime.inSeconds) * 100;
   double get distanceWalked => _distanceWalked;
   bool get hasLocation => _hasLocation;
   DateTime get lastLocationTime => _lastLocationTime;
@@ -142,38 +146,36 @@ class MapState with ChangeNotifier {
     notifyListeners();
   }
 
-  void setLocation(double lat, double lng, double alt, double spd, double acc,
-      double spdacc) {
-    if (_latitude != null && _longitude != null) {
-      if (maps_toolkit.SphericalUtil.computeDistanceBetween(
-              maps_toolkit.LatLng(_latitude, _longitude),
-              maps_toolkit.LatLng(lat, lng)) >
-          3)
-        _headingAngle = maps_toolkit.SphericalUtil.computeHeading(
-            maps_toolkit.LatLng(_latitude, _longitude),
-            maps_toolkit.LatLng(lat, lng));
-      else
-        _headingAngle = null;
+  void setLocation(double lat, double lng, double alt, double spd, double acc, double spdacc, double heading) {
+    if(_myTrack.length >= 2 ? maps_toolkit.SphericalUtil.computeDistanceBetween(
+        maps_toolkit.LatLng(_myTrack[_myTrack.length-2], _myTrack[_myTrack.length-1]),
+        maps_toolkit.LatLng(lat, lng)) < 5 : false) {
+      print('Remove Node!!!!!!!!!!!!!!!!!');
+      if(_recordingState == RecordingState.recording)
+        _pauseTime += DateTime.now().difference(_lastLocationTime);
+      _lastLocationTime = DateTime.now();
+      return;
+    } else {
+      print('Add Node!!!!!!!!!!!!!!!!!!');
+      if(_recordingState == RecordingState.recording)
+        _movingTime += DateTime.now().difference(_lastLocationTime);
+      _lastLocationTime = DateTime.now();
     }
-    if (recordingState == RecordingState.recording) {
+    _headingAngle = heading;
+    if (recordingState == RecordingState.recording && _hasFirstLocation) {
       _wayPoints++;
-      _speedSum += spd;
-      if (spd >= 1) _speedWMovingSum += spd;
       _altitudeSum += alt;
-      _averageAltitude = _altitudeSum / wayPoints;
-      _averageSpeed = _speedSum / wayPoints;
-      _averageSpeedWhileMoving = _speedWMovingSum / wayPoints;
+      _averageAltitude = _altitudeSum / _wayPoints;
+      _averageSpeed = _distanceWalked / _totalTime.inHours;
+      _averageSpeedWhileMoving = _distanceWalked / _movingTime.inHours;
       mapboxTrack.add(mapbox.LatLng(lat, lng));
       _myTrack.add(lat);
       _myTrack.add(lng);
       _distanceWalked += maps_toolkit.SphericalUtil.computeDistanceBetween(
               maps_toolkit.LatLng(_latitude, _longitude),
-              maps_toolkit.LatLng(lat, lng)) /
-          1000;
-      if (_altitude > alt)
-        _ascent += _altitude - alt;
-      else
-        _descent += alt - _altitude;
+              maps_toolkit.LatLng(lat, lng)) / 1000;
+      if (_altitude > alt) _ascent += _altitude - alt;
+      else _descent += alt - _altitude;
       if (spd > (_maxSpeed ?? double.minPositive)) _maxSpeed = spd;
       if (alt > (_maxAltitude ?? double.minPositive)) _maxAltitude = alt;
       if (alt < (_minAltitude ?? double.maxFinite)) _minAltitude = alt;
@@ -181,8 +183,7 @@ class MapState with ChangeNotifier {
       for (int i = 0; i < track.length - 1; i += 2) {
         if (maps_toolkit.SphericalUtil.computeDistanceBetween(
                 maps_toolkit.LatLng(_latitude, _longitude),
-                maps_toolkit.LatLng(track[i], track[i + 1])) <
-            50) inRange = true;
+                maps_toolkit.LatLng(track[i], track[i + 1])) < 50) inRange = true;
       }
       if (!inRange) {
         if (_showsNotifications && _onTrack == true) {
@@ -203,7 +204,7 @@ class MapState with ChangeNotifier {
     _accuracy = acc;
     _speedAccuracy = spdacc;
     _hasLocation = true;
-    _lastLocationTime = DateTime.now();
+    _hasFirstLocation = true;
     notifyListeners();
   }
 
@@ -224,6 +225,7 @@ class MapState with ChangeNotifier {
 
   void startPause() {
     if (_recordingState == RecordingState.begin) {
+      _startTime = DateTime.now();
       _recordingState = RecordingState.recording;
       if (!_onTrack && _showsNotifications) playAlarm();
     } else if (_recordingState == RecordingState.recording) {

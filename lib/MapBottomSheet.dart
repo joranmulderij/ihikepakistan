@@ -200,7 +200,7 @@ class BottomSheetState extends State<MapBottomSheet> {
                       PopupMenuButton(itemBuilder: (context) => [
                         PopupMenuItem(child: Text('Add to Ihike'), value: 'add_to_ihike',),
                         PopupMenuItem(child: Text('Export to Gpx'), value: 'get_gpx',),
-                        PopupMenuItem(child: Text('Save'), value: 'save',),
+                        //PopupMenuItem(child: Text('Save'), value: 'save',),
                       ], child: Icon(Icons.more_vert, color: Colors.white,), onSelected: (String value) async {
                         switch(value){
                           case 'add_to_ihike':
