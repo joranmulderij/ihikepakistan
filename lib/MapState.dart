@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:carp_background_location/carp_background_location.dart';
@@ -9,27 +8,26 @@ import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:toast/toast.dart';
 //import 'package:location/location.dart' as location;
 
-
-
-class MapState with ChangeNotifier{
+class MapState with ChangeNotifier {
   LocationManager locationManager = LocationManager.instance;
   Stream<LocationDto> dtoStream;
   StreamSubscription<LocationDto> dtoSubscription;
 
-  onData(LocationDto data){
+  onData(LocationDto data) {
     setLocation(
       data.latitude,
       data.longitude,
       data.altitude,
-      data.speed*3.6,
+      data.speed * 3.6,
       data.accuracy,
       data.speedAccuracy,
     );
   }
 
-  MapState({this.track}){
+  MapState({this.track}) {
     Stream.periodic(Duration(seconds: 1)).listen((event) {
-      setHasLocation(DateTime.now().difference(lastLocationTime) < Duration(seconds: 10));
+      setHasLocation(
+          DateTime.now().difference(lastLocationTime) < Duration(seconds: 10));
     });
     /*location.Location.instance.onLocationChanged.listen((location.LocationData data) {
       setLocation(
@@ -43,7 +41,7 @@ class MapState with ChangeNotifier{
     });*/
 
     locationManager.interval = 1;
-    locationManager.distanceFilter = 0;
+    locationManager.distanceFilter = 2;
     locationManager.notificationTitle = 'Ihike Pakistan';
     locationManager.notificationMsg = 'Ihike Pakistan is running.';
     dtoStream = locationManager.dtoStream;
@@ -100,8 +98,6 @@ class MapState with ChangeNotifier{
   double _speedWMovingSum = 0;
   double _altitudeSum = 0;
 
-
-
   bool get showsNotifications => _showsNotifications;
   RecordingState get recordingState => _recordingState;
   double get latitude => _hasLocation ? _latitude : null;
@@ -124,7 +120,8 @@ class MapState with ChangeNotifier{
   Duration get totalTime => _totalTime;
   Duration get movingTime => _movingTime;
   Duration get pauseTime => _totalTime - _movingTime;
-  double get percentageTimeMoving => _movingTime.inSeconds / _totalTime.inSeconds * 100;
+  double get percentageTimeMoving =>
+      _movingTime.inSeconds / _totalTime.inSeconds * 100;
   double get distanceWalked => _distanceWalked;
   bool get hasLocation => _hasLocation;
   DateTime get lastLocationTime => _lastLocationTime;
@@ -134,32 +131,34 @@ class MapState with ChangeNotifier{
   int get mapStyleIndex => _mapStyleIndex;
   List<double> get myTrack => _myTrack;
 
-  void setMapType(String newValue, int newIndex){
+  void setMapType(String newValue, int newIndex) {
     _mapStyle = newValue;
     _mapStyleIndex = newIndex;
     notifyListeners();
   }
 
-  void setHasLocation(bool has){
+  void setHasLocation(bool has) {
     _hasLocation = has;
     notifyListeners();
   }
 
-  void setLocation(double lat, double lng, double alt, double spd, double acc, double spdacc){
-    if(_latitude != null && _longitude != null) {
+  void setLocation(double lat, double lng, double alt, double spd, double acc,
+      double spdacc) {
+    if (_latitude != null && _longitude != null) {
       if (maps_toolkit.SphericalUtil.computeDistanceBetween(
-          maps_toolkit.LatLng(_latitude, _longitude),
-          maps_toolkit.LatLng(lat, lng)) > 3)
+              maps_toolkit.LatLng(_latitude, _longitude),
+              maps_toolkit.LatLng(lat, lng)) >
+          3)
         _headingAngle = maps_toolkit.SphericalUtil.computeHeading(
             maps_toolkit.LatLng(_latitude, _longitude),
             maps_toolkit.LatLng(lat, lng));
       else
         _headingAngle = null;
     }
-    if(recordingState == RecordingState.recording){
+    if (recordingState == RecordingState.recording) {
       _wayPoints++;
       _speedSum += spd;
-      if(spd >= 1) _speedWMovingSum += spd;
+      if (spd >= 1) _speedWMovingSum += spd;
       _altitudeSum += alt;
       _averageAltitude = _altitudeSum / wayPoints;
       _averageSpeed = _speedSum / wayPoints;
@@ -167,30 +166,31 @@ class MapState with ChangeNotifier{
       mapboxTrack.add(mapbox.LatLng(lat, lng));
       _myTrack.add(lat);
       _myTrack.add(lng);
-      _distanceWalked += maps_toolkit.SphericalUtil.computeDistanceBetween(maps_toolkit.LatLng(_latitude, _longitude), maps_toolkit.LatLng(lat, lng)) / 1000;
-      if(_altitude > alt)
+      _distanceWalked += maps_toolkit.SphericalUtil.computeDistanceBetween(
+              maps_toolkit.LatLng(_latitude, _longitude),
+              maps_toolkit.LatLng(lat, lng)) /
+          1000;
+      if (_altitude > alt)
         _ascent += _altitude - alt;
       else
         _descent += alt - _altitude;
-      if(spd > (_maxSpeed??double.minPositive))
-        _maxSpeed = spd;
-      if(alt > (_maxAltitude??double.minPositive))
-        _maxAltitude = alt;
-      if(alt < (_minAltitude??double.maxFinite))
-        _minAltitude = alt;
-      bool inRange = (track??[]).length < 4;
+      if (spd > (_maxSpeed ?? double.minPositive)) _maxSpeed = spd;
+      if (alt > (_maxAltitude ?? double.minPositive)) _maxAltitude = alt;
+      if (alt < (_minAltitude ?? double.maxFinite)) _minAltitude = alt;
+      bool inRange = (track ?? []).length < 4;
       for (int i = 0; i < track.length - 1; i += 2) {
         if (maps_toolkit.SphericalUtil.computeDistanceBetween(
-            maps_toolkit.LatLng(_latitude, _longitude),
-            maps_toolkit.LatLng(track[i], track[i + 1])) < 50) inRange = true;
+                maps_toolkit.LatLng(_latitude, _longitude),
+                maps_toolkit.LatLng(track[i], track[i + 1])) <
+            50) inRange = true;
       }
-      if(!inRange){
-        if(_showsNotifications && _onTrack == true){
+      if (!inRange) {
+        if (_showsNotifications && _onTrack == true) {
           playAlarm();
         }
         _onTrack = false;
       } else {
-        if(_showsNotifications && !_onTrack){
+        if (_showsNotifications && !_onTrack) {
           stopAlarm();
         }
         _onTrack = true;
@@ -207,48 +207,50 @@ class MapState with ChangeNotifier{
     notifyListeners();
   }
 
-  void playAlarm(){
+  void playAlarm() {
     FlutterRingtonePlayer.play(
-        android: AndroidSounds.alarm, ios: IosSounds.alarm
-    );
+        android: AndroidSounds.alarm, ios: IosSounds.alarm);
   }
 
-  void stopAlarm(){
+  void stopAlarm() {
     FlutterRingtonePlayer.stop();
   }
 
-  void stopRecording(){
+  void stopRecording() {
     _recordingState = RecordingState.finished;
     stopAlarm();
     notifyListeners();
   }
 
-  void startPause(){
-    if(_recordingState == RecordingState.begin){
+  void startPause() {
+    if (_recordingState == RecordingState.begin) {
       _recordingState = RecordingState.recording;
-      if(!_onTrack && _showsNotifications) playAlarm();
-    }
-    else if(_recordingState == RecordingState.recording){
+      if (!_onTrack && _showsNotifications) playAlarm();
+    } else if (_recordingState == RecordingState.recording) {
       _recordingState = RecordingState.paused;
       stopAlarm();
-    }
-    else if(_recordingState == RecordingState.paused){
+    } else if (_recordingState == RecordingState.paused) {
       _recordingState = RecordingState.recording;
-      if(!_onTrack && _showsNotifications) playAlarm();
+      if (!_onTrack && _showsNotifications) playAlarm();
     }
     notifyListeners();
   }
-  void toggleNotifications(){
+
+  void toggleNotifications() {
     _showsNotifications = !_showsNotifications;
-    if(!_showsNotifications) stopAlarm();
-    if(_showsNotifications && !_onTrack && _recordingState == RecordingState.recording) playAlarm();
+    if (!_showsNotifications) stopAlarm();
+    if (_showsNotifications &&
+        !_onTrack &&
+        _recordingState == RecordingState.recording) playAlarm();
     notifyListeners();
   }
-  void toggleIsCentered(context){
-    switch(_mapCenterState){
+
+  void toggleIsCentered(context) {
+    switch (_mapCenterState) {
       case MapCenterState.none:
         _mapCenterState = MapCenterState.centered;
-        Toast.show('Map Center Mode:\nCentered (no rotation)', context, duration: 3);
+        Toast.show('Map Center Mode:\nCentered (no rotation)', context,
+            duration: 3);
         break;
       case MapCenterState.centered:
         _mapCenterState = MapCenterState.gps;
@@ -267,20 +269,18 @@ class MapState with ChangeNotifier{
   }
 }
 
-enum RecordingState{
+enum RecordingState {
   begin,
   recording,
   paused,
   finished,
 }
 
-enum MapCenterState{
+enum MapCenterState {
   none,
   centered,
   compass,
   gps,
 }
 
-enum MapType{
-  normal
-}
+enum MapType { normal }

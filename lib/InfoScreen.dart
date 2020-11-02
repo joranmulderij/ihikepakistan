@@ -131,7 +131,7 @@ class InfoBody extends StatelessWidget {
                 ListTile(
                   leading: Icon(Icons.map),
                   title: Text(
-                    'Go To Map',
+                    'Navigate',
                   ),
                   trailing: Icon(Icons.navigate_next),
                   onTap: () {

@@ -73,7 +73,7 @@ class MapboxState extends State<Map> {
         if(willPop){
           FlutterRingtonePlayer.stop();
           MapState mapState = context.read<MapState>();
-
+          mapState.stopLocationStream();
         }
         return willPop;
       },
