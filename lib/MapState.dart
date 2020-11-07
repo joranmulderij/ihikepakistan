@@ -149,7 +149,7 @@ class MapState with ChangeNotifier {
   void setLocation(double lat, double lng, double alt, double spd, double acc, double spdacc, double heading) {
     if(_myTrack.length >= 2 ? maps_toolkit.SphericalUtil.computeDistanceBetween(
         maps_toolkit.LatLng(_myTrack[_myTrack.length-2], _myTrack[_myTrack.length-1]),
-        maps_toolkit.LatLng(lat, lng)) < 5 : false) {
+        maps_toolkit.LatLng(lat, lng)) < 5 : true) {
       print('Remove Node!!!!!!!!!!!!!!!!!');
       if(_recordingState == RecordingState.recording)
         _pauseTime += DateTime.now().difference(_lastLocationTime);

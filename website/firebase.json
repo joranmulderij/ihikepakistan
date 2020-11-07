@@ -1,0 +1,17 @@
+{
+  "hosting": {
+    "public": "/",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "site": "ihikepakistan",
+    "rewrites": [
+      {
+        "source": "/",
+        "destination": "/home.html"
+      }
+    ]
+  }
+}

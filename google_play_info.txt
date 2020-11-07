@@ -1,0 +1,11 @@
+
+
+Location is accessed in the background to keep you on-track.
+
+An alarm that rings when the user left the path.
+Users will be able to put away their phones, walk the track, and be sure they are still on track because they didn't hear the alarm.
+
+
+To provide the user with a list of tracks and hikes. Then the user will be able to navigate over these tracks. The user will be alerted if they leave the track.
+
+MPCHS E-11/1, MPCHS E 11/1 E-11, Islamabad, Islamabad Capital Territory, Pakistan

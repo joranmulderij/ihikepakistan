@@ -7,6 +7,7 @@ import 'package:ihikepakistan/Hike.dart';
 import 'package:ihikepakistan/InfoScreen.dart';
 import 'package:ihikepakistan/MHNPMapsScreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:ihikepakistan/PurchaseDialog.dart';
 import 'package:search_page/search_page.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 import 'Hikes.dart';
@@ -143,7 +144,11 @@ class HomeState extends State<HomeScreen> {
                           .launch('https://forms.gle/CU2bSZ6DQ2BAZhs17');
                       break;
                     case 'rate':
-                      url_launcher.launch('https://youtube.com/');
+                      //final InAppReview inAppReview = InAppReview.instance;
+
+                      /*if (await inAppReview.isAvailable()) {
+                        inAppReview.requestReview();
+                      }*/
                       break;
                     case 'about':
                       showAboutDialog(
@@ -153,6 +158,9 @@ class HomeState extends State<HomeScreen> {
                         applicationLegalese: 'Hiking in Pakistan made easy.',
                         applicationIcon: Image.asset('assets/logo_small.png'),
                       );
+                      break;
+                    case 'buy':
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => PurchaseDialog()));
                       break;
                   }
                 },
@@ -178,6 +186,10 @@ class HomeState extends State<HomeScreen> {
                     PopupMenuItem(
                       child: Text('About Ihike Pakistan'),
                       value: 'about',
+                    ),
+                    PopupMenuItem(
+                      child: Text('Buy'),
+                      value: 'buy',
                     ),
                   ];
                 },
