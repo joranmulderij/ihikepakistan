@@ -72,7 +72,7 @@ class HomeState extends State<HomeScreen> {
         return Scaffold(
           backgroundColor: Color(0xfffff3d6),
           appBar: AppBar(
-            title: Text('Ihike'),
+            title: Text('Ihike Pakistan'),
             actions: <Widget>[
               IconButton(
                 icon: Icon(Icons.search),

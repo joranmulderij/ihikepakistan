@@ -1,16 +1,18 @@
 import 'dart:async';
 
 import 'package:carp_background_location/carp_background_location.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:maps_toolkit/maps_toolkit.dart' as maps_toolkit;
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:toast/toast.dart';
-//import 'package:location/location.dart' as location;
+import 'package:location/location.dart' as location;
 
 class MapState with ChangeNotifier {
-  LocationManager locationManager = LocationManager.instance;
+  LocationManager locationManager;
   Stream<LocationDto> dtoStream;
+  StreamSubscription<location.LocationData> locationStream;
   StreamSubscription<LocationDto> dtoSubscription;
 
   onData(LocationDto data) {
@@ -31,7 +33,7 @@ class MapState with ChangeNotifier {
           DateTime.now().difference(_lastLocationTime) < Duration(seconds: 30));
       _totalTime = (recordingState == RecordingState.recording) ? DateTime.now().difference(_startTime) : Duration(seconds: 0);
     });
-    /*location.Location.instance.onLocationChanged.listen((location.LocationData data) {
+    locationStream = location.Location.instance.onLocationChanged.listen((location.LocationData data) {
       setLocation(
         data.latitude,
         data.longitude,
@@ -39,21 +41,25 @@ class MapState with ChangeNotifier {
         data.speed*3.6,
         data.accuracy,
         data.speedAccuracy,
+        maps_toolkit.SphericalUtil.computeHeading(maps_toolkit.LatLng(data.latitude, data.longitude),
+            maps_toolkit.LatLng(_myTrack[_myTrack.length-2], _myTrack.last))
       );
-    });*/
+    });
 
-    locationManager.interval = 1;
-    locationManager.distanceFilter = 0;
-    //TODO:locationaccuracy
-    //locationManager.accuracy = LocationAccuracy.HIGH;
-    locationManager.notificationTitle = 'Ihike Pakistan';
-    locationManager.notificationMsg = 'Ihike Pakistan is running.';
-    dtoStream = locationManager.dtoStream;
-    //dtoSubscription = dtoStream.listen(onData);
-    startLocationStream();
+    if(!kIsWeb){
+      locationManager = LocationManager.instance;
+      locationManager.interval = 1;
+      locationManager.distanceFilter = 0;
+      //TODO:locationaccuracy
+      //locationManager.accuracy = LocationAccuracy.HIGH;
+      locationManager.notificationTitle = 'Ihike Pakistan';
+      locationManager.notificationMsg = 'Ihike Pakistan is running.';
+      dtoStream = locationManager.dtoStream;
+    }
   }
 
   void startLocationStream() async {
+    if(!kIsWeb) return;
     // Subscribe if it hasn't been done already
     if (dtoSubscription != null) {
       dtoSubscription.cancel();
@@ -63,6 +69,7 @@ class MapState with ChangeNotifier {
   }
 
   void stopLocationStream() async {
+    if(!kIsWeb) return;
     dtoSubscription.cancel();
     await locationManager.stop();
   }
@@ -225,6 +232,7 @@ class MapState with ChangeNotifier {
 
   void startPause() {
     if (_recordingState == RecordingState.begin) {
+      startLocationStream();
       _startTime = DateTime.now();
       _recordingState = RecordingState.recording;
       if (!_onTrack && _showsNotifications) playAlarm();
