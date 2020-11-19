@@ -125,12 +125,7 @@ class BottomSheetState extends State<MapBottomSheet> {
                               RecordingState.finished : Color(0xff00cc00),
                             }[mapState.recordingState],
                             elevation: 5,
-                            child: Text({
-                              RecordingState.begin : 'Start',
-                              RecordingState.recording : 'Pause',
-                              RecordingState.paused : 'Start',
-                              RecordingState.finished : 'Start',
-                            }[mapState.recordingState]),
+                            child: Text('Start'),
                             onPressed: (mapState.recordingState != RecordingState.finished && height != 50 && height != 300) ? (){
                               setState(() {
                                 mapState.startPause();

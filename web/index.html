@@ -30,6 +30,8 @@
   <!-- TODO: Add SDKs for Firebase products that you want to use
        https://firebase.google.com/docs/web/setup#available-libraries -->
   <script src="https://www.gstatic.com/firebasejs/8.0.1/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.1/firebase-performance.js"></script>
+
 
   <script>
     // Your web app's Firebase configuration
@@ -47,6 +49,18 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();
+    firebase.performance();
+  </script>
+  <script>
+    function getStandalone(){
+      return (window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches);
+    }
+    function isIos(){
+      return /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
+    }
+    function isAndroid(){
+      return window.navigator.userAgent.includes('Android');
+    }
   </script>
   <script>
     if ('serviceWorker' in navigator) {

@@ -1,5 +1,5 @@
 name: ihikepakistan
-description: Hiking in Pakistan made easy.
+description: Pakistans Hiking App
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.3.6+2
+version: 0.3.7+3
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -44,6 +44,7 @@ dependencies:
   carp_background_location: ^1.0.2+1
   in_app_purchase: ^0.3.4+16
   #in_app_review: ^1.0.2
+  js: ^0.6.2
 
 
   flutter:

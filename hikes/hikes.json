@@ -1,7 +1,7 @@
 [
     {
         "climb": "572",
-        "difficulty": "easy",
+        "difficulty": "easy/medium",
         "data": [
             33.74255,
             73.08216,
@@ -230,7 +230,7 @@
         "storyshort": "No description yet:)..."
     },
     {
-        "difficulty": "easy",
+        "difficulty": "medium",
         "climb": "603",
         "data": [
             33.74259,
@@ -681,7 +681,7 @@
     },
     {
         "climb": "686",
-        "difficulty": "easy",
+        "difficulty": "easy/medium",
         "data": [
             33.72885,
             73.02106,
@@ -963,7 +963,7 @@
     },
     {
         "climb": "6",
-        "difficulty": "easy",
+        "difficulty": "very easy",
         "data": [
             33.69581,
             72.97063,
@@ -1010,7 +1010,7 @@
         "storyshort": "No description yet:)..."
     },
     {
-        "difficulty": "easy",
+        "difficulty": "easy/medium",
         "climb": "375",
         "data": [
             33.817,
@@ -1267,7 +1267,7 @@
     },
     {
         "climb": "841",
-        "difficulty": "easy",
+        "difficulty": "medium/difficult",
         "data": [
             33.72162,
             72.91508,
@@ -1997,7 +1997,7 @@
     },
     {
         "climb": "744",
-        "difficulty": "easy",
+        "difficulty": "medium",
         "data": [
             33.74489,
             73.08738,
@@ -2206,7 +2206,7 @@
         "storyshort": "No description yet:)..."
     },
     {
-        "difficulty": "easy",
+        "difficulty": "easy/medium",
         "climb": "504",
         "data": [
             33.74489,
@@ -2479,7 +2479,7 @@
     },
     {
         "climb": "517",
-        "difficulty": "easy",
+        "difficulty": "easy/medium",
         "data": [
             33.74492,
             73.0874,
@@ -2809,7 +2809,7 @@
     },
     {
         "climb": "522",
-        "difficulty": "easy",
+        "difficulty": "easy/medium",
         "data": [
             33.74492,
             73.0874,
@@ -3024,7 +3024,7 @@
         "storyshort": "No description yet:)..."
     },
     {
-        "difficulty": "easy",
+        "difficulty": "easy/medium",
         "climb": "560",
         "data": [
             33.7449,

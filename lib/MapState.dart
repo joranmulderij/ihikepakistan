@@ -16,37 +16,37 @@ class MapState with ChangeNotifier {
   StreamSubscription<LocationDto> dtoSubscription;
 
   onData(LocationDto data) {
-    setLocation(
-      data.latitude,
-      data.longitude,
-      data.altitude,
-      data.speed * 3.6,
-      data.accuracy,
-      data.speedAccuracy,
-      data.heading
-    );
+    setLocation(data.latitude, data.longitude, data.altitude, data.speed * 3.6,
+        data.accuracy, data.speedAccuracy, data.heading);
   }
 
   MapState({this.track}) {
     Stream.periodic(Duration(seconds: 1)).listen((event) {
       setHasLocation(
           DateTime.now().difference(_lastLocationTime) < Duration(seconds: 30));
-      _totalTime = (recordingState == RecordingState.recording) ? DateTime.now().difference(_startTime) : Duration(seconds: 0);
+      _totalTime = (recordingState == RecordingState.recording)
+          ? DateTime.now().difference(_startTime)
+          : Duration(seconds: 0);
     });
-    locationStream = location.Location.instance.onLocationChanged.listen((location.LocationData data) {
+    locationStream = location.Location.instance.onLocationChanged
+        .listen((location.LocationData data) {
       setLocation(
         data.latitude,
         data.longitude,
         data.altitude,
-        data.speed*3.6,
+        data.speed * 3.6,
         data.accuracy,
         data.speedAccuracy,
-        maps_toolkit.SphericalUtil.computeHeading(maps_toolkit.LatLng(data.latitude, data.longitude),
-            maps_toolkit.LatLng(_myTrack[_myTrack.length-2], _myTrack.last))
+        (_myTrack.length >= 2)
+            ? maps_toolkit.SphericalUtil.computeHeading(
+                maps_toolkit.LatLng(data.latitude, data.longitude),
+                maps_toolkit.LatLng(
+                    _myTrack[_myTrack.length - 2], _myTrack.last))
+            : null,
       );
     });
 
-    if(!kIsWeb){
+    if (!kIsWeb) {
       locationManager = LocationManager.instance;
       locationManager.interval = 1;
       locationManager.distanceFilter = 0;
@@ -59,7 +59,7 @@ class MapState with ChangeNotifier {
   }
 
   void startLocationStream() async {
-    if(!kIsWeb) return;
+    if (kIsWeb) return;
     // Subscribe if it hasn't been done already
     if (dtoSubscription != null) {
       dtoSubscription.cancel();
@@ -69,9 +69,10 @@ class MapState with ChangeNotifier {
   }
 
   void stopLocationStream() async {
-    if(!kIsWeb) return;
+    if (kIsWeb) return;
     dtoSubscription.cancel();
     await locationManager.stop();
+    locationStream.cancel();
   }
 
   final List<double> track;
@@ -132,7 +133,9 @@ class MapState with ChangeNotifier {
   Duration get movingTime => _movingTime;
   Duration get pauseTime => _pauseTime;
   double get percentageTimeMoving =>
-      _movingTime.inSeconds / (_movingTime.inSeconds + _pauseTime.inSeconds) * 100;
+      _movingTime.inSeconds /
+      (_movingTime.inSeconds + _pauseTime.inSeconds) *
+      100;
   double get distanceWalked => _distanceWalked;
   bool get hasLocation => _hasLocation;
   DateTime get lastLocationTime => _lastLocationTime;
@@ -153,18 +156,24 @@ class MapState with ChangeNotifier {
     notifyListeners();
   }
 
-  void setLocation(double lat, double lng, double alt, double spd, double acc, double spdacc, double heading) {
-    if(_myTrack.length >= 2 ? maps_toolkit.SphericalUtil.computeDistanceBetween(
-        maps_toolkit.LatLng(_myTrack[_myTrack.length-2], _myTrack[_myTrack.length-1]),
-        maps_toolkit.LatLng(lat, lng)) < 5 : true) {
+  void setLocation(double lat, double lng, double alt, double spd, double acc,
+      double spdacc, double heading) {
+    print(lat);
+    if (_myTrack.length >= 2
+        ? maps_toolkit.SphericalUtil.computeDistanceBetween(
+                maps_toolkit.LatLng(_myTrack[_myTrack.length - 2],
+                    _myTrack[_myTrack.length - 1]),
+                maps_toolkit.LatLng(lat, lng)) <
+            5
+        : true) {
       print('Remove Node!!!!!!!!!!!!!!!!!');
-      if(_recordingState == RecordingState.recording)
+      if (_recordingState == RecordingState.recording)
         _pauseTime += DateTime.now().difference(_lastLocationTime);
       _lastLocationTime = DateTime.now();
       return;
     } else {
       print('Add Node!!!!!!!!!!!!!!!!!!');
-      if(_recordingState == RecordingState.recording)
+      if (_recordingState == RecordingState.recording)
         _movingTime += DateTime.now().difference(_lastLocationTime);
       _lastLocationTime = DateTime.now();
     }
@@ -180,9 +189,12 @@ class MapState with ChangeNotifier {
       _myTrack.add(lng);
       _distanceWalked += maps_toolkit.SphericalUtil.computeDistanceBetween(
               maps_toolkit.LatLng(_latitude, _longitude),
-              maps_toolkit.LatLng(lat, lng)) / 1000;
-      if (_altitude > alt) _ascent += _altitude - alt;
-      else _descent += alt - _altitude;
+              maps_toolkit.LatLng(lat, lng)) /
+          1000;
+      if (_altitude > alt)
+        _ascent += _altitude - alt;
+      else
+        _descent += alt - _altitude;
       if (spd > (_maxSpeed ?? double.minPositive)) _maxSpeed = spd;
       if (alt > (_maxAltitude ?? double.minPositive)) _maxAltitude = alt;
       if (alt < (_minAltitude ?? double.maxFinite)) _minAltitude = alt;
@@ -190,7 +202,8 @@ class MapState with ChangeNotifier {
       for (int i = 0; i < track.length - 1; i += 2) {
         if (maps_toolkit.SphericalUtil.computeDistanceBetween(
                 maps_toolkit.LatLng(_latitude, _longitude),
-                maps_toolkit.LatLng(track[i], track[i + 1])) < 50) inRange = true;
+                maps_toolkit.LatLng(track[i], track[i + 1])) <
+            50) inRange = true;
       }
       if (!inRange) {
         if (_showsNotifications && _onTrack == true) {
@@ -228,6 +241,7 @@ class MapState with ChangeNotifier {
     _recordingState = RecordingState.finished;
     stopAlarm();
     notifyListeners();
+    stopLocationStream();
   }
 
   void startPause() {

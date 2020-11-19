@@ -1,13 +1,20 @@
 {
-    "name": "ihikepakistan",
-    "short_name": "ihikepakistan",
+    "name": "Ihike Pakistan",
+    "short_name": "Ihike Pakistan",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#ffffff",
+    "theme_color": "#006600",
+    "description": "Pakistans Hiking App",
     "orientation": "portrait-primary",
-    "prefer_related_applications": false,
+    "prefer_related_applications": true,
+    "related_applications": [
+        {
+            "platform": "play",
+            "url": "https://play.google.com/store/apps/details?id=com.ihikepakistan",
+            "id": "com.ihikepakistan"
+        }
+    ],
     "icons": [
         {
             "src": "icons/Icon-192.png",
