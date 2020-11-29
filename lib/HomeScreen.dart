@@ -1,10 +1,7 @@
-@js.JS()
-library get_standalone;
-
-import 'dart:io';
+/*@js.JS()
+library get_standalone;*/
 
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
@@ -22,14 +19,18 @@ import 'MapScreen.dart' as mapScreen;
 import 'HikeTiles.dart';
 import 'dart:convert' as convert;
 import 'remoteConfig.dart';
-import 'package:js/js.dart' as js;
+//import 'package:js/js.dart' as js;
 
-@js.JS('getStandalone')
+/*@js.JS('getStandalone')
 external bool getStandalone();
 @js.JS('isIos')
 external bool isIos();
 @js.JS('isAndroid')
-external bool isAndroid();
+external bool isAndroid();*/
+
+bool getStandalone() => false;
+bool isIos() => false;
+bool isAndroid() => false;
 
 class HomeScreen extends StatefulWidget {
   HomeState createState() => HomeState();

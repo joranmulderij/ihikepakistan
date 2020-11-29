@@ -16,18 +16,27 @@ class MapState with ChangeNotifier {
   StreamSubscription<LocationDto> dtoSubscription;
 
   onData(LocationDto data) {
+    print(data.latitude);
     setLocation(data.latitude, data.longitude, data.altitude, data.speed * 3.6,
         data.accuracy, data.speedAccuracy, data.heading);
   }
 
   MapState({this.track}) {
-    Stream.periodic(Duration(seconds: 1)).listen((event) {
-      setHasLocation(
-          DateTime.now().difference(_lastLocationTime) < Duration(seconds: 30));
+    /*Stream.periodic(Duration(seconds: 1)).listen((event) {
+      print('sdf');
       _totalTime = (recordingState == RecordingState.recording)
           ? DateTime.now().difference(_startTime)
           : Duration(seconds: 0);
-    });
+      if ((_speed ?? 0) > 3 && _recordingState == RecordingState.recording) {
+        _movingTime += Duration(seconds: 1);
+      } else {
+        _pauseTime += Duration(seconds: 1);
+      }
+      setLocation(33, 73, 250, 4, 20, 10, 70);
+      print('sdf');
+      setHasLocation(
+          DateTime.now().difference(_lastLocationTime) < Duration(seconds: 30));
+    });*/
     locationStream = location.Location.instance.onLocationChanged
         .listen((location.LocationData data) {
       setLocation(
@@ -65,14 +74,12 @@ class MapState with ChangeNotifier {
       dtoSubscription.cancel();
     }
     dtoSubscription = dtoStream.listen(onData);
-    await locationManager.start();
   }
 
   void stopLocationStream() async {
     if (kIsWeb) return;
     dtoSubscription.cancel();
     await locationManager.stop();
-    locationStream.cancel();
   }
 
   final List<double> track;
@@ -86,7 +93,6 @@ class MapState with ChangeNotifier {
   double _averageSpeed;
   double _maxAltitude;
   double _minAltitude;
-  double _averageAltitude;
   double _ascent = 0;
   double _descent = 0;
   double _averageSpeedWhileMoving;
@@ -107,8 +113,6 @@ class MapState with ChangeNotifier {
   int _mapStyleIndex = 0;
   List<mapbox.LatLng> mapboxTrack = [];
   List<double> _myTrack = [];
-  double _altitudeSum = 0;
-  bool _hasFirstLocation = false;
 
   bool get showsNotifications => _showsNotifications;
   RecordingState get recordingState => _recordingState;
@@ -123,7 +127,6 @@ class MapState with ChangeNotifier {
   double get averageSpeedWhileMoving => _averageSpeedWhileMoving;
   double get maxAltitude => _maxAltitude;
   double get minAltitude => _minAltitude;
-  double get averageAltitude => _averageAltitude;
   double get headingAngle => _hasLocation ? _headingAngle : null;
   double get descent => _descent;
   double get ascent => _ascent;
@@ -159,6 +162,7 @@ class MapState with ChangeNotifier {
   void setLocation(double lat, double lng, double alt, double spd, double acc,
       double spdacc, double heading) {
     print(lat);
+    /*print(lat);
     if (_myTrack.length >= 2
         ? maps_toolkit.SphericalUtil.computeDistanceBetween(
                 maps_toolkit.LatLng(_myTrack[_myTrack.length - 2],
@@ -216,7 +220,8 @@ class MapState with ChangeNotifier {
         }
         _onTrack = true;
       }
-    }
+    }*/
+    if (lat == _latitude && lng == _longitude) return;
     _latitude = lat;
     _longitude = lng;
     _altitude = alt;
@@ -224,8 +229,21 @@ class MapState with ChangeNotifier {
     _accuracy = acc;
     _speedAccuracy = spdacc;
     _hasLocation = true;
-    _hasFirstLocation = true;
+    _lastLocationTime = DateTime.now();
+    if (isTooClose() && recordingState == RecordingState.recording) addNode();
     notifyListeners();
+  }
+
+  bool isTooClose() {
+    if (_myTrack.length < 2) return true;
+    return (_myTrack[_myTrack.length - 2] - _latitude) < 2 &&
+        (_myTrack[_myTrack.length - 1] - _longitude) < 2;
+  }
+
+  void addNode() {
+    _myTrack.add(_latitude);
+    _myTrack.add(_longitude);
+    mapboxTrack.add(mapbox.LatLng(_latitude, _longitude));
   }
 
   void playAlarm() {

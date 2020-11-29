@@ -1,0 +1,5 @@
+Ihike Pakistan is a hiking app to help you find your next Hike, and Navigate you over that Hike. It warns you when you have left the right path, records your location, and give you fun statistics.
+
+
+
+To warn users when they left the path, even if the phone is in their pockets.

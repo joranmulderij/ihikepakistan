@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
 
 
 class PurchaseDialog extends StatefulWidget {
@@ -11,10 +10,10 @@ class _PurchaseDialogState extends State<PurchaseDialog> {
   @override
   void initState() {
     super.initState();
-    setup();
+    //setup();
   }
 
-  Future<void> setup() async {
+  /*Future<void> setup() async {
     final bool available = await InAppPurchaseConnection.instance.isAvailable();
     if(available){
       const Set<String> _kIds = {'ihike_premium'};
@@ -32,7 +31,7 @@ class _PurchaseDialogState extends State<PurchaseDialog> {
     else{
       print('not available!!!!!!!!!!!');
     }
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {

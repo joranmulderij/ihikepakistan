@@ -5,10 +5,6 @@ import 'package:provider/provider.dart';
 import 'MapState.dart';
 //import 'package:flutter_compass/flutter_compass.dart';
 
-
-
-
-
 class MapBottomBody extends StatelessWidget {
   final double bottomSheetHeight;
 
@@ -24,27 +20,75 @@ class MapBottomBody extends StatelessWidget {
           children: <Widget>[
             Container(
               color: Theme.of(context).primaryColor,
-              child: Builder(builder: (BuildContext context) => TabBar(
-                labelPadding: EdgeInsets.zero,
-                labelStyle: TextStyle(color: Colors.black),
-                indicatorColor: Colors.amber,
-                tabs: <Widget>[
-                  Tab(child: GestureDetector(child: Text('Distance'), onTap: bottomSheetHeight == 300 ? (){DefaultTabController.of(context).animateTo(0);} : null,),),
-                  Tab(child: GestureDetector(child: Text('Speed'), onTap: bottomSheetHeight == 300 ? (){DefaultTabController.of(context).animateTo(1);} : null,),),
-                  Tab(child: GestureDetector(child: Text('Altitude'), onTap: bottomSheetHeight == 300 ? (){DefaultTabController.of(context).animateTo(2);} : null,),),
-                  Tab(child: GestureDetector(child: Text('Location'), onTap: bottomSheetHeight == 300 ? (){DefaultTabController.of(context).animateTo(3);} : null,),),
-                  Tab(child: GestureDetector(child: Text('Time'), onTap: bottomSheetHeight == 300 ? (){DefaultTabController.of(context).animateTo(4);} : null,),),
-                  /*Tab(text: 'Location',),
+              child: Builder(
+                builder: (BuildContext context) => TabBar(
+                  labelPadding: EdgeInsets.zero,
+                  labelStyle: TextStyle(color: Colors.black),
+                  indicatorColor: Colors.amber,
+                  tabs: <Widget>[
+                    Tab(
+                      child: GestureDetector(
+                        child: Text('Distance'),
+                        onTap: bottomSheetHeight == 300
+                            ? () {
+                                DefaultTabController.of(context).animateTo(0);
+                              }
+                            : null,
+                      ),
+                    ),
+                    Tab(
+                      child: GestureDetector(
+                        child: Text('Speed'),
+                        onTap: bottomSheetHeight == 300
+                            ? () {
+                                DefaultTabController.of(context).animateTo(1);
+                              }
+                            : null,
+                      ),
+                    ),
+                    Tab(
+                      child: GestureDetector(
+                        child: Text('Altitude'),
+                        onTap: bottomSheetHeight == 300
+                            ? () {
+                                DefaultTabController.of(context).animateTo(2);
+                              }
+                            : null,
+                      ),
+                    ),
+                    Tab(
+                      child: GestureDetector(
+                        child: Text('Location'),
+                        onTap: bottomSheetHeight == 300
+                            ? () {
+                                DefaultTabController.of(context).animateTo(3);
+                              }
+                            : null,
+                      ),
+                    ),
+                    Tab(
+                      child: GestureDetector(
+                        child: Text('Time'),
+                        onTap: bottomSheetHeight == 300
+                            ? () {
+                                DefaultTabController.of(context).animateTo(4);
+                              }
+                            : null,
+                      ),
+                    ),
+                    /*Tab(text: 'Location',),
                   Tab(text: 'Altitude',),
                   Tab(text: 'Time',),
                   Tab(text: 'Distance',),*/
-                ],
-                indicatorWeight: 5,
-              ),),
+                  ],
+                  indicatorWeight: 5,
+                ),
+              ),
             ),
             Expanded(
               child: Consumer<MapState>(
-                builder: (BuildContext context, MapState mapState, Widget widget){
+                builder:
+                    (BuildContext context, MapState mapState, Widget widget) {
                   return TabBarView(
                     children: <Widget>[
                       buildPage(
@@ -55,10 +99,11 @@ class MapBottomBody extends StatelessWidget {
                           'Total Descended',
                         ],
                         [
-                          mapState?.distanceWalked?.toStringAsFixed(3)??'0.00',
+                          mapState?.distanceWalked?.toStringAsFixed(3) ??
+                              '0.00',
                           '',
-                          mapState?.ascent?.toStringAsFixed(0)??'0',
-                          mapState?.descent?.toStringAsFixed(0)??'0',
+                          mapState?.ascent?.toStringAsFixed(0) ?? '0',
+                          mapState?.descent?.toStringAsFixed(0) ?? '0',
                         ],
                         [
                           'km',
@@ -75,10 +120,12 @@ class MapBottomBody extends StatelessWidget {
                           'Max Speed',
                         ],
                         [
-                          mapState?.speed?.toStringAsFixed(1)??'NaN',
-                          mapState?.averageSpeed?.toStringAsFixed(1)??'NaN',
-                          mapState?.averageSpeedWhileMoving?.toStringAsFixed(1)??'NaN',
-                          mapState?.maxSpeed?.toStringAsFixed(1)??'NaN',
+                          mapState?.speed?.toStringAsFixed(1) ?? 'NaN',
+                          mapState?.averageSpeed?.toStringAsFixed(1) ?? 'NaN',
+                          mapState?.averageSpeedWhileMoving
+                                  ?.toStringAsFixed(1) ??
+                              'NaN',
+                          mapState?.maxSpeed?.toStringAsFixed(1) ?? 'NaN',
                         ],
                         [
                           'km/hr',
@@ -95,10 +142,10 @@ class MapBottomBody extends StatelessWidget {
                           'Max Altitude',
                         ],
                         [
-                          mapState?.altitude?.toStringAsFixed(0)??'NaN',
-                          mapState?.averageAltitude?.toStringAsFixed(0)??'NaN',
-                          mapState?.minAltitude?.toStringAsFixed(0)??'NaN',
-                          mapState?.maxAltitude?.toStringAsFixed(0)??'NaN',
+                          mapState?.altitude?.toStringAsFixed(0) ?? 'NaN',
+                          '',
+                          mapState?.minAltitude?.toStringAsFixed(0) ?? 'NaN',
+                          mapState?.maxAltitude?.toStringAsFixed(0) ?? 'NaN',
                         ],
                         [
                           'meters',
@@ -115,10 +162,14 @@ class MapBottomBody extends StatelessWidget {
                           'Heading',
                         ],
                         [
-                          (mapState.latitude != null) ? mapState.latitude.toStringAsFixed(5)+',\n'+mapState.longitude.toStringAsFixed(5) : 'NaN',
-                          '±'+(mapState?.accuracy?.toStringAsFixed(0)??'0'),
-                          mapState?.wayPoints?.toStringAsFixed(0)??'0',
-                          mapState?.headingAngle?.toStringAsFixed(0)??'NaN'
+                          (mapState.latitude != null)
+                              ? mapState.latitude.toStringAsFixed(5) +
+                                  ',\n' +
+                                  mapState.longitude.toStringAsFixed(5)
+                              : 'NaN',
+                          '±' + (mapState?.accuracy?.toStringAsFixed(0) ?? '0'),
+                          mapState?.wayPoints?.toStringAsFixed(0) ?? '0',
+                          mapState?.headingAngle?.toStringAsFixed(0) ?? 'NaN'
                         ],
                         [
                           'lat, lon',
@@ -135,10 +186,13 @@ class MapBottomBody extends StatelessWidget {
                           'Pausing Duration',
                         ],
                         [
-                          durationToString(mapState?.totalTime??Duration(seconds: 0)),
-                          durationToString(mapState?.movingTime??Duration(seconds: 0)),
+                          durationToString(
+                              mapState?.totalTime ?? Duration(seconds: 0)),
+                          durationToString(
+                              mapState?.movingTime ?? Duration(seconds: 0)),
                           mapState?.percentageTimeMoving?.toStringAsFixed(0),
-                          durationToString(mapState?.pauseTime??Duration(seconds: 0)),
+                          durationToString(
+                              mapState?.pauseTime ?? Duration(seconds: 0)),
                         ],
                         [
                           'hr:min:sec',
@@ -158,60 +212,87 @@ class MapBottomBody extends StatelessWidget {
     );
   }
 
-  static String durationToString(Duration duration){
-    return '${intToString(duration.inHours)
-    }:${
-        intToString(duration.inMinutes % 60)
-    }:${
-        intToString(duration.inSeconds % 60)
-    }';
+  static String durationToString(Duration duration) {
+    return '${intToString(duration.inHours)}:${intToString(duration.inMinutes % 60)}:${intToString(duration.inSeconds % 60)}';
   }
 
-  static String intToString(int num){
+  static String intToString(int num) {
     return (num <= 9) ? '0' + num.toString() : num.toString();
   }
 
-  static buildItem(String title, String value, String unit){
-    return ListView(physics: NeverScrollableScrollPhysics(), children: <Widget>[
-      Container(height: 150, child: Column(children: <Widget>[
-        Text(title),
-        Spacer(),
-        Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
-        Text(unit),
-        Spacer(flex: 2,),
-      ],),),
-    ],);
+  static buildItem(String title, String value, String unit) {
+    return ListView(
+      physics: NeverScrollableScrollPhysics(),
+      children: <Widget>[
+        Container(
+          height: 150,
+          child: Column(
+            children: <Widget>[
+              Text(title),
+              Spacer(),
+              Text(
+                value,
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              Text(unit),
+              Spacer(
+                flex: 2,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   static const List<Widget> widgetsPlaceholder = [null, null, null, null];
 
-  static buildPage(List<String> titles, List<String> values, List<String> units, {List<Widget> widgets = widgetsPlaceholder}){
+  static buildPage(List<String> titles, List<String> values, List<String> units,
+      {List<Widget> widgets = widgetsPlaceholder}) {
     return Container(
       child: Column(
         children: <Widget>[
-          Container(height: 10,),
-          Expanded(
-            child: Row(children: <Widget>[
-              Expanded(
-                child: (widgets[0] == null) ? buildItem(titles[0], values[0], units[0]) : widgets[0],
-              ),
-              Expanded(
-                child: (widgets[1] == null) ? buildItem(titles[1], values[1], units[1]) : widgets[1],
-              ),
-            ],),
+          Container(
+            height: 10,
           ),
-          Divider(color: Colors.grey,),
           Expanded(
-            child: Row(children: <Widget>[
-              Expanded(
-                child: (widgets[2] == null) ? buildItem(titles[2], values[2], units[2]) : widgets[2],
-              ),
-              Expanded(
-                child: (widgets[3] == null) ? buildItem(titles[3], values[3], units[3]) : widgets[3],
-              ),
-            ],),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: (widgets[0] == null)
+                      ? buildItem(titles[0], values[0], units[0])
+                      : widgets[0],
+                ),
+                Expanded(
+                  child: (widgets[1] == null)
+                      ? buildItem(titles[1], values[1], units[1])
+                      : widgets[1],
+                ),
+              ],
+            ),
           ),
-          Container(height: 10,),
+          Divider(
+            color: Colors.grey,
+          ),
+          Expanded(
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: (widgets[2] == null)
+                      ? buildItem(titles[2], values[2], units[2])
+                      : widgets[2],
+                ),
+                Expanded(
+                  child: (widgets[3] == null)
+                      ? buildItem(titles[3], values[3], units[3])
+                      : widgets[3],
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 10,
+          ),
         ],
       ),
     );
@@ -246,4 +327,3 @@ class Compass extends StatelessWidget {
 }
 
 */
-
