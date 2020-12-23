@@ -190,12 +190,6 @@ class HomeState extends State<HomeScreen> {
                           applicationIcon: Image.asset('assets/logo_small.png'),
                         );
                         break;
-                      case 'buy':
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => PurchaseDialog()));
-                        break;
                     }
                   },
                   icon: Icon(Icons.more_vert),
@@ -220,10 +214,6 @@ class HomeState extends State<HomeScreen> {
                       PopupMenuItem(
                         child: Text('About Ihike Pakistan'),
                         value: 'about',
-                      ),
-                      PopupMenuItem(
-                        child: Text('Buy'),
-                        value: 'buy',
                       ),
                     ];
                   },

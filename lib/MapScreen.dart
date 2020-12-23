@@ -6,6 +6,7 @@ import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:ihikepakistan/MapBottomSheet.dart';
 import 'package:flutter/material.dart';
 import 'package:ihikepakistan/MapState.dart';
+import 'package:ihikepakistan/mapboxToken.dart';
 import 'package:provider/provider.dart';
 import 'Hike.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
@@ -19,19 +20,38 @@ class MapScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(hike.title),
-      ),
-      body: ListenableProvider<MapState>(
-        create: (_) => MapState(track: hike.data),
-        child: Map(
+    return ListenableProvider(
+      create: (_) => MapState(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(hike.title),
+          actions: [
+            Builder(
+              builder: (context) => PopupMenuButton<String>(
+                onSelected: (value){
+                  MapState mapState = context.read<MapState>();
+                  mapState.changeMapStyle(value);
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(value: mapbox.MapboxStyles.MAPBOX_STREETS, child: Text('Normal'),),
+                  PopupMenuItem(value: mapbox.MapboxStyles.OUTDOORS, child: Text('Terrain'),),
+                  PopupMenuItem(value: mapbox.MapboxStyles.SATELLITE, child: Text('Satellite'),),
+                  PopupMenuItem(value: mapbox.MapboxStyles.SATELLITE_STREETS, child: Text('Hybrid'),),
+                  PopupMenuItem(value: mapbox.MapboxStyles.DARK, child: Text('Dark'),),
+                  PopupMenuItem(value: 'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al', child: Text('Satellite Contours'),),
+                ],
+              ),
+            )
+          ],
+        ),
+        body: Map(
           hike: hike,
         ),
       ),
     );
   }
 }
+
 
 class Map extends StatefulWidget {
   final Hike hike;
@@ -42,9 +62,9 @@ class Map extends StatefulWidget {
 
 class MapboxState extends State<Map> {
   double height = 100;
+  bool showLoader = true;
   final Hike hike;
   mapbox.MapboxMapController mapboxMapController;
-  mapbox.Line myLine;
   MapboxState({this.hike});
 
   @override
@@ -61,7 +81,7 @@ class MapboxState extends State<Map> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        MapState mapState = context.read<MapState>();
+        /*MapState mapState = context.read<MapState>();
         bool willPop = (mapState.recordingState == RecordingState.recording)
             ? await showDialog(
                 context: context,
@@ -92,17 +112,15 @@ class MapboxState extends State<Map> {
           FlutterRingtonePlayer.stop();
           mapState.stopLocationStream();
           await mapState.locationStream.cancel();
-        }
-        return willPop;
+        }*/
+        return true;
       },
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
           Consumer(builder:
               (BuildContext context, MapState mapState, Widget widget) {
-            if (mapboxMapController != null && myLine != null) {
-              mapboxMapController.updateLine(
-                  myLine, mapbox.LineOptions(geometry: mapState.mapboxTrack));
+            if (mapboxMapController != null) {
               mapboxMapController.updateMyLocationTrackingMode({
                 MapCenterState.none: mapbox.MyLocationTrackingMode.None,
                 MapCenterState.centered: mapbox.MyLocationTrackingMode.Tracking,
@@ -117,8 +135,7 @@ class MapboxState extends State<Map> {
                       ? mapbox.LatLng(33, 73)
                       : mapbox.LatLng(hike.data[0], hike.data[1]),
                   zoom: 15),
-              accessToken:
-                  "pk.eyJ1Ijoiam9yYW4tbXVsZGVyaWoiLCJhIjoiY2tnYXB4cGE1MDlqejJ0a3ptY202eTU4YSJ9.A1HkSrcQ7aAbZ9wfa6p_uQ",
+              accessToken: mapboxToken,
               styleString: mapState.mapStyle,
               myLocationEnabled: true,
               logoViewMargins: Point(0, height),
@@ -135,18 +152,20 @@ class MapboxState extends State<Map> {
                 for (int i = 0; i < hike.data.length - 1; i += 2) {
                   track.add(mapbox.LatLng(hike.data[i], hike.data[i + 1]));
                 }
-                await Future.delayed(Duration(seconds: 5));
+                await Future.delayed(Duration(seconds: 7));
                 mapboxMapController = controller;
                 controller.addLine(mapbox.LineOptions(
                     geometry: track, lineColor: 'red', lineWidth: 2));
-                myLine = await controller.addLine(mapbox.LineOptions(
-                    geometry: mapState.mapboxTrack,
-                    lineWidth: 2,
-                    lineColor: '#FFA000'));
+                setState(() {
+                  showLoader = false;
+                });
               },
             );
           }),
-          MapBottomSheet(),
+          if(showLoader)
+          Center(
+            child: CircularProgressIndicator(),
+          )
         ],
       ),
     );
