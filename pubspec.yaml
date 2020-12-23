@@ -77,21 +77,7 @@ flutter:
      - assets/twitter_small.png
      - assets/whatsapp_small.png
      - assets/facebook_small.png
-     - maps/Trail 3 Fireline.png
-     - maps/Trail 3.png
-     - maps/Trail 5 Fireline.png
-     - maps/Trail 5.png
-     - maps/Trail 5-C.png
-     - maps/Trail 5-Spring.png
-     - maps/Trail 5-A.png
-     - maps/Shah Allah Ditta to Khanpur Lake.png
-     - maps/Second Ridge Trail.png
-     - maps/Trail 2.png
-     - maps/Gandhian Ridge Trail.png
-     - maps/Cactus Ridge Trail.png
-     - maps/Trail 5-B.png
-     - maps/Makra Peak.png
-     - maps/Kondolsar Lake.png
+     - maps/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

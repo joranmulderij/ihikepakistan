@@ -66,15 +66,17 @@ class MapboxState extends State<Map> {
   final Hike hike;
   mapbox.MapboxMapController mapboxMapController;
   MapboxState({this.hike});
+  List<mapbox.LatLng> track = [];
+  String oldMapStyle = mapbox.MapboxStyles.MAPBOX_STREETS;
 
   @override
   void initState() {
     super.initState();
-  }
 
-  @override
-  void dispose() {
-    super.dispose();
+
+    for (int i = 0; i < hike.data.length - 1; i += 2) {
+      track.add(mapbox.LatLng(hike.data[i], hike.data[i + 1]));
+    }
   }
 
   @override
@@ -129,6 +131,15 @@ class MapboxState extends State<Map> {
                     mapbox.MyLocationTrackingMode.TrackingCompass,
               }[mapState.mapCenterState]);
             }
+            if(oldMapStyle != mapState.mapStyle && (!showLoader)){
+              oldMapStyle = mapState.mapStyle;
+              Future.delayed(Duration(milliseconds: 1000)).then((value){
+                setState(() {showLoader = true;});
+              });
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
             return mapbox.MapboxMap(
               initialCameraPosition: mapbox.CameraPosition(
                   target: (hike.data == null || hike.data.length == 0)
@@ -136,7 +147,7 @@ class MapboxState extends State<Map> {
                       : mapbox.LatLng(hike.data[0], hike.data[1]),
                   zoom: 15),
               accessToken: mapboxToken,
-              styleString: mapState.mapStyle,
+              styleString: oldMapStyle,
               myLocationEnabled: true,
               logoViewMargins: Point(0, height),
               myLocationTrackingMode: mapbox.MyLocationTrackingMode.None,
@@ -148,10 +159,6 @@ class MapboxState extends State<Map> {
                 MapCenterState.compass: mapbox.MyLocationRenderMode.COMPASS,
               }[mapState.mapCenterState],
               onMapCreated: (mapbox.MapboxMapController controller) async {
-                List<mapbox.LatLng> track = [];
-                for (int i = 0; i < hike.data.length - 1; i += 2) {
-                  track.add(mapbox.LatLng(hike.data[i], hike.data[i + 1]));
-                }
                 await Future.delayed(Duration(seconds: 7));
                 mapboxMapController = controller;
                 controller.addLine(mapbox.LineOptions(
