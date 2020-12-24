@@ -186,7 +186,6 @@ class HomeState extends State<HomeScreen> {
                           context: context,
                           applicationName: 'Ihike Pakistan',
                           applicationVersion: '0.3.4',
-                          applicationLegalese: 'Hiking in Pakistan made easy.',
                           applicationIcon: Image.asset('assets/logo_small.png'),
                         );
                         break;

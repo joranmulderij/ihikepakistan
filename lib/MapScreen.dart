@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:ihikepakistan/MapBottomSheet.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,23 @@ class MapScreen extends StatelessWidget {
           actions: [
             Builder(
               builder: (context) => PopupMenuButton<String>(
+                icon: Icon(Icons.my_location),
+                itemBuilder: (context) => [
+                  PopupMenuItem(value: 'none', child: Text('None'),),
+                  PopupMenuItem(value: 'centered', child: Text('Centered'),),
+                  PopupMenuItem(value: 'compass', child: Text('Compass'),),
+                  PopupMenuItem(value: 'gps', child: Text('Movement'),),
+                ],
+                onSelected: (value){
+                  if(kIsWeb) return;
+                  MapState mapState = context.read<MapState>();
+                  mapState.changeCenterState(value);
+                },
+              ),
+            ),
+            Builder(
+              builder: (context) => PopupMenuButton<String>(
+                icon: Icon(Icons.map),
                 onSelected: (value){
                   MapState mapState = context.read<MapState>();
                   mapState.changeMapStyle(value);
@@ -133,7 +151,7 @@ class MapboxState extends State<Map> {
             }
             if(oldMapStyle != mapState.mapStyle && (!showLoader)){
               oldMapStyle = mapState.mapStyle;
-              Future.delayed(Duration(milliseconds: 1000)).then((value){
+              Future.delayed(Duration(milliseconds: 100)).then((value){
                 setState(() {showLoader = true;});
               });
               return Center(

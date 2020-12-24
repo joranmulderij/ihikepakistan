@@ -20,6 +20,16 @@ class MapState with ChangeNotifier{
     mapStyle = value;
     notifyListeners();
   }
+
+  changeCenterState(String value){
+    mapCenterState = {
+      'none': MapCenterState.none,
+      'centered': MapCenterState.centered,
+      'compass': MapCenterState.compass,
+      'gps': MapCenterState.gps,
+    }[value];
+    notifyListeners();
+  }
 }
 // class MapState with ChangeNotifier {
 //   LocationManager locationManager;
