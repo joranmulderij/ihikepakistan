@@ -15,7 +15,7 @@ class ListDialog{
   Future<int> show() async {
     await showDialog(
       context: context,
-      child: SimpleDialog(
+      builder: (context) => SimpleDialog(
         title: Text(title),
         children: items.map((option) => RadioListTile(
           value: option,

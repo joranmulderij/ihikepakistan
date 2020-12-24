@@ -11,7 +11,6 @@ import 'package:ihikepakistan/Hike.dart';
 import 'package:ihikepakistan/InfoScreen.dart';
 import 'package:ihikepakistan/MHNPMapsScreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:ihikepakistan/PurchaseDialog.dart';
 import 'package:search_page/search_page.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 import 'Hikes.dart';
@@ -185,7 +184,7 @@ class HomeState extends State<HomeScreen> {
                         showAboutDialog(
                           context: context,
                           applicationName: 'Ihike Pakistan',
-                          applicationVersion: '0.3.4',
+                          applicationVersion: '0.4.0',
                           applicationIcon: Image.asset('assets/logo_small.png'),
                         );
                         break;

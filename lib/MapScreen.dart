@@ -3,8 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
-import 'package:ihikepakistan/MapBottomSheet.dart';
+// import 'package:ihikepakistan/MapBottomSheet.dart';
 import 'package:flutter/material.dart';
 import 'package:ihikepakistan/MapState.dart';
 import 'package:ihikepakistan/mapboxToken.dart';
@@ -177,7 +176,7 @@ class MapboxState extends State<Map> {
                 MapCenterState.compass: mapbox.MyLocationRenderMode.COMPASS,
               }[mapState.mapCenterState],
               onMapCreated: (mapbox.MapboxMapController controller) async {
-                await Future.delayed(Duration(seconds: 7));
+                await Future.delayed(Duration(seconds: 9));
                 mapboxMapController = controller;
                 controller.addLine(mapbox.LineOptions(
                     geometry: track, lineColor: 'red', lineWidth: 2));
