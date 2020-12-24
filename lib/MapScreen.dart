@@ -27,6 +27,7 @@ class MapScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text(hike.title),
           actions: [
+            if(!kIsWeb)
             Builder(
               builder: (context) => PopupMenuButton<String>(
                 icon: Icon(Icons.my_location),
@@ -37,7 +38,6 @@ class MapScreen extends StatelessWidget {
                   PopupMenuItem(value: 'gps', child: Text('Movement'),),
                 ],
                 onSelected: (value){
-                  if(kIsWeb) return;
                   MapState mapState = context.read<MapState>();
                   mapState.changeCenterState(value);
                 },
