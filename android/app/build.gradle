@@ -38,7 +38,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-perf'
     implementation 'com.google.firebase:firebase-crashlytics'
     
-
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.5.0'
 
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries

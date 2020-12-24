@@ -26,36 +26,67 @@ class MapScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text(hike.title),
           actions: [
-            if(!kIsWeb)
-            Builder(
-              builder: (context) => PopupMenuButton<String>(
-                icon: Icon(Icons.my_location),
-                itemBuilder: (context) => [
-                  PopupMenuItem(value: 'none', child: Text('None'),),
-                  PopupMenuItem(value: 'centered', child: Text('Centered'),),
-                  PopupMenuItem(value: 'compass', child: Text('Compass'),),
-                  PopupMenuItem(value: 'gps', child: Text('Movement'),),
-                ],
-                onSelected: (value){
-                  MapState mapState = context.read<MapState>();
-                  mapState.changeCenterState(value);
-                },
+            if (!kIsWeb)
+              Builder(
+                builder: (context) => PopupMenuButton<String>(
+                  icon: Icon(Icons.my_location),
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'none',
+                      child: Text('None'),
+                    ),
+                    PopupMenuItem(
+                      value: 'centered',
+                      child: Text('Centered'),
+                    ),
+                    PopupMenuItem(
+                      value: 'compass',
+                      child: Text('Compass'),
+                    ),
+                    PopupMenuItem(
+                      value: 'gps',
+                      child: Text('Movement'),
+                    ),
+                  ],
+                  onSelected: (value) {
+                    MapState mapState = context.read<MapState>();
+                    mapState.changeCenterState(value);
+                  },
+                ),
               ),
-            ),
             Builder(
               builder: (context) => PopupMenuButton<String>(
                 icon: Icon(Icons.map),
-                onSelected: (value){
+                onSelected: (value) {
                   MapState mapState = context.read<MapState>();
                   mapState.changeMapStyle(value);
                 },
                 itemBuilder: (context) => [
-                  PopupMenuItem(value: mapbox.MapboxStyles.MAPBOX_STREETS, child: Text('Normal'),),
-                  PopupMenuItem(value: mapbox.MapboxStyles.OUTDOORS, child: Text('Terrain'),),
-                  PopupMenuItem(value: mapbox.MapboxStyles.SATELLITE, child: Text('Satellite'),),
-                  PopupMenuItem(value: mapbox.MapboxStyles.SATELLITE_STREETS, child: Text('Hybrid'),),
-                  PopupMenuItem(value: mapbox.MapboxStyles.DARK, child: Text('Dark'),),
-                  PopupMenuItem(value: 'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al', child: Text('Satellite Contours'),),
+                  PopupMenuItem(
+                    value: mapbox.MapboxStyles.MAPBOX_STREETS,
+                    child: Text('Normal'),
+                  ),
+                  PopupMenuItem(
+                    value: mapbox.MapboxStyles.OUTDOORS,
+                    child: Text('Terrain'),
+                  ),
+                  PopupMenuItem(
+                    value: mapbox.MapboxStyles.SATELLITE,
+                    child: Text('Satellite'),
+                  ),
+                  PopupMenuItem(
+                    value: mapbox.MapboxStyles.SATELLITE_STREETS,
+                    child: Text('Hybrid'),
+                  ),
+                  PopupMenuItem(
+                    value: mapbox.MapboxStyles.DARK,
+                    child: Text('Dark'),
+                  ),
+                  PopupMenuItem(
+                    value:
+                        'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al',
+                    child: Text('Satellite Contours'),
+                  ),
                 ],
               ),
             )
@@ -68,7 +99,6 @@ class MapScreen extends StatelessWidget {
     );
   }
 }
-
 
 class Map extends StatefulWidget {
   final Hike hike;
@@ -89,7 +119,6 @@ class MapboxState extends State<Map> {
   @override
   void initState() {
     super.initState();
-
 
     for (int i = 0; i < hike.data.length - 1; i += 2) {
       track.add(mapbox.LatLng(hike.data[i], hike.data[i + 1]));
@@ -148,10 +177,12 @@ class MapboxState extends State<Map> {
                     mapbox.MyLocationTrackingMode.TrackingCompass,
               }[mapState.mapCenterState]);
             }
-            if(oldMapStyle != mapState.mapStyle && (!showLoader)){
+            if (oldMapStyle != mapState.mapStyle && (!showLoader)) {
               oldMapStyle = mapState.mapStyle;
-              Future.delayed(Duration(milliseconds: 100)).then((value){
-                setState(() {showLoader = true;});
+              Future.delayed(Duration(milliseconds: 100)).then((value) {
+                setState(() {
+                  showLoader = true;
+                });
               });
               return Center(
                 child: CircularProgressIndicator(),
@@ -160,15 +191,13 @@ class MapboxState extends State<Map> {
             return mapbox.MapboxMap(
               initialCameraPosition: mapbox.CameraPosition(
                   target: (hike.data == null || hike.data.length == 0)
-                      ? mapbox.LatLng(33, 73)
+                      ? mapbox.LatLng(33.738045, 73.084488)
                       : mapbox.LatLng(hike.data[0], hike.data[1]),
                   zoom: 15),
               accessToken: mapboxToken,
               styleString: oldMapStyle,
               myLocationEnabled: true,
-              logoViewMargins: Point(0, height),
               myLocationTrackingMode: mapbox.MyLocationTrackingMode.None,
-              compassViewPosition: mapbox.CompassViewPosition.TopLeft,
               myLocationRenderMode: {
                 MapCenterState.none: mapbox.MyLocationRenderMode.NORMAL,
                 MapCenterState.centered: mapbox.MyLocationRenderMode.NORMAL,
@@ -186,19 +215,13 @@ class MapboxState extends State<Map> {
               },
             );
           }),
-          if(showLoader)
-          Center(
-            child: CircularProgressIndicator(),
-          )
+          if (showLoader)
+            Center(
+              child: CircularProgressIndicator(),
+            )
         ],
       ),
     );
-  }
-
-  void setHeight(double height) {
-    setState(() {
-      this.height = height;
-    });
   }
 }
 
