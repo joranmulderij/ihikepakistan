@@ -188,7 +188,7 @@ class HomeState extends State<HomeScreen> {
                         showAboutDialog(
                           context: context,
                           applicationName: 'Ihike Pakistan',
-                          applicationVersion: '0.4.1',
+                          applicationVersion: '0.4.2',
                           applicationIcon: Image.asset('assets/logo_small.png'),
                         );
                         break;
