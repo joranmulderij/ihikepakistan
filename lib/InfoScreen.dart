@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:ihikepakistan/PhotoScreen.dart';
@@ -6,8 +7,6 @@ import 'package:ihikepakistan/ShareTile.dart';
 import 'Hike.dart';
 import 'MapScreen.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
-
-
 
 class InfoScreen extends StatelessWidget {
   final Hike hike;
@@ -18,16 +17,20 @@ class InfoScreen extends StatelessWidget {
     return Hero(
       tag: hike.title + 'tag',
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(hike.title),
-          actions: [IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: (){
-                url_launcher.launch('https://docs.google.com/forms/d/e/1FAIpQLSfM6y1DTj6oIQD-e1Yzj0KfBcoWLaa-viUKaV_pg7BVS4FWCg/viewform?usp=pp_url&entry.1690278709=${hike.title}&entry.1645486241=${hike.story}&entry.2003551559=${hike.title}', forceWebView: true, enableJavaScript: true);
-              },
-          )]
+        appBar: AppBar(title: Text(hike.title), actions: [
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () {
+              url_launcher.launch(
+                  'https://docs.google.com/forms/d/e/1FAIpQLSfM6y1DTj6oIQD-e1Yzj0KfBcoWLaa-viUKaV_pg7BVS4FWCg/viewform?usp=pp_url&entry.1690278709=${hike.title}&entry.1645486241=${hike.story}&entry.2003551559=${hike.title}',
+                  forceWebView: true,
+                  enableJavaScript: true);
+            },
+          )
+        ]),
+        body: InfoBody(
+          hike: hike,
         ),
-        body: InfoBody(hike: hike,),
         /*floatingActionButton: FloatingActionButton(
           child: Icon(Icons.map),
           heroTag: null,
@@ -94,7 +97,6 @@ class InfoBody extends StatelessWidget {
     );
   }*/
 
-
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: <Widget>[
@@ -105,15 +107,19 @@ class InfoBody extends StatelessWidget {
             alignment: Alignment.topCenter,
             fit: BoxFit.cover,
             height: 250,
-            errorBuilder: (BuildContext context, Object object, StackTrace stackTrace){
-              return Image.network(
-                hike.photos[0],
+            errorBuilder:
+                (BuildContext context, Object object, StackTrace stackTrace) {
+              return CachedNetworkImage(
+                imageUrl: hike.photos[0],
                 alignment: Alignment.topCenter,
                 fit: BoxFit.cover,
                 height: 250,
-                errorBuilder: (BuildContext context, Object object, StackTrace stackTrace){
+                errorWidget: (BuildContext context, _, __) {
                   return Center(
-                    child: Icon(Icons.broken_image, size: 30,),
+                    child: Icon(
+                      Icons.broken_image,
+                      size: 30,
+                    ),
                   );
                 },
               );
@@ -126,7 +132,7 @@ class InfoBody extends StatelessWidget {
         ),
         SliverList(
           delegate: SliverChildBuilderDelegate(
-                (BuildContext context, int index) {
+            (BuildContext context, int index) {
               return [
                 ListTile(
                   leading: Icon(Icons.map),
@@ -221,19 +227,13 @@ class InfoBody extends StatelessWidget {
                           child: ClipRRect(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                             //child: Image.network(hike.photos[index]),
-                            child: Image.network(
-                              hike.photos[index],
+                            child: CachedNetworkImage(
                               fit: BoxFit.cover,
-                              errorBuilder: (BuildContext context, Object object, StackTrace stackTrace){
-                                return Center(
-                                  child: Icon(Icons.broken_image, size: 30,),
-                                );
-                              },
-                              /*loadingBuilder: (BuildContext context, Widget widget, ImageChunkEvent event){
-                                return Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              },*/
+                              imageUrl: hike.photos[index],
+                              placeholder: (context, url) =>
+                                  CircularProgressIndicator(),
+                              errorWidget: (context, url, error) =>
+                                  Icon(Icons.error),
                             ),
                           ),
                           onTap: () {
@@ -271,7 +271,9 @@ class InfoBody extends StatelessWidget {
                   ],
                   mainAxisAlignment: MainAxisAlignment.center,
                 ),*/
-                Container(height: 20,),
+                Container(
+                  height: 20,
+                ),
               ][index];
             },
             childCount: 8,

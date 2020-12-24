@@ -13,11 +13,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
-class MapState with ChangeNotifier{
+class MapState with ChangeNotifier {
   MapCenterState mapCenterState = MapCenterState.none;
   String mapStyle = MapboxStyles.MAPBOX_STREETS;
 
-  MapState(){
+  MapState() {
     getLocation();
   }
 
@@ -48,12 +48,12 @@ class MapState with ChangeNotifier{
     return _locationData;
   }
 
-  changeMapStyle(String value){
+  changeMapStyle(String value) {
     mapStyle = value;
     notifyListeners();
   }
 
-  changeCenterState(String value){
+  changeCenterState(String value) {
     mapCenterState = {
       'none': MapCenterState.none,
       'centered': MapCenterState.centered,
@@ -63,6 +63,7 @@ class MapState with ChangeNotifier{
     notifyListeners();
   }
 }
+
 // class MapState with ChangeNotifier {
 //   LocationManager locationManager;
 //   Stream<LocationDto> dtoStream;
@@ -113,7 +114,7 @@ class MapState with ChangeNotifier{
 //       locationManager = LocationManager.instance;
 //       locationManager.interval = 1;
 //       locationManager.distanceFilter = 0;
-//       //TODO:locationaccuracy
+//       // locationaccuracy
 //       //locationManager.accuracy = LocationAccuracy.HIGH;
 //       locationManager.notificationTitle = 'Ihike Pakistan';
 //       locationManager.notificationMsg = 'Ihike Pakistan is running.';

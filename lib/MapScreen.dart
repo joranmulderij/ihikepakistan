@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -127,100 +126,64 @@ class MapboxState extends State<Map> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        /*MapState mapState = context.read<MapState>();
-        bool willPop = (mapState.recordingState == RecordingState.recording)
-            ? await showDialog(
-                context: context,
-                child: AlertDialog(
-                  title: Text('Do you want to leave?'),
-                  content:
-                      Text('If you leave, all your track data will be lost.'),
-                  actions: [
-                    OutlineButton(
-                      onPressed: () {
-                        Navigator.pop(context, true);
-                      },
-                      child: Text('Yes'),
-                      borderSide: BorderSide(color: Colors.amber),
-                    ),
-                    FlatButton(
-                      onPressed: () {
-                        Navigator.pop(context, false);
-                      },
-                      child: Text('No'),
-                      color: Colors.amber,
-                      textColor: Colors.black,
-                    ),
-                  ],
-                ))
-            : true;
-        if (willPop) {
-          FlutterRingtonePlayer.stop();
-          mapState.stopLocationStream();
-          await mapState.locationStream.cancel();
-        }*/
-        return true;
-      },
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          Consumer(builder:
-              (BuildContext context, MapState mapState, Widget widget) {
-            if (mapboxMapController != null) {
-              mapboxMapController.updateMyLocationTrackingMode({
-                MapCenterState.none: mapbox.MyLocationTrackingMode.None,
-                MapCenterState.centered: mapbox.MyLocationTrackingMode.Tracking,
-                MapCenterState.gps: mapbox.MyLocationTrackingMode.TrackingGPS,
-                MapCenterState.compass:
-                    mapbox.MyLocationTrackingMode.TrackingCompass,
-              }[mapState.mapCenterState]);
-            }
-            if (oldMapStyle != mapState.mapStyle && (!showLoader)) {
-              oldMapStyle = mapState.mapStyle;
-              Future.delayed(Duration(milliseconds: 100)).then((value) {
-                setState(() {
-                  showLoader = true;
-                });
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        Consumer(
+            builder: (BuildContext context, MapState mapState, Widget widget) {
+          if (mapboxMapController != null && (!showLoader)) {
+            mapboxMapController.updateMyLocationTrackingMode({
+              MapCenterState.none: mapbox.MyLocationTrackingMode.None,
+              MapCenterState.centered: mapbox.MyLocationTrackingMode.Tracking,
+              MapCenterState.gps: mapbox.MyLocationTrackingMode.TrackingGPS,
+              MapCenterState.compass:
+                  mapbox.MyLocationTrackingMode.TrackingCompass,
+            }[mapState.mapCenterState]);
+          }
+          if (oldMapStyle != mapState.mapStyle && (!showLoader)) {
+            oldMapStyle = mapState.mapStyle;
+            Future.delayed(Duration(milliseconds: 100)).then((value) {
+              setState(() {
+                showLoader = true;
               });
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            return mapbox.MapboxMap(
-              initialCameraPosition: mapbox.CameraPosition(
-                  target: (hike.data == null || hike.data.length == 0)
-                      ? mapbox.LatLng(33.738045, 73.084488)
-                      : mapbox.LatLng(hike.data[0], hike.data[1]),
-                  zoom: 15),
-              accessToken: mapboxToken,
-              styleString: oldMapStyle,
-              myLocationEnabled: true,
-              myLocationTrackingMode: mapbox.MyLocationTrackingMode.None,
-              myLocationRenderMode: {
-                MapCenterState.none: mapbox.MyLocationRenderMode.NORMAL,
-                MapCenterState.centered: mapbox.MyLocationRenderMode.NORMAL,
-                MapCenterState.gps: mapbox.MyLocationRenderMode.GPS,
-                MapCenterState.compass: mapbox.MyLocationRenderMode.COMPASS,
-              }[mapState.mapCenterState],
-              onMapCreated: (mapbox.MapboxMapController controller) async {
-                await Future.delayed(Duration(seconds: 9));
-                mapboxMapController = controller;
-                controller.addLine(mapbox.LineOptions(
-                    geometry: track, lineColor: 'red', lineWidth: 2));
-                setState(() {
-                  showLoader = false;
-                });
-              },
-            );
-          }),
-          if (showLoader)
-            Center(
+            });
+            return Center(
               child: CircularProgressIndicator(),
-            )
-        ],
-      ),
+            );
+          }
+          return mapbox.MapboxMap(
+            initialCameraPosition: mapboxMapController?.cameraPosition ??
+                mapbox.CameraPosition(
+                    target: (hike.data == null || hike.data.length == 0)
+                        ? mapbox.LatLng(33.693056, 73.063889)
+                        : mapbox.LatLng(hike.data[0], hike.data[1]),
+                    zoom: 13),
+            accessToken: mapboxToken,
+            styleString: oldMapStyle,
+            myLocationEnabled: true,
+            myLocationTrackingMode: mapbox.MyLocationTrackingMode.None,
+            myLocationRenderMode: {
+              MapCenterState.none: mapbox.MyLocationRenderMode.NORMAL,
+              MapCenterState.centered: mapbox.MyLocationRenderMode.NORMAL,
+              MapCenterState.gps: mapbox.MyLocationRenderMode.GPS,
+              MapCenterState.compass: mapbox.MyLocationRenderMode.COMPASS,
+            }[mapState.mapCenterState],
+            onMapCreated: (mapbox.MapboxMapController controller) async {
+              await Future.delayed(Duration(seconds: 9));
+              mapboxMapController = controller;
+              controller.addLine(mapbox.LineOptions(
+                  geometry: track, lineColor: 'red', lineWidth: 2));
+              setState(() {
+                showLoader = false;
+              });
+            },
+          );
+        }),
+        if (showLoader)
+          Center(
+            child: CircularProgressIndicator(),
+          )
+      ],
     );
   }
 }

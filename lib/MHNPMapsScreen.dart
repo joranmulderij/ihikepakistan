@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -79,12 +80,15 @@ class MHNPMapsScreen extends StatelessWidget {
                 itemCount: photos.length,
                 itemBuilder: (BuildContext context, int index) {
                   return GestureDetector(
-                    child: Image.network(
-                      photos[index],
-                      loadingBuilder: (BuildContext context, widget, loadingProgress) => (loadingProgress != null) ? Center(
+                    child: CachedNetworkImage(
+                      fadeInDuration: Duration(seconds: 0),
+                      fadeOutDuration: Duration(seconds: 0),
+                      imageUrl: photos[index],
+                      placeholder: (context, url) => Center(
                         child: CircularProgressIndicator(),
-                      ) : widget,
-                      errorBuilder: (BuildContext context, widget, imageChunkEvent) => Icon(Icons.broken_image),
+                      ),
+                      errorWidget: (BuildContext context, _, __) =>
+                          Icon(Icons.broken_image),
                     ),
                     onDoubleTap: () {
                       Navigator.push(

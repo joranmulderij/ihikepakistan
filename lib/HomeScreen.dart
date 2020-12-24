@@ -1,6 +1,7 @@
 /*@js.JS()
 library get_standalone;*/
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -113,8 +114,8 @@ class HomeState extends State<HomeScreen> {
                                   width: 80,
                                   errorBuilder: (BuildContext context,
                                       Object object, StackTrace stackTrace) {
-                                    return Image.network(
-                                      hike.photos[0],
+                                    return CachedNetworkImage(
+                                      imageUrl: hike.photos[0],
                                       fit: BoxFit.cover,
                                       height: 60,
                                       width: 80,
@@ -122,8 +123,14 @@ class HomeState extends State<HomeScreen> {
                                   },
                                 ),
                               ),
-                              title: Text(hike.title),
-                              subtitle: Text(hike.difficulty),
+                              title: Text(
+                                hike.title,
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              subtitle: Text(
+                                hike.difficulty,
+                                style: TextStyle(color: Colors.grey),
+                              ),
                               onTap: () {
                                 Navigator.push(
                                   context,
@@ -143,9 +150,6 @@ class HomeState extends State<HomeScreen> {
                             showItemsOnEmpty: true,
                             items: Hikes.all,
                             searchLabel: 'Search Hikes',
-                            suggestion: ListTile(
-                              title: Text('Start Typing...'),
-                            ),
                             failure: ListTile(
                               title: Text('Could not find any Hikes...'),
                             ),
@@ -184,7 +188,7 @@ class HomeState extends State<HomeScreen> {
                         showAboutDialog(
                           context: context,
                           applicationName: 'Ihike Pakistan',
-                          applicationVersion: '0.4.0',
+                          applicationVersion: '0.4.1',
                           applicationIcon: Image.asset('assets/logo_small.png'),
                         );
                         break;
