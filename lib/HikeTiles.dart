@@ -1,8 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'Hike.dart';
 import 'InfoScreen.dart';
-
 
 /*class HikeTile extends StatelessWidget{
   final Hike hike;
@@ -23,8 +23,6 @@ import 'InfoScreen.dart';
     );
   }
 }*/
-
-
 
 class HikeTile extends StatelessWidget {
   final Hike hike;
@@ -61,9 +59,10 @@ class HikeTile extends StatelessWidget {
                   fit: BoxFit.cover,
                   height: 215,
                   width: 300,
-                  errorBuilder: (BuildContext context, Object object, StackTrace stackTrace){
-                    return Image.network(
-                      hike.photos[0],
+                  errorBuilder: (BuildContext context, Object object,
+                      StackTrace stackTrace) {
+                    return CachedNetworkImage(
+                      imageUrl: hike.photos[0],
                       fit: BoxFit.cover,
                       height: 215,
                       width: 300,
@@ -73,21 +72,54 @@ class HikeTile extends StatelessWidget {
                 ButtonBar(
                   alignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    Column(children: [
-                      Text('Length', style: TextStyle(color: Colors.grey, fontSize: 12),),
-                      Text(hike.length, style: TextStyle(fontSize: 20),),
-                      Text('Km', style: TextStyle(color: Colors.grey, fontSize: 8),),
-                    ],),
-                    Column(children: [
-                      Text('Climb', style: TextStyle(color: Colors.grey, fontSize: 12),),
-                      Text(hike.height, style: TextStyle(fontSize: 20),),
-                      Text('m', style: TextStyle(color: Colors.grey, fontSize: 8),),
-                    ],),
-                    Column(children: [
-                      Text('Time', style: TextStyle(color: Colors.grey, fontSize: 12),),
-                      Text(hike.time, style: TextStyle(fontSize: 20),),
-                      Text('h:m', style: TextStyle(color: Colors.grey, fontSize: 8),),
-                    ],),
+                    Column(
+                      children: [
+                        Text(
+                          'Length',
+                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                        Text(
+                          hike.length,
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        Text(
+                          'Km',
+                          style: TextStyle(color: Colors.grey, fontSize: 8),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          'Climb',
+                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                        Text(
+                          hike.height,
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        Text(
+                          'm',
+                          style: TextStyle(color: Colors.grey, fontSize: 8),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          'Time',
+                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                        Text(
+                          hike.time,
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        Text(
+                          'h:m',
+                          style: TextStyle(color: Colors.grey, fontSize: 8),
+                        ),
+                      ],
+                    ),
                   ],
                 )
               ],
@@ -98,5 +130,3 @@ class HikeTile extends StatelessWidget {
     );
   }
 }
-
-
