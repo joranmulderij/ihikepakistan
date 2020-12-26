@@ -114,6 +114,7 @@ class MapboxState extends State<Map> {
   MapboxState({this.hike});
   List<mapbox.LatLng> track = [];
   String oldMapStyle = mapbox.MapboxStyles.MAPBOX_STREETS;
+  mapbox.Line line;
 
   @override
   void initState() {
@@ -122,6 +123,14 @@ class MapboxState extends State<Map> {
     for (int i = 0; i < hike.data.length - 1; i += 2) {
       track.add(mapbox.LatLng(hike.data[i], hike.data[i + 1]));
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    MapState mapState = context.read<MapState>();
+    mapState.locationStreamSub.cancel();
   }
 
   @override
@@ -139,6 +148,13 @@ class MapboxState extends State<Map> {
               MapCenterState.compass:
                   mapbox.MyLocationTrackingMode.TrackingCompass,
             }[mapState.mapCenterState]);
+            if (line != null)
+              mapboxMapController.updateLine(
+                  line,
+                  mapbox.LineOptions(
+                      geometry: mapState.track
+                          .map((e) => mapbox.LatLng(e.lat, e.lng))
+                          .toList()));
           }
           if (oldMapStyle != mapState.mapStyle && (!showLoader)) {
             oldMapStyle = mapState.mapStyle;
@@ -173,6 +189,12 @@ class MapboxState extends State<Map> {
               mapboxMapController = controller;
               controller.addLine(mapbox.LineOptions(
                   geometry: track, lineColor: 'red', lineWidth: 2));
+              line = await controller.addLine(mapbox.LineOptions(
+                  geometry: mapState.track
+                      .map((e) => mapbox.LatLng(e.lat, e.lng))
+                      .toList(),
+                  lineColor: 'blue',
+                  lineWidth: 2));
               setState(() {
                 showLoader = false;
               });

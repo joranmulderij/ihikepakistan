@@ -9,24 +9,34 @@
 // import 'package:toast/toast.dart';
 // import 'package:location/location.dart' as location;
 //
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
+class IhikeLatLng {
+  double lat;
+  double lng;
+
+  IhikeLatLng(this.lat, this.lng);
+}
+
 class MapState with ChangeNotifier {
   MapCenterState mapCenterState = MapCenterState.none;
   String mapStyle = MapboxStyles.MAPBOX_STREETS;
+  StreamSubscription locationStreamSub;
+  List<IhikeLatLng> track = [];
 
   MapState() {
     getLocation();
   }
 
-  Future<LocationData> getLocation() async {
+  void getLocation() async {
     Location location = new Location();
 
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
-    LocationData _locationData;
 
     _serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
@@ -44,8 +54,10 @@ class MapState with ChangeNotifier {
       }
     }
 
-    _locationData = await location.getLocation();
-    return _locationData;
+    locationStreamSub = location.onLocationChanged.listen((event) {
+      track.add(IhikeLatLng(event.latitude, event.longitude));
+      notifyListeners();
+    });
   }
 
   changeMapStyle(String value) {
