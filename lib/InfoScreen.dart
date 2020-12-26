@@ -230,8 +230,6 @@ class InfoBody extends StatelessWidget {
                             child: CachedNetworkImage(
                               fit: BoxFit.cover,
                               imageUrl: hike.photos[index],
-                              placeholder: (context, url) =>
-                                  CircularProgressIndicator(),
                               errorWidget: (context, url, error) =>
                                   Icon(Icons.error),
                             ),
