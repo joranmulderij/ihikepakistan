@@ -1,11 +1,8 @@
+import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 import 'package:flutter/foundation.dart' show kIsWeb;
-
-
-
-
 
 class ShareTile extends StatelessWidget {
   final String msg;
@@ -24,11 +21,11 @@ class ShareTile extends StatelessWidget {
               width: 32,
             ),
             onPressed: () async {
-              if(kIsWeb){
-                if(await url_launcher.canLaunch('https://www.facebook.com/sharer/sharer.php?u=https://ihike-pk.web.app&quote=$msg')){
-                  url_launcher.launch('https://www.facebook.com/sharer/sharer.php?u=https://ihike-pk.web.app&quote=$msg');
-                  return;
-                }
+              if (await url_launcher.canLaunch(
+                  'https://www.facebook.com/sharer/sharer.php?u=https://ihike-pk.web.app&quote=$msg')) {
+                url_launcher.launch(
+                    'https://www.facebook.com/sharer/sharer.php?u=https://ihike-pk.web.app&quote=$msg');
+                return;
               }
             },
           ),
@@ -39,17 +36,15 @@ class ShareTile extends StatelessWidget {
               width: 32,
             ),
             onPressed: () async {
-              if(kIsWeb){
-                if(await url_launcher.canLaunch('http://twitter.com/share?text=$msg&url=https://ihike-pk.web.app&hashtags=IHikePakistan')){
-                  url_launcher.launch('http://twitter.com/share?text=$msg&url=https://ihike-pk.web.app&hashtags=IHikePakistan');
+              if (kIsWeb) {
+                if (await url_launcher.canLaunch(
+                    'http://twitter.com/share?text=$msg&url=https://ihike-pk.web.app&hashtags=IhikePakistan')) {
+                  url_launcher.launch(
+                      'http://twitter.com/share?text=$msg&url=https://ihike-pk.web.app&hashtags=IhikePakistan');
                   return;
                 }
-              }
-              String response = await FlutterShareMe()
-                  .shareToTwitter(
-                  msg: msg);
-              if (response != 'success') {
-                assert(true, 'Sharing Failed');
+              } else {
+                FlutterShareMe().shareToTwitter(msg: msg);
               }
             },
           ),
@@ -60,16 +55,15 @@ class ShareTile extends StatelessWidget {
               width: 32,
             ),
             onPressed: () async {
-              if(kIsWeb){
-                if(await url_launcher.canLaunch('https://api.whatsapp.com/send?text=$msg')){
-                  url_launcher.launch('https://api.whatsapp.com/send?text=$msg');
+              if (kIsWeb) {
+                if (await url_launcher
+                    .canLaunch('https://api.whatsapp.com/send?text=$msg')) {
+                  url_launcher
+                      .launch('https://api.whatsapp.com/send?text=$msg');
                   return;
                 }
-              }
-              String response =
-              await FlutterShareMe().shareToWhatsApp(msg: msg);
-              if (response != 'success') {
-                assert(true, 'Sharing Failed');
+              } else {
+                FlutterShareMe().shareToWhatsApp(msg: msg);
               }
             },
           ),
@@ -87,10 +81,13 @@ class ShareTile extends StatelessWidget {
               ),
             ),
             onPressed: () async {
-              String response =
-              await FlutterShareMe().shareToSystem(msg: msg);
-              if (response != 'success') {
-                assert(true, 'Sharing Failed');
+              if (kIsWeb) {
+                FlutterClipboard.copy(msg);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text('Copied to clipboard!'),
+                ));
+              } else {
+                FlutterShareMe().shareToSystem(msg: msg);
               }
             },
           ),

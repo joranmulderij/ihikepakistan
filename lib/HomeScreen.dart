@@ -75,7 +75,7 @@ class HomeState extends State<HomeScreen> {
             appBar: AppBar(
               title: GestureDetector(
                 child: Text('Ihike Pakistan'),
-                onTap: () {
+                onDoubleTap: () {
                   showAboutDialog(
                     context: context,
                     applicationName: 'Ihike Pakistan',
@@ -203,19 +203,16 @@ class HomeState extends State<HomeScreen> {
                 Container(
                   height: 400,
                   child: CarouselSlider.builder(
-                    //scrollDirection: Axis.horizontal,
                     itemCount: Hikes.all.length,
                     carouselController: controller,
                     itemBuilder: (BuildContext context, int index) => HikeTile(
                       hike: Hikes.all[index],
                     ),
                     options: CarouselOptions(
-                      //carouselController: controller,
                       scrollDirection: Axis.horizontal,
                       enableInfiniteScroll: false,
                       initialPage: 0,
                       height: 400,
-                      //onScrolled: (double value){ print(value); },
                       onPageChanged:
                           (int value, CarouselPageChangedReason reason) {
                         if (reason != CarouselPageChangedReason.manual) return;
@@ -275,7 +272,7 @@ class HomeState extends State<HomeScreen> {
                             });
                             return data;
                           }(),
-                          title: 'Map',
+                          title: 'Full Map',
                         ),
                       ),
                     ),

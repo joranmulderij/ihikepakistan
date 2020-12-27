@@ -190,7 +190,10 @@ class MapboxState extends State<Map> {
               MapCenterState.compass: mapbox.MyLocationRenderMode.COMPASS,
             }[mapState.mapCenterState],
             onMapCreated: (mapbox.MapboxMapController controller) async {
-              await Future.delayed(Duration(seconds: 9));
+              for (var i = 0; i < 10; i++) {
+                await Future.delayed(Duration(seconds: 1));
+                tryAddTracks(controller);
+              }
               mapboxMapController = controller;
               tracks.forEach((track) {
                 controller.addLine(mapbox.LineOptions(
@@ -214,6 +217,13 @@ class MapboxState extends State<Map> {
           )
       ],
     );
+  }
+
+  void tryAddTracks(mapbox.MapboxMapController controller) {
+    tracks.forEach((track) {
+      controller.addLine(
+          mapbox.LineOptions(geometry: track, lineColor: 'red', lineWidth: 2));
+    });
   }
 }
 
