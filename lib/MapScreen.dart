@@ -112,7 +112,7 @@ class MapboxState extends State<Map> {
   final Hike hike;
   mapbox.MapboxMapController mapboxMapController;
   MapboxState({this.hike});
-  List<mapbox.LatLng> track = [];
+  List<List<mapbox.LatLng>> tracks = [];
   String oldMapStyle = mapbox.MapboxStyles.MAPBOX_STREETS;
   mapbox.Line line;
 
@@ -120,9 +120,13 @@ class MapboxState extends State<Map> {
   void initState() {
     super.initState();
 
-    for (int i = 0; i < hike.data.length - 1; i += 2) {
-      track.add(mapbox.LatLng(hike.data[i], hike.data[i + 1]));
-    }
+    hike.multiData.forEach((element) {
+      List<mapbox.LatLng> data = [];
+      for (var i = 0; i < element.length - 1; i += 2) {
+        data.add(mapbox.LatLng(element[i], element[i + 1]));
+      }
+      tracks.add(data);
+    });
   }
 
   @override
@@ -170,9 +174,10 @@ class MapboxState extends State<Map> {
           return mapbox.MapboxMap(
             initialCameraPosition: mapboxMapController?.cameraPosition ??
                 mapbox.CameraPosition(
-                    target: (hike.data == null || hike.data.length == 0)
+                    target: (hike.multiData?.length ?? 0) == 0
                         ? mapbox.LatLng(33.693056, 73.063889)
-                        : mapbox.LatLng(hike.data[0], hike.data[1]),
+                        : mapbox.LatLng(
+                            hike.multiData[0][0], hike.multiData[0][1]),
                     zoom: 13),
             accessToken: mapboxToken,
             styleString: oldMapStyle,
@@ -187,8 +192,10 @@ class MapboxState extends State<Map> {
             onMapCreated: (mapbox.MapboxMapController controller) async {
               await Future.delayed(Duration(seconds: 9));
               mapboxMapController = controller;
-              controller.addLine(mapbox.LineOptions(
-                  geometry: track, lineColor: 'red', lineWidth: 2));
+              tracks.forEach((track) {
+                controller.addLine(mapbox.LineOptions(
+                    geometry: track, lineColor: 'red', lineWidth: 2));
+              });
               line = await controller.addLine(mapbox.LineOptions(
                   geometry: mapState.track
                       .map((e) => mapbox.LatLng(e.lat, e.lng))

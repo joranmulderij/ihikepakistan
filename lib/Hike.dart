@@ -8,28 +8,26 @@ class Hike {
   String storyShort;
   String photo;
   List<String> photos;
-  List<double> data;
   String time;
   String difficulty;
   String tags;
+  List<List<double>> multiData;
   //String startTitle;
   //String endTitle;
   //String startSubTitle;
   //String endSubTitle;
   //String dataString;
 
-
-  Hike({
-    this.title,
-    this.story,
-    this.photo,
-    this.data,
-    this.length,
-    this.height,
-    this.photos,
-    this.time,
-    this.storyShort,
-    this.difficulty,
-    this.tags,
-  });
+  Hike(
+      {this.title,
+      this.story,
+      this.photo,
+      this.length,
+      this.height,
+      this.photos,
+      this.time,
+      this.storyShort,
+      this.difficulty,
+      this.tags,
+      this.multiData});
 }

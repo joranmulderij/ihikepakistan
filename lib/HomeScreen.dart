@@ -28,10 +28,6 @@ external bool isIos();
 @js.JS('isAndroid')
 external bool isAndroid();*/
 
-bool getStandalone() => false;
-bool isIos() => false;
-bool isAndroid() => false;
-
 class HomeScreen extends StatefulWidget {
   HomeState createState() => HomeState();
 }
@@ -46,31 +42,15 @@ class HomeState extends State<HomeScreen> {
   final FirebaseMessaging _firebaseMessaging =
       kIsWeb ? null : FirebaseMessaging();
   Future<RemoteConfig> myRemoteConfigFuture;
-  bool standalone;
-  bool android;
-  bool ios;
+
+  onPushMessage(Map<String, dynamic> message) async {}
 
   HomeState() {
     if (!kIsWeb)
       _firebaseMessaging.configure(
-        onMessage: (Map<String, dynamic> message) async {
-          print("onMessage: $message");
-          setState(() {
-            testText = message['data']['home_screen_text'];
-          });
-        },
-        onLaunch: (Map<String, dynamic> message) async {
-          print("onLaunch: $message");
-          setState(() {
-            testText = message['data']['home_screen_text'];
-          });
-        },
-        onResume: (Map<String, dynamic> message) async {
-          print("onResume: $message");
-          setState(() {
-            testText = message['data']['home_screen_text'];
-          });
-        },
+        onMessage: onPushMessage,
+        onLaunch: onPushMessage,
+        onResume: onPushMessage,
         onBackgroundMessage: null,
       );
   }
@@ -80,9 +60,6 @@ class HomeState extends State<HomeScreen> {
     super.initState();
     analytics.setCurrentScreen(screenName: '/home');
     myRemoteConfigFuture = MyRemoteConfig.init();
-    standalone = getStandalone();
-    android = isAndroid();
-    ios = isIos();
   }
 
   Widget build(BuildContext context) {
@@ -96,7 +73,17 @@ class HomeState extends State<HomeScreen> {
           return Scaffold(
             backgroundColor: Color(0xfffff3d6),
             appBar: AppBar(
-              title: Text('Ihike Pakistan'),
+              title: GestureDetector(
+                child: Text('Ihike Pakistan'),
+                onTap: () {
+                  showAboutDialog(
+                    context: context,
+                    applicationName: 'Ihike Pakistan',
+                    applicationVersion: '0.4.2',
+                    applicationIcon: Image.asset('assets/logo_small.png'),
+                  );
+                },
+              ),
               actions: <Widget>[
                 IconButton(
                     icon: Icon(Icons.search),
@@ -166,23 +153,16 @@ class HomeState extends State<HomeScreen> {
                           ),
                         );
                         break;
-                      case '3dmap':
-                        url_launcher.launch(
-                            'https://joranmulderij.github.io/cesium/earth',
-                            forceWebView: true,
-                            enableJavaScript: true);
-                        //Navigator.push(context, MaterialPageRoute(builder: (context) => GlobeScreen(),),);
-                        break;
                       case 'addhike':
                         url_launcher
                             .launch('https://forms.gle/CU2bSZ6DQ2BAZhs17');
                         break;
                       case 'rate':
-                        //final InAppReview inAppReview = InAppReview.instance;
-
-                        /*if (await inAppReview.isAvailable()) {
-                        inAppReview.requestReview();
-                      }*/
+                        if (await url_launcher.canLaunch(
+                            'https://play.google.com/store/apps/details?id=com.ihikepakistan')) {
+                          url_launcher.launch(
+                              'https://play.google.com/store/apps/details?id=com.ihikepakistan');
+                        }
                         break;
                       case 'about':
                         showAboutDialog(
@@ -200,10 +180,6 @@ class HomeState extends State<HomeScreen> {
                       PopupMenuItem(
                         child: Text('Official MHNP Maps'),
                         value: 'officialMaps',
-                      ),
-                      PopupMenuItem(
-                        child: Text('3D Map (beta)'),
-                        value: '3dmap',
                       ),
                       PopupMenuItem(
                         child: Text('Add a Hike'),
@@ -276,8 +252,30 @@ class HomeState extends State<HomeScreen> {
                     MaterialPageRoute(
                       builder: (context) => mapScreen.MapScreen(
                         hike: Hike(
-                          data: [],
+                          multiData: [],
                           title: 'Blank Map',
+                        ),
+                      ),
+                    ),
+                  );
+                  return;
+                }
+                if (index == categories.length + 1) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => mapScreen.MapScreen(
+                        hike: Hike(
+                          multiData: () {
+                            List<List<double>> data = [];
+                            Hikes.all.forEach((hike) {
+                              hike.multiData.forEach((track) {
+                                data.add(track);
+                              });
+                            });
+                            return data;
+                          }(),
+                          title: 'Map',
                         ),
                       ),
                     ),
@@ -299,43 +297,10 @@ class HomeState extends State<HomeScreen> {
                       ))
                   .toList()
                     ..add(BottomNavigationBarItem(
-                        icon: Icon(Icons.map), label: "Blank Map")),
+                        icon: Icon(Icons.map), label: "Blank Map"))
+                    ..add(BottomNavigationBarItem(
+                        icon: Icon(Icons.map), label: 'Full Map')),
             ),
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerFloat,
-            floatingActionButton: () {
-              if (!kIsWeb) return null;
-              if (ios)
-                return FloatingActionButton.extended(
-                  label: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Text('Click on '),
-                          Icon(Icons.ios_share),
-                          Text(' to install'),
-                        ],
-                      ),
-                      Text('Then click on "Add to Homescreen"')
-                    ],
-                  ),
-                  //icon: Icon(Icons.add_to_home_screen),
-                  clipBehavior: Clip.none,
-                  autofocus: false,
-                  onPressed: () {},
-                );
-              if (android)
-                return FloatingActionButton.extended(
-                  autofocus: false,
-                  icon: Icon(Icons.android),
-                  onPressed: () {
-                    url_launcher.launch(
-                        'https://firebasestorage.googleapis.com/v0/b/ihike-pak.appspot.com/o/app.apk?alt=media');
-                  },
-                  label: Text('Click here to Install.'),
-                );
-              return null;
-            }(),
           );
         });
   }
