@@ -43,7 +43,9 @@ class HomeState extends State<HomeScreen> {
       kIsWeb ? null : FirebaseMessaging();
   Future<RemoteConfig> myRemoteConfigFuture;
 
-  onPushMessage(Map<String, dynamic> message) async {}
+  Future<dynamic> onPushMessage(Map<String, dynamic> message) async {
+    print(message);
+  }
 
   HomeState() {
     if (!kIsWeb)
@@ -79,7 +81,7 @@ class HomeState extends State<HomeScreen> {
                   showAboutDialog(
                     context: context,
                     applicationName: 'Ihike Pakistan',
-                    applicationVersion: '0.4.2',
+                    applicationVersion: '0.4.3',
                     applicationIcon: Image.asset('assets/logo_small.png'),
                   );
                 },
