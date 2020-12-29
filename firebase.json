@@ -17,7 +17,9 @@
         "**/.*",
         "**/node_modules/**"
       ],
+      "appAssociation": "AUTO",
       "rewrites": [
+        { "source": "/hikes/**", "dynamicLinks": true },
         {
           "source": "**",
           "destination": "/index.html"

@@ -165,10 +165,15 @@ class HomeState extends State<HomeScreen> {
                         }
                         break;
                       case 'about':
+                        if (await url_launcher
+                            .canLaunch('https://www.ihikepakistan.com/')) {
+                          await url_launcher
+                              .launch('https://www.ihikepakistan.com/');
+                        }
                         showAboutDialog(
                           context: context,
                           applicationName: 'Ihike Pakistan',
-                          applicationVersion: '0.4.2',
+                          applicationVersion: '0.4.3',
                           applicationIcon: Image.asset('assets/logo_small.png'),
                         );
                         break;
