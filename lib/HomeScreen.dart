@@ -12,6 +12,7 @@ import 'package:ihikepakistan/Hike.dart';
 import 'package:ihikepakistan/InfoScreen.dart';
 import 'package:ihikepakistan/MHNPMapsScreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:ihikepakistan/ShareTile.dart';
 import 'package:search_page/search_page.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 import 'Hikes.dart';
@@ -75,17 +76,7 @@ class HomeState extends State<HomeScreen> {
           return Scaffold(
             backgroundColor: Color(0xfffff3d6),
             appBar: AppBar(
-              title: GestureDetector(
-                child: Text('Ihike Pakistan'),
-                onDoubleTap: () {
-                  showAboutDialog(
-                    context: context,
-                    applicationName: 'Ihike Pakistan',
-                    applicationVersion: '0.4.3',
-                    applicationIcon: Image.asset('assets/logo_small.png'),
-                  );
-                },
-              ),
+              title: Text('Ihike Pakistan'),
               actions: <Widget>[
                 IconButton(
                     icon: Icon(Icons.search),
@@ -167,16 +158,50 @@ class HomeState extends State<HomeScreen> {
                         }
                         break;
                       case 'about':
-                        if (await url_launcher
-                            .canLaunch('https://www.ihikepakistan.com/')) {
-                          await url_launcher
-                              .launch('https://www.ihikepakistan.com/');
-                        }
                         showAboutDialog(
                           context: context,
                           applicationName: 'Ihike Pakistan',
-                          applicationVersion: '0.4.3',
-                          applicationIcon: Image.asset('assets/logo_small.png'),
+                          applicationVersion: '0.4.4',
+                          applicationIcon: Image.asset(
+                            'assets/icon_small.png',
+                            height: 70,
+                            width: 70,
+                          ),
+                          children: [
+                            ListTile(
+                              title: Text('About'),
+                              subtitle: Text(
+                                  'Ihike Pakistan is a hiking app to help you find your next Hike, and Navigate you over that Hike.'),
+                            ),
+                            ListTile(
+                              title: Text('Website'),
+                              subtitle: Text('ihikepakistan.com'),
+                              trailing: Icon(Icons.launch),
+                              onTap: () async {
+                                if (await url_launcher.canLaunch(
+                                    'https://www.ihikepakistan.com/')) {
+                                  await url_launcher
+                                      .launch('https://www.ihikepakistan.com/');
+                                }
+                              },
+                            ),
+                            ListTile(
+                              title: Text('Developer'),
+                              subtitle: Text('Joran Mulderij'),
+                              trailing: Icon(Icons.launch),
+                              onTap: () async {
+                                if (await url_launcher.canLaunch(
+                                    'https://play.google.com/store/apps/dev?id=6998590952049518161')) {
+                                  await url_launcher.launch(
+                                      'https://play.google.com/store/apps/dev?id=6998590952049518161');
+                                }
+                              },
+                            ),
+                            ShareTile(
+                              msg:
+                                  'Ihike Pakistan is a hiking app to help you find your next Hike, and Navigate you over that Hike.\nhttps://www.ihikepakistan.com/',
+                            ),
+                          ],
                         );
                         break;
                     }
