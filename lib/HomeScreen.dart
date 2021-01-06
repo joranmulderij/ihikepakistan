@@ -14,6 +14,7 @@ import 'package:ihikepakistan/MHNPMapsScreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ihikepakistan/ShareTile.dart';
 import 'package:search_page/search_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 import 'Hikes.dart';
 import 'MapScreen.dart' as mapScreen;
@@ -43,6 +44,7 @@ class HomeState extends State<HomeScreen> {
   final FirebaseMessaging _firebaseMessaging =
       kIsWeb ? null : FirebaseMessaging();
   Future<RemoteConfig> myRemoteConfigFuture;
+  SharedPreferences prefs;
 
   Future<dynamic> onPushMessage(Map<String, dynamic> message) async {
     print(message);
@@ -63,6 +65,11 @@ class HomeState extends State<HomeScreen> {
     super.initState();
     analytics.setCurrentScreen(screenName: '/home');
     myRemoteConfigFuture = MyRemoteConfig.init();
+    SharedPreferences.getInstance().then((value) {
+      setState(() {
+        prefs = value;
+      });
+    });
   }
 
   Widget build(BuildContext context) {
@@ -76,7 +83,8 @@ class HomeState extends State<HomeScreen> {
           return Scaffold(
             backgroundColor: Color(0xfffff3d6),
             appBar: AppBar(
-              title: Text('Ihike Pakistan'),
+              title: Text('Ihike Pakistan' +
+                  (prefs.containsKey('payCode') ? ' Pro' : '')),
               actions: <Widget>[
                 IconButton(
                     icon: Icon(Icons.search),
@@ -161,7 +169,7 @@ class HomeState extends State<HomeScreen> {
                         showAboutDialog(
                           context: context,
                           applicationName: 'Ihike Pakistan',
-                          applicationVersion: '0.4.4',
+                          applicationVersion: '0.4.5',
                           applicationIcon: Image.asset(
                             'assets/icon_small.png',
                             height: 70,

@@ -115,6 +115,7 @@ class MapboxState extends State<Map> {
   List<List<mapbox.LatLng>> tracks = [];
   String oldMapStyle = mapbox.MapboxStyles.MAPBOX_STREETS;
   mapbox.Line line;
+  mapbox.CameraPosition lastCameraPosition;
 
   @override
   void initState() {
@@ -172,7 +173,7 @@ class MapboxState extends State<Map> {
             );
           }
           return mapbox.MapboxMap(
-            initialCameraPosition: mapboxMapController?.cameraPosition ??
+            initialCameraPosition: lastCameraPosition ??
                 mapbox.CameraPosition(
                     target: (hike.multiData?.length ?? 0) == 0
                         ? mapbox.LatLng(33.693056, 73.063889)
@@ -189,6 +190,9 @@ class MapboxState extends State<Map> {
               MapCenterState.gps: mapbox.MyLocationRenderMode.GPS,
               MapCenterState.compass: mapbox.MyLocationRenderMode.COMPASS,
             }[mapState.mapCenterState],
+            onCameraIdle: () {
+              lastCameraPosition = mapboxMapController.cameraPosition;
+            },
             onMapCreated: (mapbox.MapboxMapController controller) async {
               for (var i = 0; i < 10; i++) {
                 await Future.delayed(Duration(seconds: 1));
@@ -220,6 +224,7 @@ class MapboxState extends State<Map> {
   }
 
   void tryAddTracks(mapbox.MapboxMapController controller) {
+    controller.clearLines();
     tracks.forEach((track) {
       controller.addLine(
           mapbox.LineOptions(geometry: track, lineColor: 'red', lineWidth: 2));
