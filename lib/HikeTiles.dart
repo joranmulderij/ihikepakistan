@@ -52,92 +52,94 @@ class HikeTile extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(
-                  'maps/' + hike.photo,
-                  fit: BoxFit.cover,
-                  height: 180,
-                  width: 150,
-                  errorBuilder: (BuildContext context, Object object,
-                      StackTrace stackTrace) {
-                    return CachedNetworkImage(
-                      imageUrl: hike.photos[0],
-                      fit: BoxFit.cover,
-                      height: 180,
-                      width: 200,
-                    );
-                  },
+                Expanded(
+                  child: Image.asset(
+                    'maps/' + hike.photo,
+                    fit: BoxFit.cover,
+                    height: 180,
+                    width: 150,
+                    errorBuilder: (BuildContext context, Object object,
+                        StackTrace stackTrace) {
+                      return CachedNetworkImage(
+                        imageUrl: hike.photos[0],
+                        fit: BoxFit.cover,
+                        height: 180,
+                        width: 200,
+                      );
+                    },
+                  ),
                 ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      width: 222,
-                      child: ListTile(
-                        title: Text(hike.title),
-                        subtitle: Text(hike.difficulty),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Container(
+                        child: ListTile(
+                          title: Text(hike.title),
+                          subtitle: Text(hike.difficulty),
+                        ),
                       ),
-                    ),
-                    Container(height: 5,),
-                    Container(
-                      width: 222,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: <Widget>[
-                          Column(
-                            children: [
-                              Text(
-                                'Length',
-                                style: TextStyle(color: Colors.grey, fontSize: 12),
-                              ),
-                              Text(
-                                hike.length,
-                                style: TextStyle(fontSize: 20),
-                              ),
-                              Text(
-                                'Km',
-                                style: TextStyle(color: Colors.grey, fontSize: 8),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Text(
-                                'Climb',
-                                style: TextStyle(color: Colors.grey, fontSize: 12),
-                              ),
-                              Text(
-                                hike.height,
-                                style: TextStyle(fontSize: 20),
-                              ),
-                              Text(
-                                'm',
-                                style: TextStyle(color: Colors.grey, fontSize: 8),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Text(
-                                'Time',
-                                style: TextStyle(color: Colors.grey, fontSize: 12),
-                              ),
-                              Text(
-                                hike.time,
-                                style: TextStyle(fontSize: 20),
-                              ),
-                              Text(
-                                'h:m',
-                                style: TextStyle(color: Colors.grey, fontSize: 8),
-                              ),
-                            ],
-                          ),
-                        ],
+                      Container(height: 5,),
+                      Container(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            Column(
+                              children: [
+                                Text(
+                                  'Length',
+                                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                                ),
+                                Text(
+                                  hike.length,
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                                Text(
+                                  'Km',
+                                  style: TextStyle(color: Colors.grey, fontSize: 8),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  'Climb',
+                                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                                ),
+                                Text(
+                                  hike.height,
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                                Text(
+                                  'm',
+                                  style: TextStyle(color: Colors.grey, fontSize: 8),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  'Time',
+                                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                                ),
+                                Text(
+                                  hike.time,
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                                Text(
+                                  'h:m',
+                                  style: TextStyle(color: Colors.grey, fontSize: 8),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Container(height: 5,),
-                  ],
-                )
+                      Container(height: 5,),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

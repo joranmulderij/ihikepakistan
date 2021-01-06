@@ -262,7 +262,6 @@ class HomeState extends State<HomeScreen> {
                     enableInfiniteScroll: false,
                     initialPage: 0,
                     height: 180,
-                    aspectRatio: 2.23,
                     onPageChanged:
                         (int value, CarouselPageChangedReason reason) {
                       if (reason != CarouselPageChangedReason.manual) return;
