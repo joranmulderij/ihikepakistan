@@ -7,12 +7,13 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:ihikepakistan/Hike.dart';
 import 'package:ihikepakistan/InfoScreen.dart';
 import 'package:ihikepakistan/MHNPMapsScreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:ihikepakistan/MapState.dart';
 import 'package:ihikepakistan/ShareTile.dart';
+import 'package:provider/provider.dart';
 import 'package:search_page/search_page.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 import 'Hikes.dart';
@@ -20,6 +21,7 @@ import 'MapScreen.dart' as mapScreen;
 import 'HikeTiles.dart';
 import 'dart:convert' as convert;
 import 'remoteConfig.dart';
+import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 //import 'package:js/js.dart' as js;
 
 /*@js.JS('getStandalone')
@@ -74,7 +76,7 @@ class HomeState extends State<HomeScreen> {
           categories = List.from(convert.json
               .decode(MyRemoteConfig.getRemoteConfigValue('categories')));
           return Scaffold(
-            backgroundColor: Color(0xfffff3d6),
+            //backgroundColor: Color(0xfffff3d6),
             appBar: AppBar(
               title: Text('Ihike Pakistan'),
               actions: <Widget>[
@@ -230,105 +232,55 @@ class HomeState extends State<HomeScreen> {
                 ),
               ],
             ),
-            body: Column(
-              children: <Widget>[
-                Container(
-                  height: 400,
-                  child: CarouselSlider.builder(
-                    itemCount: Hikes.all.length,
-                    carouselController: controller,
-                    itemBuilder: (BuildContext context, int index) => HikeTile(
-                      hike: Hikes.all[index],
-                    ),
-                    options: CarouselOptions(
-                      scrollDirection: Axis.horizontal,
-                      enableInfiniteScroll: false,
-                      initialPage: 0,
-                      height: 400,
-                      onPageChanged:
-                          (int value, CarouselPageChangedReason reason) {
-                        if (reason != CarouselPageChangedReason.manual) return;
-                        int index;
-                        for (int i = breakPoints.length - 1; i >= 0; i--) {
-                          if (value >= breakPoints[i]) {
-                            index = i;
-                            break;
-                          }
-                        }
-                        index = (index ?? 2);
-                        setState(() {
-                          tabIndex = index;
-                        });
-                      },
+            body: Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                ListenableProvider(
+                  create: (_) => MapState(),
+                  child: mapScreen.Map(
+                    hike: Hike(
+                        multiData: () {
+                          List<List<double>> data = [];
+                          Hikes.all.forEach((hike) {
+                            hike.multiData.forEach((track) {
+                              data.add(track);
+                            });
+                          });
+                          return data;
+                        }()
                     ),
                   ),
                 ),
-                MarkdownBody(
-                    data: testText ??
-                        MyRemoteConfig.getRemoteConfigValue('homescreen_text')),
+                CarouselSlider.builder(
+                  itemCount: Hikes.all.length,
+                  carouselController: controller,
+                  itemBuilder: (BuildContext context, int index) => HikeTile(
+                    hike: Hikes.all[index],
+                  ),
+                  options: CarouselOptions(
+                    scrollDirection: Axis.horizontal,
+                    enableInfiniteScroll: false,
+                    initialPage: 0,
+                    height: 180,
+                    aspectRatio: 2.23,
+                    onPageChanged:
+                        (int value, CarouselPageChangedReason reason) {
+                      if (reason != CarouselPageChangedReason.manual) return;
+                      int index;
+                      for (int i = breakPoints.length - 1; i >= 0; i--) {
+                        if (value >= breakPoints[i]) {
+                          index = i;
+                          break;
+                        }
+                      }
+                      index = (index ?? 2);
+                      setState(() {
+                        tabIndex = index;
+                      });
+                    },
+                  ),
+                ),
               ],
-            ),
-            bottomNavigationBar: BottomNavigationBar(
-              selectedItemColor: Colors.amber,
-              type: BottomNavigationBarType.shifting,
-              showUnselectedLabels: true,
-              currentIndex: tabIndex,
-              unselectedFontSize: 12,
-              onTap: (int index) {
-                if (index == categories.length) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => mapScreen.MapScreen(
-                        hike: Hike(
-                          multiData: [],
-                          title: 'Blank Map',
-                        ),
-                      ),
-                    ),
-                  );
-                  return;
-                }
-                if (index == categories.length + 1) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => mapScreen.MapScreen(
-                        hike: Hike(
-                          multiData: () {
-                            List<List<double>> data = [];
-                            Hikes.all.forEach((hike) {
-                              hike.multiData.forEach((track) {
-                                data.add(track);
-                              });
-                            });
-                            return data;
-                          }(),
-                          title: 'Full Map',
-                        ),
-                      ),
-                    ),
-                  );
-                  return;
-                }
-                setState(() {
-                  tabIndex = index;
-                });
-                controller.animateToPage(breakPoints[tabIndex],
-                    curve: Curves.easeInOut);
-              },
-              unselectedItemColor: Colors.grey,
-              selectedFontSize: 16,
-              items: categories
-                  .map((e) => BottomNavigationBarItem(
-                        icon: Icon(Icons.location_pin),
-                        label: e,
-                      ))
-                  .toList()
-                    ..add(BottomNavigationBarItem(
-                        icon: Icon(Icons.map), label: "Blank Map"))
-                    ..add(BottomNavigationBarItem(
-                        icon: Icon(Icons.map), label: 'Full Map')),
             ),
           );
         });

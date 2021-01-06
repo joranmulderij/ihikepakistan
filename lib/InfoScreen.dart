@@ -101,19 +101,19 @@ class InfoBody extends StatelessWidget {
     return CustomScrollView(
       slivers: <Widget>[
         SliverAppBar(
-          expandedHeight: 250,
+          expandedHeight: 300,
           flexibleSpace: Image.asset(
             'maps/' + hike.photo,
             alignment: Alignment.topCenter,
             fit: BoxFit.cover,
-            height: 250,
+            height: 300,
             errorBuilder:
                 (BuildContext context, Object object, StackTrace stackTrace) {
               return CachedNetworkImage(
                 imageUrl: hike.photos[0],
                 alignment: Alignment.topCenter,
                 fit: BoxFit.cover,
-                height: 250,
+                height: 300,
                 errorWidget: (BuildContext context, _, __) {
                   return Center(
                     child: Icon(
