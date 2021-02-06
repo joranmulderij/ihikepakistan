@@ -10,6 +10,10 @@
       ]
     },
     {
+      "site": "ihikepakistan-editor",
+      "public": "editor"
+    },
+    {
       "site": "ihike-pak",
       "public": "build/web",
       "ignore": [
