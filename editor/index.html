@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ihike Editor: Hikes</title>
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwSPcYvxRtSnzgOqHzFBsGRstEx1jDz_k",
+            authDomain: "ihike-pak.firebaseapp.com",
+            databaseURL: "https://ihike-pak.firebaseio.com",
+            projectId: "ihike-pak",
+            storageBucket: "ihike-pak.appspot.com",
+            messagingSenderId: "1080382637840",
+            appId: "1:1080382637840:web:6e5f56da1e475203f9c795",
+            measurementId: "G-SV3RHQ9FH7"
+        };
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+        const db = firebase.firestore();
+    </script>
+</head>
+
+<body>
+    <div id="main">
+        <ul v-if="login">
+            <li v-for="hike in hikes">
+                <a :href="'hike.html?id=' + hike.id">{{hike.name}}</a>
+            </li>
+            <div v-if="hikes.length == 0">
+                Loading...
+            </div>
+        </ul>
+        <div v-else>
+            You are not signed in. Click <a href="login">here</a> to sign in.
+        </div>
+        <button @click="create">
+            New Hike
+        </button>
+    </div>
+    <script>
+        var main = new Vue({
+            el: "#main",
+            data: {
+                hikes: [],
+                login: false,
+            },
+            methods: {
+                create: function(e){
+                    var id = prompt('Hike id:');
+                    if(!/^[_a-z0-9]+$/g.test(id)){
+                        alert('The id can only contain lowercase characters, digits, and underscore.');
+                        return;
+                    }
+                    db.collection('hikes').doc(id).set({
+                        name: id,
+                        description: '',
+                        images: [],
+                        path: [new firebase.firestore.GeoPoint(33, 73), new firebase.firestore.GeoPoint(33, 72)],
+                        difficulty: null,
+                        start: new firebase.firestore.GeoPoint(33, 73),
+                        end: new firebase.firestore.GeoPoint(33, 72),
+                    }).then((e) => {
+                        location.href = 'hike.html?id=' + id;
+                    });
+                }
+            }
+        });
+        firebase.auth().onAuthStateChanged(async function (user) {
+            if (user) {
+                main.login = true;
+            } else {
+                main.login = false;
+            }
+        });
+        db.collection('hikes').get().then((snapshot) => {
+            snapshot.forEach((doc) => {
+                var data = doc.data();
+                data.id = doc.id;
+                main.hikes.push(data);
+            });
+        });
+    </script>
+</body>
+
+</html>

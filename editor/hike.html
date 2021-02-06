@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ihike Editor</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <script src="materialize/js/materialize.min.js"></script>
+    <link rel="stylesheet" href="materialize/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-storage.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=&callback=initMap&libraries=&v=weekly" defer></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwSPcYvxRtSnzgOqHzFBsGRstEx1jDz_k",
+            authDomain: "ihike-pak.firebaseapp.com",
+            databaseURL: "https://ihike-pak.firebaseio.com",
+            projectId: "ihike-pak",
+            storageBucket: "ihike-pak.appspot.com",
+            messagingSenderId: "1080382637840",
+            appId: "1:1080382637840:web:6e5f56da1e475203f9c795",
+            measurementId: "G-SV3RHQ9FH7"
+        };
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+        const db = firebase.firestore();
+        const storage = firebase.storage().ref();
+    </script>
+    <style>
+        #main {
+            width: 50%;
+            margin: 20px;
+        }
+
+        #images-box {
+            padding: 10px;
+            border: solid grey 1px;
+        }
+
+        #map {
+            height: 500px;
+            width: 100%;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main">
+        <div v-if="user">
+            <div class="input-field col s6">
+                <input v-model="hike.name" id="name" type="text">
+                <label for="name">Name</label>
+            </div>
+            <div class="input-field col s6">
+                <textarea v-model="hike.description" id="description" class="materialize-textarea"></textarea>
+                <label for="description">Description</label>
+            </div>
+            <div class="col s6">
+                <select v-model="hike.difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="easy/medium">Easy/Medium</option>
+                    <option value="medium">Medium</option>
+                    <option value="medium/difficult">Medium/Difficult</option>
+                    <option value="difficult">Difficult</option>
+                    <option value="easy">Easy</option>
+                </select>
+            </div>
+            <div class="file-field input-field">
+                <div class="btn">
+                    <span>Upload Gpx</span>
+                    <input id="gpxin" type="file" onchange="uploadGpx()">
+                </div>
+                <div class="file-path-wrapper">
+                    <input class="file-path validate" style="opacity: 0;" type="text">
+                </div>
+            </div>
+            <div id="map">Map Error!</div>
+            <div id="images-box">
+                <h5>Images</h5>
+                <div class="file-field input-field">
+                    <div class="btn">
+                        <span>Upload Image</span>
+                        <input accept="image/*" id="filein" type="file" onchange="uploadImage()">
+                    </div>
+                    <div class="file-path-wrapper">
+                        <input class="file-path validate" style="opacity: 0;" type="text">
+                    </div>
+                </div>
+                <div v-for="(image, index) in hike.images">
+                    <img height="100" :src="image" alt="Image Error">
+                    <a @click="moveImageUp(index)" class="waves-effect waves-teal btn-flat"><i
+                            class="material-icons">arrow_upward</i></a>
+                    <a @click="removeImageAt(index)" class="waves-effect waves-teal btn-flat"><i
+                            class="material-icons">delete</i></a>
+                    <a @click="moveImageDown(index)" class="waves-effect waves-teal btn-flat"><i
+                            class="material-icons">arrow_downward</i></a>
+                </div>
+                <div v-if="loadingimage">
+                    <div class="preloader-wrapper small active">
+                        <div class="spinner-layer spinner-green-only">
+                            <div class="circle-clipper left">
+                                <div class="circle"></div>
+                            </div>
+                            <div class="gap-patch">
+                                <div class="circle"></div>
+                            </div>
+                            <div class="circle-clipper right">
+                                <div class="circle"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <button class="waves-effect waves-light btn" onclick="submit()">Submit</button>
+        </div>
+        <div v-else>
+            You are not signed in. Click <a href="login">here</a> to sign in.
+        </div>
+    </div>
+    <script>
+        var hikeId = new URL(location).searchParams.get("id");
+        if (hikeId == null) {
+            alert('Please select a hike!');
+        }
+
+        db.collection('hikes').doc(hikeId).get().then(async function (snapshot) {
+            main.hike = snapshot.data();
+            main.path.clear();
+            for(var i = 0; i < main.hike.path.length; i++){
+                var latLng = main.hike.path[i];
+                console.log(latLng);
+                main.path.push(new google.maps.LatLng(latLng.latitude, latLng.longitude));
+            }
+            await setTimeout(1);
+            M.AutoInit();
+        });
+
+        let main;
+        main = new Vue({
+            el: '#main',
+            methods: {
+                removeImageAt: function (index) {
+                    this.hike.images.splice(index, 1);
+                },
+                moveImageDown: function (index) {
+                    if (index + 1 == this.hike.images.length) return;
+                    var temp = this.hike.images.splice(index, 1);
+                    this.hike.images.splice(index + 1, 0, temp[0]);
+                },
+                moveImageUp: function (index) {
+                    if (this.hike.images.length == 0) return;
+                    var temp = this.hike.images.splice(index, 1);
+                    this.hike.images.splice(index - 1, 0, temp[0]);
+                }
+            },
+            data: {
+                mode: 0,
+                loadingimage: false,
+                hike: {
+                    name: 'Trail 3',
+                    description: 'No description!',
+                    images: [],
+                },
+                difficulty: null,
+                user: null,
+            },
+        });
+
+        function makeid(length) {
+            var result = '';
+            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            var charactersLength = characters.length;
+            for (var i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            return result;
+        }
+        async function uploadImage() {
+            main.loadingimage = true;
+            var files = document.getElementById('filein').files;
+            var id = makeid(10);
+            var extension = files[0].name.split('.').pop();
+            await storage.child(`images/${id}.${extension}`).put(files[0]);
+            var url = await storage.child(`images/${id}.${extension}`).getDownloadURL();
+            main.hike.images.push(url);
+            main.loadingimage = false;
+        }
+        firebase.auth().onAuthStateChanged(async function (user) {
+            if (user) {
+                main.user = user;
+                await setTimeout(1);
+                drawMap();
+            } else {
+                main.user = null;
+            }
+            M.AutoInit();
+        });
+
+        function uploadGpx() {
+            var file = document.getElementById('gpxin').files[0];
+
+            if (file) {
+                var reader = new FileReader();
+                reader.readAsText(file, "UTF-8");
+                reader.onload = function (evt) {
+                    //main.path.clear();
+                    var re = /[0-9]{1,3}\.[0-9]{3,}/g;
+                    var m;
+                    var temp;
+                    do {
+                        m = re.exec(evt.target.result);
+                        if (m) {
+                            console.log(m[0]);
+                            if(temp == null){
+                                temp = parseFloat(m[0]);
+                            } else {
+                                main.path.push(new google.maps.LatLng(temp, m[0]));
+                                temp = null;
+                            }
+                        }
+                    } while (m);
+                    console.log(main.path);
+                }
+                reader.onerror = function (evt) {
+                    alert('File Error!');
+                }
+            }
+        }
+
+        let map;
+        function initMap() { }
+        function drawMap() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 33, lng: 73 },
+                zoom: 8,
+                mapTypeId: 'hybrid'
+            });
+            poly = new google.maps.Polyline({
+                strokeColor: "red",
+                strokeOpacity: 1.0,
+                strokeWeight: 3,
+                path: [
+                    { lat: 33, lng: 73 },
+                    { lat: 33, lng: 72 },
+                ],
+                editable: true,
+            });
+            main.path = poly.getPath();
+            google.maps.event.addListener(main.path, "set_at", onEdit);
+            google.maps.event.addListener(map, "click", (e) => {
+                new google.maps.Marker({
+                    position: e.latLng,
+                    map: map,
+                    icon: {
+                        url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                    }
+                });
+            });
+            google.maps.event.addListener(poly, "click", (e) => {
+                if (e.vertex == undefined) {
+                    return;
+                } else if (main.path.getLength() < 3) {
+                    alert('Cannot remove this node because the line is too short.');
+                    return;
+                }
+                main.path.removeAt(e.vertex);
+            });
+
+            poly.setMap(map);
+
+        }
+        function onEdit() {
+
+        }
+        function submit() {
+            console.log(main.hike);
+            main.hike.path = [];
+            for (let i = 0; i < main.path.getLength(); i++) {
+                const element = main.path.getAt(i);
+                main.hike.path.push(new firebase.firestore.GeoPoint(element.lat(), element.lng()));
+            }
+            main.hike.start = new firebase.firestore.GeoPoint(main.path.getAt(0).lat(), main.path.getAt(0).lng());
+            main.hike.end = new firebase.firestore.GeoPoint(main.path.getAt(main.path.getLength() - 1).lat(), main.path.getAt(main.path.getLength() - 1).lng());
+            db.collection('hikes').doc(hikeId).set(main.hike).then(function (_) {
+                alert('Success!');
+            });
+        }
+        M.AutoInit();
+    </script>
+</body>
+
+</html>
+
+<!-- firebase.auth.GoogleAuthProvider.PROVIDER_ID -->

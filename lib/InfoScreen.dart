@@ -101,49 +101,27 @@ class InfoBody extends StatelessWidget {
     return CustomScrollView(
       slivers: <Widget>[
         SliverAppBar(
-          expandedHeight: 250,
-          flexibleSpace: GestureDetector(
-            child: Image.asset(
-              'maps/' + hike.photo,
-              alignment: Alignment.topCenter,
-              fit: BoxFit.cover,
-              height: 250,
-              errorBuilder:
-                  (BuildContext context, Object object, StackTrace stackTrace) {
-                return CachedNetworkImage(
-                  imageUrl: hike.photos[0],
-                  alignment: Alignment.topCenter,
-                  fit: BoxFit.cover,
-                  height: 250,
-                  errorWidget: (BuildContext context, _, __) {
-                    return Center(
-                      child: Icon(
-                        Icons.broken_image,
-                        size: 30,
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MapScreen(
-                    hike: hike,
-                  ),
-                ),
-              );
-            },
-            onPanStart: (_) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MapScreen(
-                    hike: hike,
-                  ),
-                ),
+          expandedHeight: 300,
+          flexibleSpace: Image.asset(
+            'maps/' + hike.photo,
+            alignment: Alignment.topCenter,
+            fit: BoxFit.cover,
+            height: 300,
+            errorBuilder:
+                (BuildContext context, Object object, StackTrace stackTrace) {
+              return CachedNetworkImage(
+                imageUrl: hike.photos[0],
+                alignment: Alignment.topCenter,
+                fit: BoxFit.cover,
+                height: 300,
+                errorWidget: (BuildContext context, _, __) {
+                  return Center(
+                    child: Icon(
+                      Icons.broken_image,
+                      size: 30,
+                    ),
+                  );
+                },
               );
             },
           ),

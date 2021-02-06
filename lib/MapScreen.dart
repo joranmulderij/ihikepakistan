@@ -113,7 +113,7 @@ class MapboxState extends State<Map> {
   mapbox.MapboxMapController mapboxMapController;
   MapboxState({this.hike});
   List<List<mapbox.LatLng>> tracks = [];
-  String oldMapStyle = mapbox.MapboxStyles.MAPBOX_STREETS;
+  String oldMapStyle = mapbox.MapboxStyles.OUTDOORS;
   mapbox.Line line;
   mapbox.CameraPosition lastCameraPosition;
 
