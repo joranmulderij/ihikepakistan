@@ -125,9 +125,6 @@ class InfoBody extends StatelessWidget {
               );
             },
           ),
-          /*actions: <Widget>[
-            IconButton(icon: Icon(hike.icon), onPressed: null)
-          ],*/
           leading: Container(),
         ),
         SliverList(

@@ -41,5 +41,6 @@ app.*.symbols
 app.*.map.json
 android/gradle.properties
 
-/screenshots/
-/video/
+
+video
+screenshots
