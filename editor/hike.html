@@ -33,7 +33,6 @@
     </script>
     <style>
         #main {
-            width: 50%;
             margin: 20px;
         }
 
@@ -212,21 +211,28 @@
                 reader.readAsText(file, "UTF-8");
                 reader.onload = function (evt) {
                     //main.path.clear();
-                    var re = /[0-9]{1,3}\.[0-9]{3,}/g;
+                    var lats = [];
+                    var lons = [];
+                    var re1 = /lat="([0-9]{1,3}\.[0-9]+)"/g;
+                    var re2 = /lon="([0-9]{1,3}\.[0-9]+)"/g;
                     var m;
-                    var temp;
                     do {
-                        m = re.exec(evt.target.result);
+                        m = re1.exec(evt.target.result);
                         if (m) {
-                            console.log(m[0]);
-                            if(temp == null){
-                                temp = parseFloat(m[0]);
-                            } else {
-                                main.path.push(new google.maps.LatLng(temp, m[0]));
-                                temp = null;
-                            }
+                            console.log('3');
+                            lats.push(parseFloat(m[1]));
                         }
                     } while (m);
+                    do {
+                        m = re2.exec(evt.target.result);
+                        if (m) {
+                            lons.push(parseFloat(m[1]));
+                        }
+                    } while (m);
+                    console.log(lons);
+                    for(var i = 0; i < Math.min(lats.length, lons.length); i++){
+                        main.path.push(new google.maps.LatLng(lats[i], lons[i]));
+                    }
                     console.log(main.path);
                 }
                 reader.onerror = function (evt) {
