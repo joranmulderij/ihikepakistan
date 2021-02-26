@@ -101,9 +101,12 @@ class MapScreen extends StatelessWidget {
 
 class Map extends StatefulWidget {
   final Hike hike;
-  Map({this.hike});
+  final mapbox.CameraPosition cameraPosition;
+  Map({this.hike, this.cameraPosition}){
+    print(hike);
+  }
   @override
-  MapboxState createState() => MapboxState(hike: hike);
+  MapboxState createState() => MapboxState(hike: hike, lastCameraPosition: cameraPosition);
 }
 
 class MapboxState extends State<Map> {
@@ -111,7 +114,7 @@ class MapboxState extends State<Map> {
   bool showLoader = true;
   final Hike hike;
   mapbox.MapboxMapController mapboxMapController;
-  MapboxState({this.hike});
+  MapboxState({this.hike, this.lastCameraPosition});
   List<List<mapbox.LatLng>> tracks = [];
   String oldMapStyle = mapbox.MapboxStyles.OUTDOORS;
   mapbox.Line line;

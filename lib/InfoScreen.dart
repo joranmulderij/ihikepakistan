@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -100,32 +102,16 @@ class InfoBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: <Widget>[
-        SliverAppBar(
-          expandedHeight: 300,
-          flexibleSpace: Image.asset(
-            'maps/' + hike.photo,
-            alignment: Alignment.topCenter,
-            fit: BoxFit.cover,
-            height: 300,
-            errorBuilder:
-                (BuildContext context, Object object, StackTrace stackTrace) {
-              return CachedNetworkImage(
-                imageUrl: hike.photos[0],
-                alignment: Alignment.topCenter,
+        SliverList(
+          delegate: SliverChildListDelegate(
+            [
+              Image.memory(
+                base64Decode(hike.photo.replaceFirst('data:image/png;base64,', '')),
                 fit: BoxFit.cover,
-                height: 300,
-                errorWidget: (BuildContext context, _, __) {
-                  return Center(
-                    child: Icon(
-                      Icons.broken_image,
-                      size: 30,
-                    ),
-                  );
-                },
-              );
-            },
+                //height: 300,
+              ),
+            ]
           ),
-          leading: Container(),
         ),
         SliverList(
           delegate: SliverChildBuilderDelegate(
@@ -224,12 +210,19 @@ class InfoBody extends StatelessWidget {
                           child: ClipRRect(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                             //child: Image.network(hike.photos[index]),
-                            child: CachedNetworkImage(
-                              fit: BoxFit.cover,
-                              imageUrl: hike.photos[index],
-                              errorWidget: (context, url, error) =>
-                                  Icon(Icons.error),
-                            ),
+                            child: hike.photos[index]
+                                    .contains('data:image/png;base64,')
+                                ? Image.memory(
+                                    base64Decode(hike.photos[index].replaceFirst(
+                                        'data:image/png;base64,', '')),
+                                    fit: BoxFit.cover,
+                                  )
+                                : CachedNetworkImage(
+                                    fit: BoxFit.cover,
+                                    imageUrl: hike.photos[index],
+                                    errorWidget: (context, url, error) =>
+                                        Icon(Icons.error),
+                                  ),
                           ),
                           onTap: () {
                             openPhotos(index, context);
@@ -239,7 +232,7 @@ class InfoBody extends StatelessWidget {
                     },
                   ),
                 ),
-                ShareTile(msg: 'This is ${hike.title}'),
+                ShareTile(msg: '${hike.title} on https://ihikepakistan.com'),
                 /*Row(
                   children: [
                     FutureBuilder<DocumentSnapshot>(

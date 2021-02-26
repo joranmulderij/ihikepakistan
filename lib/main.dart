@@ -1,11 +1,21 @@
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
+import 'package:ihikepakistan/DefaultHikes.dart';
 import 'package:ihikepakistan/HomeScreen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
-void main() {
-  //InAppPurchaseConnection.enablePendingPurchases();
+SharedPreferences prefs;
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  prefs = await SharedPreferences.getInstance();
+  var res = await http.get('https://repo.ihikepakistan.com/hikes.json').catchError((error) {
+    prefs.setString('hikes', defaultHikes);
+  });
+  prefs.setString('hikes', res.body);
+
   runApp(MyApp());
 }
 

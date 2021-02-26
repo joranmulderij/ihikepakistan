@@ -1,6 +1,8 @@
 /*@js.JS()
 library get_standalone;*/
 
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -13,6 +15,7 @@ import 'package:ihikepakistan/MHNPMapsScreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ihikepakistan/MapState.dart';
 import 'package:ihikepakistan/ShareTile.dart';
+import 'package:ihikepakistan/main.dart';
 import 'package:provider/provider.dart';
 import 'package:search_page/search_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,32 +24,19 @@ import 'Hikes.dart';
 import 'MapScreen.dart' as mapScreen;
 import 'HikeTiles.dart';
 import 'dart:convert' as convert;
-import 'remoteConfig.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
-//import 'package:js/js.dart' as js;
-
-/*@js.JS('getStandalone')
-external bool getStandalone();
-@js.JS('isIos')
-external bool isIos();
-@js.JS('isAndroid')
-external bool isAndroid();*/
 
 class HomeScreen extends StatefulWidget {
   HomeState createState() => HomeState();
 }
 
 class HomeState extends State<HomeScreen> {
-  int tabIndex = 0;
   CarouselController controller = CarouselController();
-  List<int> breakPoints;
-  List<String> categories;
   String testText;
   final FirebaseAnalytics analytics = FirebaseAnalytics();
   final FirebaseMessaging _firebaseMessaging =
       kIsWeb ? null : FirebaseMessaging();
   Future<RemoteConfig> myRemoteConfigFuture;
-  SharedPreferences prefs;
 
   Future<dynamic> onPushMessage(Map<String, dynamic> message) async {
     print(message);
@@ -66,22 +56,12 @@ class HomeState extends State<HomeScreen> {
   void initState() {
     super.initState();
     analytics.setCurrentScreen(screenName: '/home');
-    myRemoteConfigFuture = MyRemoteConfig.init();
-    SharedPreferences.getInstance().then((value) {
-      setState(() {
-        prefs = value;
-      });
-    });
   }
 
   Widget build(BuildContext context) {
     return FutureBuilder(
         future: myRemoteConfigFuture,
         builder: (BuildContext context, AsyncSnapshot<RemoteConfig> snapshot) {
-          breakPoints = List.from(convert.json.decode(
-              MyRemoteConfig.getRemoteConfigValue('category_breakpoints')));
-          categories = List.from(convert.json
-              .decode(MyRemoteConfig.getRemoteConfigValue('categories')));
           return Scaffold(
             //backgroundColor: Color(0xfffff3d6),
             appBar: AppBar(
@@ -97,21 +77,19 @@ class HomeState extends State<HomeScreen> {
                               leading: ClipRRect(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(5)),
-                                child: Image.asset(
-                                  'maps/' + hike.photo,
-                                  fit: BoxFit.cover,
-                                  height: 60,
-                                  width: 80,
-                                  errorBuilder: (BuildContext context,
-                                      Object object, StackTrace stackTrace) {
-                                    return CachedNetworkImage(
-                                      imageUrl: hike.photos[0],
-                                      fit: BoxFit.cover,
-                                      height: 60,
-                                      width: 80,
-                                    );
-                                  },
-                                ),
+                                child: hike.photo
+                                        .contains('data:image/png;base64,')
+                                    ? Image.memory(
+                                        base64Decode(hike.photo.replaceFirst(
+                                            'data:image/png;base64,', '')),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : CachedNetworkImage(
+                                        fit: BoxFit.cover,
+                                        imageUrl: hike.photo,
+                                        errorWidget: (context, url, error) =>
+                                            Icon(Icons.error),
+                                      ),
                               ),
                               title: Text(
                                 hike.title,
@@ -246,17 +224,19 @@ class HomeState extends State<HomeScreen> {
                 ListenableProvider(
                   create: (_) => MapState(),
                   child: mapScreen.Map(
-                    hike: Hike(
-                        multiData: () {
-                          List<List<double>> data = [];
-                          Hikes.all.forEach((hike) {
-                            hike.multiData.forEach((track) {
-                              data.add(track);
-                            });
-                          });
-                          return data;
-                        }()
+                    cameraPosition: mapbox.CameraPosition(
+                      target: mapbox.LatLng(33.693056, 73.063889),
+                      zoom: 10,
                     ),
+                    hike: Hike(multiData: () {
+                      List<List<double>> data = [];
+                      Hikes.all.forEach((hike) {
+                        hike.multiData.forEach((track) {
+                          data.add(track);
+                        });
+                      });
+                      return data;
+                    }()),
                   ),
                 ),
                 CarouselSlider.builder(
@@ -266,26 +246,12 @@ class HomeState extends State<HomeScreen> {
                     hike: Hikes.all[index],
                   ),
                   options: CarouselOptions(
-                    scrollDirection: Axis.horizontal,
-                    enableInfiniteScroll: false,
-                    initialPage: 0,
-                    height: 180,
-                    onPageChanged:
-                        (int value, CarouselPageChangedReason reason) {
-                      if (reason != CarouselPageChangedReason.manual) return;
-                      int index;
-                      for (int i = breakPoints.length - 1; i >= 0; i--) {
-                        if (value >= breakPoints[i]) {
-                          index = i;
-                          break;
-                        }
-                      }
-                      index = (index ?? 2);
-                      setState(() {
-                        tabIndex = index;
-                      });
-                    },
-                  ),
+                      scrollDirection: Axis.horizontal,
+                      enableInfiniteScroll: false,
+                      initialPage: 0,
+                      viewportFraction: 0.9,
+                      height: 180,
+                      autoPlay: true),
                 ),
               ],
             ),

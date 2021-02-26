@@ -1,4 +1,4 @@
-import 'package:ihikepakistan/remoteConfig.dart';
+import 'package:ihikepakistan/main.dart';
 
 import 'Hike.dart';
 import 'dart:convert' as convert;
@@ -7,7 +7,7 @@ class Hikes {
   static List<Hike> get all {
     List<Hike> toReturn = [];
     dynamic json =
-        convert.json.decode(MyRemoteConfig.getRemoteConfigValue('hikes'));
+        convert.json.decode(prefs.getString('hikes'));
     for (var i = 0; i < json.length; i++) {
       toReturn.add(Hike(
         height: json[i]['climb'].toString(),

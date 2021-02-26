@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -53,23 +55,16 @@ class HikeTile extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Expanded(
-                  child: Image.asset(
-                    'maps/' + hike.photo,
+                  flex: 2,
+                  child: Image.memory(
+                    base64Decode(hike.photo.replaceFirst('data:image/png;base64,', '')),
                     fit: BoxFit.cover,
                     height: 180,
-                    width: 150,
-                    errorBuilder: (BuildContext context, Object object,
-                        StackTrace stackTrace) {
-                      return CachedNetworkImage(
-                        imageUrl: hike.photos[0],
-                        fit: BoxFit.cover,
-                        height: 180,
-                        width: 200,
-                      );
-                    },
+                    width: 200,
                   ),
                 ),
                 Expanded(
+                  flex: 3,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,7 +75,9 @@ class HikeTile extends StatelessWidget {
                           subtitle: Text(hike.difficulty),
                         ),
                       ),
-                      Container(height: 5,),
+                      Container(
+                        height: 5,
+                      ),
                       Container(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -89,7 +86,8 @@ class HikeTile extends StatelessWidget {
                               children: [
                                 Text(
                                   'Length',
-                                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 12),
                                 ),
                                 Text(
                                   hike.length,
@@ -97,7 +95,8 @@ class HikeTile extends StatelessWidget {
                                 ),
                                 Text(
                                   'Km',
-                                  style: TextStyle(color: Colors.grey, fontSize: 8),
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 8),
                                 ),
                               ],
                             ),
@@ -105,7 +104,8 @@ class HikeTile extends StatelessWidget {
                               children: [
                                 Text(
                                   'Climb',
-                                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 12),
                                 ),
                                 Text(
                                   hike.height,
@@ -113,7 +113,8 @@ class HikeTile extends StatelessWidget {
                                 ),
                                 Text(
                                   'm',
-                                  style: TextStyle(color: Colors.grey, fontSize: 8),
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 8),
                                 ),
                               ],
                             ),
@@ -121,7 +122,8 @@ class HikeTile extends StatelessWidget {
                               children: [
                                 Text(
                                   'Time',
-                                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 12),
                                 ),
                                 Text(
                                   hike.time,
@@ -129,14 +131,17 @@ class HikeTile extends StatelessWidget {
                                 ),
                                 Text(
                                   'h:m',
-                                  style: TextStyle(color: Colors.grey, fontSize: 8),
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 8),
                                 ),
                               ],
                             ),
                           ],
                         ),
                       ),
-                      Container(height: 5,),
+                      Container(
+                        height: 5,
+                      ),
                     ],
                   ),
                 ),

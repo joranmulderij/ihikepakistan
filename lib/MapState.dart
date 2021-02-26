@@ -24,7 +24,7 @@ class IhikeLatLng {
 
 class MapState with ChangeNotifier {
   MapCenterState mapCenterState = MapCenterState.none;
-  String mapStyle = MapboxStyles.MAPBOX_STREETS;
+  String mapStyle = MapboxStyles.OUTDOORS;
   StreamSubscription locationStreamSub;
   List<IhikeLatLng> track = [];
 
