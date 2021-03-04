@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'Hike.dart';
 
 class ReadScreen extends StatelessWidget{
@@ -20,7 +21,11 @@ class ReadScreen extends StatelessWidget{
       body: ListView(
         children: <Widget>[
           ListTile(
-            title: MarkdownBody(data: hike.story),
+            title: MarkdownBody(data: hike.story, onTapLink: (url) async {
+              if(await canLaunch(url)){
+                launch(url);
+              }
+            },),
           ),
         ],
       ),
