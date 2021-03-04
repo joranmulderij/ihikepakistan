@@ -15,7 +15,7 @@ hikesdoc = db.collection('hikes').get()
 
 def getfromscript(path, name):
     p = path.copy()
-    while len(p) > 500:
+    while len(p) > 400:
         del p[0::4]
         del p[0::3]
     url = f'https://script.google.com/macros/s/AKfycbxqX6BM9i5QGWuaisLyQYfwckSOh29K9Xi4oTyUNgY1N6Vcai4WEzAn/exec?path={",".join(str(i) for i in p)}&name={name}'
@@ -59,7 +59,7 @@ for hike in hikesdoc:
     }
     if len(path) > 20 and not hikedict['difficulty'] is None:
         if hikedict.get('unlisted') is True:
-            # print('Segment:  ', hikedict['name'])
+            print('Segment:  ', hikedict['name'])
             number_of_segments += 1
         else:
             print('  Valid:  ', hikedict['name'])
