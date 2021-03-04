@@ -32,7 +32,12 @@
 <body>
     <div id="main">
         <ul v-if="login">
-            <li v-for="hike in hikes">
+            <h3 v-if="hikes.length != 0">Hikes</h3>
+            <li v-for="hike in hikes.sort((a, b) => (a.name > b.name) ? 1 : -1).filter((e) => !e.unlisted)">
+                <a :href="'hike.html?id=' + hike.id">{{hike.name}}</a>
+            </li>
+            <h3 v-if="hikes.length != 0">Segments</h3>
+            <li v-for="hike in hikes.sort((a, b) => (a.name > b.name) ? 1 : -1).filter((e) => e.unlisted)">
                 <a :href="'hike.html?id=' + hike.id">{{hike.name}}</a>
             </li>
             <div v-if="hikes.length == 0">
@@ -43,7 +48,7 @@
             You are not signed in. Click <a href="login">here</a> to sign in.
         </div>
         <button @click="create">
-            New Hike
+            New Hike or Segment
         </button>
     </div>
     <script>

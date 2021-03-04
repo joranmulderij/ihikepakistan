@@ -55,11 +55,11 @@
         <div v-if="user">
             <p>
                 <label>
-                  <input v-model="hike.unlisted"  type="checkbox" />
-                  <span>Segment</span>
+                    <input v-model="hike.unlisted" type="checkbox" />
+                    <span>Segment</span>
                 </label>
-              </p>
-            <div v-show="!hike.unlisted" class="input-field col s6">
+            </p>
+            <div class="input-field col s6">
                 <input v-model="hike.name" id="name" type="text">
                 <label for="name">Name</label>
             </div>
@@ -74,7 +74,6 @@
                     <option value="medium">Medium</option>
                     <option value="medium/difficult">Medium/Difficult</option>
                     <option value="difficult">Difficult</option>
-                    <option value="easy">Easy</option>
                 </select>
             </div>
             <div class="file-field input-field">
@@ -86,7 +85,8 @@
                     <input class="file-path validate" style="opacity: 0;" type="text">
                 </div>
             </div>
-            <div id="map">Map Error!</div>
+            <button class="waves-effect waves-light btn" onclick="resetPath()">Reset Path</button>
+            <div id="map">Map Error! Try reloading the page.</div>
             <div v-show="!hike.unlisted" id="images-box">
                 <h5>Images</h5>
                 <div class="file-field input-field">
@@ -208,6 +208,12 @@
             }
             M.AutoInit();
         });
+
+        function resetPath(){
+            main.path.clear();
+            main.path.push(new google.maps.LatLng(33, 73));
+            main.path.push(new google.maps.LatLng(33, 72));
+        }
 
         function uploadGpx() {
             var file = document.getElementById('gpxin').files[0];
