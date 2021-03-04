@@ -63,6 +63,7 @@
                     db.collection('hikes').doc(id).set({
                         name: id,
                         description: '',
+                        unlisted: false,
                         images: [],
                         path: [new firebase.firestore.GeoPoint(33, 73), new firebase.firestore.GeoPoint(33, 72)],
                         difficulty: null,

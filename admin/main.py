@@ -6,7 +6,7 @@ import json
 from requests import get
 
 # Use a service account
-cred = credentials.Certificate('ihike-pak-firebase-adminsdk-n2qxs-11fede33d4.json')
+cred = credentials.Certificate('ihike-pak-firebase-adminsdk-xqa8m-d9b2ccca7b.json')
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
@@ -27,6 +27,9 @@ def getLength(path):
     p = [(i.latitude, i.longitude) for i in path]
     return geodesic(*p).kilometers
 
+
+number_of_hikes = 0
+number_of_segments = 0
 
 hikes = []
 for hike in hikesdoc:
@@ -52,14 +55,22 @@ for hike in hikesdoc:
         "time": str(int(hours)) + ':' + str(round((hours%1)*60)),
         "climb": str(round(climb)),
         "length": str(round(length, 2)),
+        "unlisted": hikedict.get('unlisted') is True,
     }
     if len(path) > 20 and not hikedict['difficulty'] is None:
-        print('  Valid:  ', hikedict['name'])
+        if hikedict.get('unlisted') is True:
+            # print('Segment:  ', hikedict['name'])
+            number_of_segments += 1
+        else:
+            print('  Valid:  ', hikedict['name'])
+            number_of_hikes += 1
         hikes.append(hikejson)
     else:
         print('Invalid:  ', hikedict['name'])
 
 # print(json.dumps(hikes))
+print("Number of Hikes:", number_of_hikes)
+print("Number of Segments:", number_of_segments)
 
 with open("sample.json", "w+") as outfile:
     json.dump(hikes, outfile)

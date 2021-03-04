@@ -116,10 +116,10 @@ class HomeState extends State<HomeScreen> {
                               hike.difficulty,
                             ],
                             showItemsOnEmpty: true,
-                            items: Hikes.all,
+                            items: Hikes.allListed,
                             searchLabel: 'Search Hikes',
                             failure: ListTile(
-                              title: Text('Could not find any Hikes...'),
+                              title: Text('We could not find any Hikes...'),
                             ),
                           ),
                         )),
@@ -240,10 +240,10 @@ class HomeState extends State<HomeScreen> {
                   ),
                 ),
                 CarouselSlider.builder(
-                  itemCount: Hikes.all.length,
+                  itemCount: Hikes.allListed.length,
                   carouselController: controller,
                   itemBuilder: (BuildContext context, int index) => HikeTile(
-                    hike: Hikes.all[index],
+                    hike: Hikes.allListed[index],
                   ),
                   options: CarouselOptions(
                       scrollDirection: Axis.horizontal,

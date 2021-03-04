@@ -12,6 +12,7 @@ class Hike {
   String difficulty;
   String tags;
   List<List<double>> multiData;
+  bool unlisted;
   //String startTitle;
   //String endTitle;
   //String startSubTitle;
@@ -29,5 +30,6 @@ class Hike {
       this.storyShort,
       this.difficulty,
       this.tags,
-      this.multiData});
+      this.multiData,
+      this.unlisted});
 }

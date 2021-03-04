@@ -27,8 +27,13 @@ class Hikes {
         multiData: json[i]['data'] == null
             ? List<List<double>>.from(json[i]['tracks'])
             : [List.from(json[i]['data'])],
+        unlisted: json[i]['unlisted'],
       ));
     }
     return toReturn;
+  }
+
+  static List<Hike> get allListed{
+    return all.where((hike) => !hike.unlisted).toList();
   }
 }

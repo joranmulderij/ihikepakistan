@@ -53,11 +53,17 @@
 <body>
     <div id="main">
         <div v-if="user">
-            <div class="input-field col s6">
+            <p>
+                <label>
+                  <input v-model="hike.unlisted"  type="checkbox" />
+                  <span>Segment</span>
+                </label>
+              </p>
+            <div v-show="!hike.unlisted" class="input-field col s6">
                 <input v-model="hike.name" id="name" type="text">
                 <label for="name">Name</label>
             </div>
-            <div class="input-field col s6">
+            <div v-show="!hike.unlisted" class="input-field col s6">
                 <textarea v-model="hike.description" id="description" class="materialize-textarea"></textarea>
                 <label for="description">Description</label>
             </div>
@@ -81,7 +87,7 @@
                 </div>
             </div>
             <div id="map">Map Error!</div>
-            <div id="images-box">
+            <div v-show="!hike.unlisted" id="images-box">
                 <h5>Images</h5>
                 <div class="file-field input-field">
                     <div class="btn">
