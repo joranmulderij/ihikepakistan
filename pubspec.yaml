@@ -43,6 +43,7 @@ dependencies:
   path_provider: ^1.6.22
   cached_network_image: ^2.5.0
   clipboard: ^0.1.2+8
+  google_mobile_ads: ^0.11.0+2
   #carp_background_location: ^1.0.2+1
   #in_app_purchase: ^0.3.4+16
   #in_app_review: ^1.0.2

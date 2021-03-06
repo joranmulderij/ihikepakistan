@@ -1,5 +1,6 @@
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:ihikepakistan/DefaultHikes.dart';
 import 'package:ihikepakistan/HomeScreen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -13,6 +14,7 @@ SharedPreferences prefs;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   prefs = await SharedPreferences.getInstance();
+  MobileAds.instance.initialize();
   if (!prefs.containsKey('hikes'))
     await http.get('https://repo.ihikepakistan.com/hikes.json').then((res) {
       prefs.setString('hikes', res.body);

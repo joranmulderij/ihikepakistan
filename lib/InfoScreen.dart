@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:ihikepakistan/PhotoScreen.dart';
 import 'package:ihikepakistan/ReadScreen.dart';
 import 'package:ihikepakistan/ShareTile.dart';
@@ -46,8 +48,19 @@ class InfoScreen extends StatelessWidget {
 
 class InfoBody extends StatelessWidget {
   final Hike hike;
+  BannerAd myBanner;
 
-  InfoBody({this.hike});
+  InfoBody({this.hike}) {
+    if(kIsWeb) return;
+    myBanner = BannerAd(
+      //adUnitId: 'ca-app-pub-8065750617902524/9195577946', // Real ad.
+      adUnitId: 'ca-app-pub-3940256099942544/6300978111', // Test ad.
+      size: AdSize.largeBanner,
+      request: AdRequest(nonPersonalizedAds: false, keywords: [hike.title, 'Hiking', 'Map', 'Pakistan']),
+      listener: AdListener(),
+    );
+    myBanner.load();
+  }
 
   /*void setReview(BuildContext context, int value) async {
     if(prefs.getInt(hike.id+'rating') != null){
@@ -114,20 +127,19 @@ class InfoBody extends StatelessWidget {
     return CustomScrollView(
       slivers: <Widget>[
         SliverList(
-          delegate: SliverChildListDelegate(
-            [
-              GestureDetector(
-                onTap: () => onMapClicked(context),
-                onHorizontalDragStart: (_) => onMapClicked(context),
-                onPanStart: (_) => onMapClicked(context),
-                child: Image.memory(
-                  base64Decode(hike.photo.replaceFirst('data:image/png;base64,', '')),
-                  fit: BoxFit.cover,
-                  height: 300,
-                ),
+          delegate: SliverChildListDelegate([
+            GestureDetector(
+              onTap: () => onMapClicked(context),
+              onHorizontalDragStart: (_) => onMapClicked(context),
+              onPanStart: (_) => onMapClicked(context),
+              child: Image.memory(
+                base64Decode(
+                    hike.photo.replaceFirst('data:image/png;base64,', '')),
+                fit: BoxFit.cover,
+                height: 300,
               ),
-            ]
-          ),
+            ),
+          ]),
         ),
         SliverList(
           delegate: SliverChildBuilderDelegate(
@@ -220,8 +232,9 @@ class InfoBody extends StatelessWidget {
                             child: hike.photos[index]
                                     .contains('data:image/png;base64,')
                                 ? Image.memory(
-                                    base64Decode(hike.photos[index].replaceFirst(
-                                        'data:image/png;base64,', '')),
+                                    base64Decode(hike.photos[index]
+                                        .replaceFirst(
+                                            'data:image/png;base64,', '')),
                                     fit: BoxFit.cover,
                                   )
                                 : CachedNetworkImage(
@@ -266,12 +279,14 @@ class InfoBody extends StatelessWidget {
                   ],
                   mainAxisAlignment: MainAxisAlignment.center,
                 ),*/
+                if(!kIsWeb)
                 Container(
-                  height: 20,
+                  child: AdWidget(ad: myBanner),
+                  height: 120,
                 ),
               ][index];
             },
-            childCount: 8,
+            childCount: 7 + (kIsWeb ? 0 : 1),
           ),
         ),
       ],

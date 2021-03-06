@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 // import 'package:ihikepakistan/MapBottomSheet.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:ihikepakistan/MapState.dart';
 import 'package:ihikepakistan/mapboxToken.dart';
 import 'package:provider/provider.dart';
@@ -14,8 +15,21 @@ BuildContext cardContext;
 
 class MapScreen extends StatelessWidget {
   final Hike hike;
+  BannerAd myBanner;
 
-  MapScreen({this.hike});
+  MapScreen({this.hike}) {
+    if (kIsWeb) return;
+    myBanner = BannerAd(
+      //adUnitId: 'ca-app-pub-8065750617902524/9195577946', // Real ad.
+      adUnitId: 'ca-app-pub-3940256099942544/6300978111', // Test ad.
+      size: AdSize.banner,
+      request: AdRequest(
+          nonPersonalizedAds: false,
+          keywords: [hike.title, 'Hiking', 'Map', 'Pakistan', 'Islamabad', 'Trail']),
+      listener: AdListener(),
+    );
+    myBanner.load();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,9 +103,22 @@ class MapScreen extends StatelessWidget {
           )
         ],
       ),
-      body: Map(
-        hike: hike,
-        mapStyle: context.watch<MapState>().mapStyle,
+      body: Column(
+        children: [
+          Expanded(
+            child: Map(
+              hike: hike,
+              mapStyle: context.watch<MapState>().mapStyle,
+            ),
+          ),
+          if (!kIsWeb)
+            Container(
+              height: 50,
+              child: AdWidget(
+                ad: myBanner,
+              ),
+            )
+        ],
       ),
     );
   }
