@@ -11,13 +11,13 @@ class MHNPMapsScreen extends StatelessWidget {
   int realIndex = 0;
 
   final List<String> photos = [
-    'http://iwmb.org.pk/wp-content/uploads/2018/06/3Trails-2-4-and-6.jpg',
-    'http://iwmb.org.pk/wp-content/uploads/2018/06/4Trail-3-5-2017.jpg',
-    'http://iwmb.org.pk/wp-content/uploads/2018/06/5Trail-4-2017.jpg',
-    'http://iwmb.org.pk/wp-content/uploads/2018/06/6Trail-3-5-Rata-Hottar-2017-1.jpg',
-    'http://iwmb.org.pk/wp-content/uploads/2018/06/7Trails-6-and-Western-Trails-.jpg',
-    'http://iwmb.org.pk/wp-content/uploads/2018/06/8Kalinjer-and-Western-Trails-2017.jpg',
-    'http://iwmb.org.pk/wp-content/uploads/2018/06/9MHNP-Trails-Map-2017.jpg'
+    'https://repo.ihikepakistan.com/mhnp_maps/3Trails-2-4-and-6.jpg',
+    'https://repo.ihikepakistan.com/mhnp_maps/4Trail-3-5-2017.jpg',
+    'https://repo.ihikepakistan.com/mhnp_maps/5Trail-4-2017.jpg',
+    'https://repo.ihikepakistan.com/mhnp_maps/6Trail-3-5-Rata-Hottar-2017-1.jpg',
+    'https://repo.ihikepakistan.com/mhnp_maps/7Trails-6-and-Western-Trails-.jpg',
+    'https://repo.ihikepakistan.com/mhnp_maps/8Kalinjer-and-Western-Trails-2017.jpg',
+    'https://repo.ihikepakistan.com/mhnp_maps/9MHNP-Trails-Map-2017.jpg'
   ];
 
   final List<String> titles = [
