@@ -2,14 +2,22 @@ from geopy.distance import geodesic
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
+from firebase_admin import storage
 import json
 from requests import get
+from base64 import b64decode
 
 # Use a service account
 cred = credentials.Certificate('ihike-pak-firebase-adminsdk-xqa8m-d9b2ccca7b.json')
-firebase_admin.initialize_app(cred)
+firebase_admin.initialize_app(cred, {
+    'storageBucket': 'ihike-pak.appspot.com'
+})
 
 db = firestore.client()
+fs = storage.bucket()
+
+
+
 hikesdoc = db.collection('hikes').get()
 
 
@@ -40,7 +48,18 @@ for hike in hikesdoc:
         path.append(p.latitude)
         path.append(p.longitude)
     mapImage, climb, graphImage = getfromscript(path, hikedict['name'])
-    hikedict['images'].insert(0, graphImage)
+
+    map_blob = fs.blob(f'maps/{hike.id}.png')
+    map_file = open(f'../maps/{hike.id}.png', 'wb')
+    map_file.write(b64decode(mapImage.replace('data:image/png;base64,', '')))
+    map_blob.upload_from_filename(f'../maps/{hike.id}.png')
+
+    graph_blob = fs.blob(f'graphs/{hike.id}.png')
+    graph_file = open(f'../graphs/{hike.id}.png', 'wb')
+    graph_file.write(b64decode(graphImage.replace('data:image/png;base64,', '')))
+    graph_blob.upload_from_filename(f'../graphs/{hike.id}.png')
+
+    hikedict['images'].insert(0, f'https://firebasestorage.googleapis.com/v0/b/ihike-pak.appspot.com/o/graphs%2F{hike.id}.png?alt=media')
     length = getLength(hikedict['path'])
     hours = (length / 5 + climb / 600)
 
@@ -51,7 +70,7 @@ for hike in hikesdoc:
         "data": path,
         "difficulty": hikedict['difficulty'],
         "photos": hikedict['images'],
-        "photo": mapImage,
+        "photo": f'https://firebasestorage.googleapis.com/v0/b/ihike-pak.appspot.com/o/maps%2F{hike.id}.png?alt=media',
         "time": str(int(hours)) + ':' + str(round((hours%1)*60)),
         "climb": str(round(climb)),
         "length": str(round(length, 2)),

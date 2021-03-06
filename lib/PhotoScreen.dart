@@ -1,9 +1,8 @@
-import 'dart:convert';
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'Hike.dart';
+import 'package:ihikepakistan/MyImageView.dart';
 
 class PhotoScreen extends StatelessWidget {
   final Hike hike;
@@ -35,12 +34,7 @@ class PhotoScreen extends StatelessWidget {
               child: CarouselSlider.builder(
                 itemCount: hike.photos.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return hike.photos[index].contains('data:image/png;base64,')
-                      ? Image.memory(
-                          base64Decode(hike.photos[index]
-                              .replaceFirst('data:image/png;base64,', '')),
-                        )
-                      : Image.network(hike.photos[index]);
+                  return MyImageView(hike.photos[index], shouldCover: false,);
                 },
                 options: CarouselOptions(
                   viewportFraction: 1,

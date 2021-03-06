@@ -1,9 +1,9 @@
-import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'Hike.dart';
 import 'InfoScreen.dart';
+import 'package:ihikepakistan/MyImageView.dart';
 
 /*class HikeTile extends StatelessWidget{
   final Hike hike;
@@ -55,9 +55,8 @@ class HikeTile extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 2,
-                  child: Image.memory(
-                    base64Decode(hike.photo.replaceFirst('data:image/png;base64,', '')),
-                    fit: BoxFit.cover,
+                  child: MyImageView(
+                    hike.photo,
                     height: 180,
                     width: 200,
                   ),

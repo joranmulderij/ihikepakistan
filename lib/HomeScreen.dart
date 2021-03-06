@@ -1,9 +1,3 @@
-/*@js.JS()
-library get_standalone;*/
-
-import 'dart:convert';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -23,6 +17,7 @@ import 'Hikes.dart';
 import 'MapScreen.dart' as mapScreen;
 import 'HikeTiles.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
+import 'package:ihikepakistan/MyImageView.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeState createState() => HomeState();
@@ -74,18 +69,7 @@ class HomeState extends State<HomeScreen> {
                       builder: (hike) => ListTile(
                         leading: ClipRRect(
                           borderRadius: BorderRadius.all(Radius.circular(5)),
-                          child: hike.photo.contains('data:image/png;base64,')
-                              ? Image.memory(
-                                  base64Decode(hike.photo.replaceFirst(
-                                      'data:image/png;base64,', '')),
-                                  fit: BoxFit.cover,
-                                )
-                              : CachedNetworkImage(
-                                  fit: BoxFit.cover,
-                                  imageUrl: hike.photo,
-                                  errorWidget: (context, url, error) =>
-                                      Icon(Icons.error),
-                                ),
+                          child: MyImageView(hike.photo),
                         ),
                         title: Text(
                           hike.title,
