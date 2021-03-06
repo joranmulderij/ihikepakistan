@@ -27,7 +27,7 @@ class Hikes {
         multiData: json[i]['data'] == null
             ? List<List<double>>.from(json[i]['tracks'])
             : [List.from(json[i]['data'])],
-        unlisted: json[i]['unlisted'],
+        unlisted: json[i]['unlisted'] ?? false,
       ));
     }
     return toReturn;
