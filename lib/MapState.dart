@@ -32,6 +32,13 @@ class MapState with ChangeNotifier {
     getLocation();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+
+    locationStreamSub.cancel();
+  }
+
   void getLocation() async {
     Location location = new Location();
 

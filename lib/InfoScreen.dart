@@ -99,16 +99,32 @@ class InfoBody extends StatelessWidget {
     );
   }*/
 
+  void onMapClicked(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapScreen(
+          hike: hike,
+        ),
+      ),
+    );
+  }
+
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: <Widget>[
         SliverList(
           delegate: SliverChildListDelegate(
             [
-              Image.memory(
-                base64Decode(hike.photo.replaceFirst('data:image/png;base64,', '')),
-                fit: BoxFit.cover,
-                //height: 300,
+              GestureDetector(
+                onTap: () => onMapClicked(context),
+                onHorizontalDragStart: (_) => onMapClicked(context),
+                onPanStart: (_) => onMapClicked(context),
+                child: Image.memory(
+                  base64Decode(hike.photo.replaceFirst('data:image/png;base64,', '')),
+                  fit: BoxFit.cover,
+                  height: 300,
+                ),
               ),
             ]
           ),
@@ -123,16 +139,7 @@ class InfoBody extends StatelessWidget {
                     'Navigate',
                   ),
                   trailing: Icon(Icons.navigate_next),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MapScreen(
-                          hike: hike,
-                        ),
-                      ),
-                    );
-                  },
+                  onTap: () => onMapClicked(context),
                 ),
                 ListTile(
                   leading: Icon(Icons.straighten),

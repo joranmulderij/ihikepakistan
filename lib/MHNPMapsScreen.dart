@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'ZoomPhotoScreen.dart';
 
+// ignore: must_be_immutable
 class MHNPMapsScreen extends StatelessWidget {
   CarouselController controller = CarouselController();
   int realIndex = 0;

@@ -19,81 +19,79 @@ class MapScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableProvider(
-      create: (_) => MapState(),
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(hike.title),
-          actions: [
-            if (!kIsWeb)
-              Builder(
-                builder: (context) => PopupMenuButton<String>(
-                  icon: Icon(Icons.my_location),
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 'none',
-                      child: Text('None'),
-                    ),
-                    PopupMenuItem(
-                      value: 'centered',
-                      child: Text('Centered'),
-                    ),
-                    PopupMenuItem(
-                      value: 'compass',
-                      child: Text('Compass'),
-                    ),
-                    PopupMenuItem(
-                      value: 'gps',
-                      child: Text('Movement'),
-                    ),
-                  ],
-                  onSelected: (value) {
-                    MapState mapState = context.read<MapState>();
-                    mapState.changeCenterState(value);
-                  },
-                ),
-              ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(hike.title),
+        actions: [
+          if (!kIsWeb)
             Builder(
               builder: (context) => PopupMenuButton<String>(
-                icon: Icon(Icons.map),
-                onSelected: (value) {
-                  MapState mapState = context.read<MapState>();
-                  mapState.changeMapStyle(value);
-                },
+                icon: Icon(Icons.my_location),
                 itemBuilder: (context) => [
                   PopupMenuItem(
-                    value: mapbox.MapboxStyles.MAPBOX_STREETS,
-                    child: Text('Normal'),
+                    value: 'none',
+                    child: Text('None'),
                   ),
                   PopupMenuItem(
-                    value: mapbox.MapboxStyles.OUTDOORS,
-                    child: Text('Terrain'),
+                    value: 'centered',
+                    child: Text('Centered'),
                   ),
                   PopupMenuItem(
-                    value: mapbox.MapboxStyles.SATELLITE,
-                    child: Text('Satellite'),
+                    value: 'compass',
+                    child: Text('Compass'),
                   ),
                   PopupMenuItem(
-                    value: mapbox.MapboxStyles.SATELLITE_STREETS,
-                    child: Text('Hybrid'),
-                  ),
-                  PopupMenuItem(
-                    value: mapbox.MapboxStyles.DARK,
-                    child: Text('Dark'),
-                  ),
-                  PopupMenuItem(
-                    value:
-                        'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al',
-                    child: Text('Satellite Contours'),
+                    value: 'gps',
+                    child: Text('Movement'),
                   ),
                 ],
+                onSelected: (value) {
+                  MapState mapState = context.read<MapState>();
+                  mapState.changeCenterState(value);
+                },
               ),
-            )
-          ],
-        ),
-        body: Map(
-          hike: hike,
-        ),
+            ),
+          Builder(
+            builder: (context) => PopupMenuButton<String>(
+              icon: Icon(Icons.map),
+              onSelected: (value) {
+                MapState mapState = context.read<MapState>();
+                mapState.changeMapStyle(value);
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: mapbox.MapboxStyles.MAPBOX_STREETS,
+                  child: Text('Normal'),
+                ),
+                PopupMenuItem(
+                  value: mapbox.MapboxStyles.OUTDOORS,
+                  child: Text('Terrain'),
+                ),
+                PopupMenuItem(
+                  value: mapbox.MapboxStyles.SATELLITE,
+                  child: Text('Satellite'),
+                ),
+                PopupMenuItem(
+                  value: mapbox.MapboxStyles.SATELLITE_STREETS,
+                  child: Text('Hybrid'),
+                ),
+                PopupMenuItem(
+                  value: mapbox.MapboxStyles.DARK,
+                  child: Text('Dark'),
+                ),
+                PopupMenuItem(
+                  value:
+                      'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al',
+                  child: Text('Satellite Contours'),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+      body: Map(
+        hike: hike,
+        mapStyle: context.watch<MapState>().mapStyle,
       ),
     );
   }
@@ -102,11 +100,13 @@ class MapScreen extends StatelessWidget {
 class Map extends StatefulWidget {
   final Hike hike;
   final mapbox.CameraPosition cameraPosition;
-  Map({this.hike, this.cameraPosition}){
+  final String mapStyle;
+  Map({this.hike, this.cameraPosition, @required this.mapStyle}) {
     print(hike);
   }
   @override
-  MapboxState createState() => MapboxState(hike: hike, lastCameraPosition: cameraPosition);
+  MapboxState createState() => MapboxState(
+      hike: hike, lastCameraPosition: cameraPosition, oldMapStyle: mapStyle);
 }
 
 class MapboxState extends State<Map> {
@@ -114,9 +114,9 @@ class MapboxState extends State<Map> {
   bool showLoader = true;
   final Hike hike;
   mapbox.MapboxMapController mapboxMapController;
-  MapboxState({this.hike, this.lastCameraPosition});
+  MapboxState({this.hike, this.lastCameraPosition, this.oldMapStyle});
   List<List<mapbox.LatLng>> tracks = [];
-  String oldMapStyle = mapbox.MapboxStyles.OUTDOORS;
+  String oldMapStyle;
   mapbox.Line line;
   mapbox.CameraPosition lastCameraPosition;
 
@@ -194,7 +194,8 @@ class MapboxState extends State<Map> {
               MapCenterState.compass: mapbox.MyLocationRenderMode.COMPASS,
             }[mapState.mapCenterState],
             onCameraIdle: () {
-              lastCameraPosition = mapboxMapController.cameraPosition;
+              if (mapboxMapController.cameraPosition != null)
+                lastCameraPosition = mapboxMapController.cameraPosition;
             },
             onMapCreated: (mapbox.MapboxMapController controller) async {
               for (var i = 0; i < 10; i++) {

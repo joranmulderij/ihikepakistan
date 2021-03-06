@@ -18,12 +18,10 @@ import 'package:ihikepakistan/ShareTile.dart';
 import 'package:ihikepakistan/main.dart';
 import 'package:provider/provider.dart';
 import 'package:search_page/search_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 import 'Hikes.dart';
 import 'MapScreen.dart' as mapScreen;
 import 'HikeTiles.dart';
-import 'dart:convert' as convert;
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 
 class HomeScreen extends StatefulWidget {
@@ -69,60 +67,93 @@ class HomeState extends State<HomeScreen> {
                   (prefs.containsKey('payCode') ? ' Pro' : '')),
               actions: <Widget>[
                 IconButton(
-                    icon: Icon(Icons.search),
-                    onPressed: () => showSearch(
-                          context: context,
-                          delegate: SearchPage<Hike>(
-                            builder: (hike) => ListTile(
-                              leading: ClipRRect(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)),
-                                child: hike.photo
-                                        .contains('data:image/png;base64,')
-                                    ? Image.memory(
-                                        base64Decode(hike.photo.replaceFirst(
-                                            'data:image/png;base64,', '')),
-                                        fit: BoxFit.cover,
-                                      )
-                                    : CachedNetworkImage(
-                                        fit: BoxFit.cover,
-                                        imageUrl: hike.photo,
-                                        errorWidget: (context, url, error) =>
-                                            Icon(Icons.error),
-                                      ),
+                  icon: Icon(Icons.search),
+                  onPressed: () => showSearch(
+                    context: context,
+                    delegate: SearchPage<Hike>(
+                      builder: (hike) => ListTile(
+                        leading: ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          child: hike.photo.contains('data:image/png;base64,')
+                              ? Image.memory(
+                                  base64Decode(hike.photo.replaceFirst(
+                                      'data:image/png;base64,', '')),
+                                  fit: BoxFit.cover,
+                                )
+                              : CachedNetworkImage(
+                                  fit: BoxFit.cover,
+                                  imageUrl: hike.photo,
+                                  errorWidget: (context, url, error) =>
+                                      Icon(Icons.error),
+                                ),
+                        ),
+                        title: Text(
+                          hike.title,
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        subtitle: Text(
+                          hike.difficulty,
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => InfoScreen(
+                                hike: hike,
                               ),
-                              title: Text(
-                                hike.title,
-                                style: TextStyle(color: Colors.black),
-                              ),
-                              subtitle: Text(
-                                hike.difficulty,
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => InfoScreen(
-                                      hike: hike,
-                                    ),
-                                  ),
-                                );
-                              },
                             ),
-                            filter: (hike) => [
-                              hike.title,
-                              hike.tags,
-                              hike.difficulty,
-                            ],
-                            showItemsOnEmpty: true,
-                            items: Hikes.allListed,
-                            searchLabel: 'Search Hikes',
-                            failure: ListTile(
-                              title: Text('We could not find any Hikes...'),
-                            ),
-                          ),
-                        )),
+                          );
+                        },
+                      ),
+                      filter: (hike) => [
+                        hike.title,
+                        hike.tags,
+                        hike.difficulty,
+                      ],
+                      showItemsOnEmpty: true,
+                      items: Hikes.allListed,
+                      searchLabel: 'Search Hikes',
+                      failure: ListTile(
+                        title: Text('We could not find any Hikes...'),
+                      ),
+                    ),
+                  ),
+                ),
+                PopupMenuButton<String>(
+                  icon: Icon(Icons.map),
+                  onSelected: (value) {
+                    MapState mapState = context.read<MapState>();
+                    mapState.changeMapStyle(value);
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: mapbox.MapboxStyles.MAPBOX_STREETS,
+                      child: Text('Normal'),
+                    ),
+                    PopupMenuItem(
+                      value: mapbox.MapboxStyles.OUTDOORS,
+                      child: Text('Terrain'),
+                    ),
+                    PopupMenuItem(
+                      value: mapbox.MapboxStyles.SATELLITE,
+                      child: Text('Satellite'),
+                    ),
+                    PopupMenuItem(
+                      value: mapbox.MapboxStyles.SATELLITE_STREETS,
+                      child: Text('Hybrid'),
+                    ),
+                    PopupMenuItem(
+                      value: mapbox.MapboxStyles.DARK,
+                      child: Text('Dark'),
+                    ),
+                    PopupMenuItem(
+                      value:
+                      'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al',
+                      child: Text('Satellite Contours'),
+                    ),
+                  ],
+                ),
                 PopupMenuButton<String>(
                   onSelected: (String item) async {
                     switch (item) {
@@ -149,7 +180,7 @@ class HomeState extends State<HomeScreen> {
                         showAboutDialog(
                           context: context,
                           applicationName: 'Ihike Pakistan',
-                          applicationVersion: '0.4.5',
+                          applicationVersion: '1.0.1',
                           applicationIcon: Image.asset(
                             'assets/icon_small.png',
                             height: 70,
@@ -179,9 +210,9 @@ class HomeState extends State<HomeScreen> {
                               trailing: Icon(Icons.launch),
                               onTap: () async {
                                 if (await url_launcher.canLaunch(
-                                    'https://play.google.com/store/apps/dev?id=6998590952049518161')) {
+                                    'https://github.com/joranmulderij')) {
                                   await url_launcher.launch(
-                                      'https://play.google.com/store/apps/dev?id=6998590952049518161');
+                                      'https://github.com/joranmulderij');
                                 }
                               },
                             ),
@@ -221,23 +252,21 @@ class HomeState extends State<HomeScreen> {
             body: Stack(
               alignment: Alignment.bottomCenter,
               children: [
-                ListenableProvider(
-                  create: (_) => MapState(),
-                  child: mapScreen.Map(
-                    cameraPosition: mapbox.CameraPosition(
-                      target: mapbox.LatLng(33.693056, 73.063889),
-                      zoom: 10,
-                    ),
-                    hike: Hike(multiData: () {
-                      List<List<double>> data = [];
-                      Hikes.all.forEach((hike) {
-                        hike.multiData.forEach((track) {
-                          data.add(track);
-                        });
-                      });
-                      return data;
-                    }()),
+                mapScreen.Map(
+                  mapStyle: mapbox.MapboxStyles.OUTDOORS,
+                  cameraPosition: mapbox.CameraPosition(
+                    target: mapbox.LatLng(33.693056, 73.063889),
+                    zoom: 10,
                   ),
+                  hike: Hike(multiData: () {
+                    List<List<double>> data = [];
+                    Hikes.all.forEach((hike) {
+                      hike.multiData.forEach((track) {
+                        data.add(track);
+                      });
+                    });
+                    return data;
+                  }()),
                 ),
                 CarouselSlider.builder(
                   itemCount: Hikes.allListed.length,
@@ -248,6 +277,7 @@ class HomeState extends State<HomeScreen> {
                   options: CarouselOptions(
                       scrollDirection: Axis.horizontal,
                       enableInfiniteScroll: false,
+                      autoPlayInterval: Duration(seconds: 10),
                       initialPage: 0,
                       viewportFraction: 0.9,
                       height: 180,
