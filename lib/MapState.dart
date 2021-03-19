@@ -11,9 +11,12 @@
 //
 import 'dart:async';
 
+import 'package:carp_background_location/carp_background_location.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:maps_toolkit/maps_toolkit.dart' as mp;
 
 class IhikeLatLng {
   double lat;
@@ -26,9 +29,17 @@ class MapState with ChangeNotifier {
   MapCenterState mapCenterState = MapCenterState.none;
   String mapStyle = MapboxStyles.OUTDOORS;
   StreamSubscription locationStreamSub;
+  LocationManager locationManager;
+  Stream<LocationDto> dtoStream;
+  StreamSubscription<LocationDto> dtoSubscription;
   List<IhikeLatLng> track = [];
+  double currentAlt;
+  double climb = 0;
+  DateTime startTime = DateTime.now();
+  double totalDistance = 0;
 
   MapState() {
+    if(!kIsWeb) locationManager = LocationManager.instance;
     getLocation();
   }
 
@@ -37,6 +48,7 @@ class MapState with ChangeNotifier {
     super.dispose();
 
     locationStreamSub.cancel();
+    if (!kIsWeb) dtoSubscription.cancel();
   }
 
   void getLocation() async {
@@ -61,10 +73,51 @@ class MapState with ChangeNotifier {
       }
     }
 
-    locationStreamSub = location.onLocationChanged.listen((event) {
-      track.add(IhikeLatLng(event.latitude, event.longitude));
+    locationStreamSub = location.onLocationChanged.listen((data) {
+      print('location!!');
+      if (canAddLocation(data.latitude, data.longitude)) {
+        if (currentAlt != null) {
+          if (data.altitude > currentAlt) {
+            climb += data.altitude - currentAlt;
+          }
+        }
+        currentAlt = data.altitude;
+        if (track.isNotEmpty)
+          totalDistance += mp.SphericalUtil.computeDistanceBetween(
+              mp.LatLng(data.latitude, data.longitude), mp.LatLng(track.last.lat, track.last.lng));
+        track.add(IhikeLatLng(data.latitude, data.longitude));
+      }
       notifyListeners();
     });
+
+    if(!kIsWeb)
+      startCarpLocation();
+  }
+
+  startCarpLocation(){
+    locationManager.interval = 1;
+    locationManager.distanceFilter = 2;
+    locationManager.notificationTitle = 'Ihike Pakistan is Running';
+    locationManager.notificationMsg = 'Ihike Pakistan is Running';
+    dtoStream = locationManager.dtoStream;
+    dtoSubscription = dtoStream.listen((data) {
+      if (canAddLocation(data.latitude, data.longitude)) {
+        print('add');
+        if (track.isNotEmpty)
+          totalDistance += mp.SphericalUtil.computeDistanceBetween(
+              mp.LatLng(data.latitude, data.longitude), mp.LatLng(track.last.lat, track.last.lng));
+        track.add(IhikeLatLng(data.latitude, data.longitude));
+      }
+    });
+  }
+
+  bool canAddLocation(double lat, double lng) {
+    for (IhikeLatLng latLng in track) {
+      if ((latLng.lat - lat).abs() < 0.00002 && (latLng.lng - lng).abs() < 0.00002) {
+        return false;
+      }
+    }
+    return true;
   }
 
   changeMapStyle(String value) {

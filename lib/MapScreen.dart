@@ -2,26 +2,36 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+
 // import 'package:ihikepakistan/MapBottomSheet.dart';
 import 'package:flutter/material.dart';
 import 'package:ihikepakistan/MapState.dart';
+import 'package:ihikepakistan/main.dart';
 import 'package:ihikepakistan/mapboxToken.dart';
+import 'package:ihikepakistan/purchase.dart';
 import 'package:provider/provider.dart';
 import 'Hike.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 
 BuildContext cardContext;
 
-class MapScreen extends StatelessWidget {
+class MapScreen extends StatefulWidget {
   final Hike hike;
 
   MapScreen({this.hike});
 
   @override
+  _MapScreenState createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> {
+  bool showBottomSheet = true;
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(hike.title),
+        title: Text(widget.hike.title),
         actions: [
           if (!kIsWeb)
             Builder(
@@ -55,6 +65,23 @@ class MapScreen extends StatelessWidget {
             builder: (context) => PopupMenuButton<String>(
               icon: Icon(Icons.map),
               onSelected: (value) {
+                if (value == 'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al' && !isPro()) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    elevation: 5,
+                    backgroundColor: Color(0xfffff3d6),
+                    content: Text(
+                      'Satellite Contours is only available in Ihike Pakistan Pro.',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    action: SnackBarAction(
+                      onPressed: () {
+                        purchase();
+                      },
+                      label: 'Upgrade!',
+                    ),
+                  ));
+                  return;
+                }
                 MapState mapState = context.read<MapState>();
                 mapState.changeMapStyle(value);
               },
@@ -80,8 +107,7 @@ class MapScreen extends StatelessWidget {
                   child: Text('Dark'),
                 ),
                 PopupMenuItem(
-                  value:
-                      'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al',
+                  value: 'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al',
                   child: Text('Satellite Contours'),
                 ),
               ],
@@ -90,9 +116,79 @@ class MapScreen extends StatelessWidget {
         ],
       ),
       body: Map(
-        hike: hike,
+        hike: widget.hike,
         mapStyle: context.watch<MapState>().mapStyle,
       ),
+      floatingActionButton: Builder(
+        builder: (context) => FloatingActionButton(
+          child: Icon(Icons.stacked_bar_chart),
+          onPressed: () {
+            setState(() {
+              showBottomSheet = !showBottomSheet;
+            });
+          },
+        ),
+      ),
+      bottomSheet: showBottomSheet
+          ? Consumer<MapState>(
+              builder: (context, mapState, _) => Container(
+                color: Color(0xfffff3d6),
+                height: 100,
+                child: isPro()
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _infoCard(title: 'Climb:', statistic: '${mapState.climb.toInt()}m'),
+                          _infoCard(title: 'Distance:', statistic: '${mapState.totalDistance.toInt()}m'),
+                          _infoCard(
+                              title: 'Av Speed:',
+                              statistic:
+                                  '${(mapState.totalDistance / DateTime.now().difference(mapState.startTime).inSeconds).round()}km/h'),
+                          StreamBuilder(
+                              stream: Stream.periodic(Duration(seconds: 1)),
+                              builder: (context, snapshot) {
+                                return _infoCard(
+                                    title: 'Time:',
+                                    statistic: '${_printDuration(DateTime.now().difference(mapState.startTime))}');
+                              }),
+                        ],
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.only(right: 50),
+                        child: Center(
+                          child: ListTile(
+                            title: Text(
+                                'To see all statistics and trace yourself on the map, Click Here to Upgrade to Ihike Pakistan Pro.'),
+                            onTap: () {
+                              purchase();
+                            },
+                          ),
+                        ),
+                      ),
+              ),
+            )
+          : null,
+    );
+  }
+
+  String _printDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+  Widget _infoCard({String title, String statistic}) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(title),
+        Text(
+          statistic,
+          style: TextStyle(fontSize: 24),
+        ),
+      ],
     );
   }
 }
@@ -101,12 +197,13 @@ class Map extends StatefulWidget {
   final Hike hike;
   final mapbox.CameraPosition cameraPosition;
   final String mapStyle;
+
   Map({this.hike, this.cameraPosition, @required this.mapStyle}) {
     print(hike);
   }
+
   @override
-  MapboxState createState() => MapboxState(
-      hike: hike, lastCameraPosition: cameraPosition, oldMapStyle: mapStyle);
+  MapboxState createState() => MapboxState(hike: hike, lastCameraPosition: cameraPosition, oldMapStyle: mapStyle);
 }
 
 class MapboxState extends State<Map> {
@@ -114,10 +211,14 @@ class MapboxState extends State<Map> {
   bool showLoader = true;
   final Hike hike;
   mapbox.MapboxMapController mapboxMapController;
+
   MapboxState({this.hike, this.lastCameraPosition, this.oldMapStyle});
+
   List<List<mapbox.LatLng>> tracks = [];
   String oldMapStyle;
   mapbox.Line line;
+  mapbox.Circle locationCircle;
+
   mapbox.CameraPosition lastCameraPosition;
 
   @override
@@ -146,23 +247,20 @@ class MapboxState extends State<Map> {
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
-        Consumer(
-            builder: (BuildContext context, MapState mapState, Widget widget) {
+        Consumer(builder: (BuildContext context, MapState mapState, Widget widget) {
           if (mapboxMapController != null && (!showLoader)) {
             mapboxMapController.updateMyLocationTrackingMode({
               MapCenterState.none: mapbox.MyLocationTrackingMode.None,
               MapCenterState.centered: mapbox.MyLocationTrackingMode.Tracking,
               MapCenterState.gps: mapbox.MyLocationTrackingMode.TrackingGPS,
-              MapCenterState.compass:
-                  mapbox.MyLocationTrackingMode.TrackingCompass,
+              MapCenterState.compass: mapbox.MyLocationTrackingMode.TrackingCompass,
             }[mapState.mapCenterState]);
             if (line != null)
               mapboxMapController.updateLine(
-                  line,
-                  mapbox.LineOptions(
-                      geometry: mapState.track
-                          .map((e) => mapbox.LatLng(e.lat, e.lng))
-                          .toList()));
+                  line, mapbox.LineOptions(geometry: mapState.track.map((e) => mapbox.LatLng(e.lat, e.lng)).toList()));
+            if (locationCircle != null)
+              mapboxMapController.updateCircle(locationCircle,
+                  mapbox.CircleOptions(geometry: mapbox.LatLng(mapState.track.last.lat, mapState.track.last.lng)));
           }
           if (oldMapStyle != mapState.mapStyle && (!showLoader)) {
             oldMapStyle = mapState.mapStyle;
@@ -180,39 +278,47 @@ class MapboxState extends State<Map> {
                 mapbox.CameraPosition(
                     target: (hike.multiData?.length ?? 0) == 0
                         ? mapbox.LatLng(33.693056, 73.063889)
-                        : mapbox.LatLng(
-                            hike.multiData[0][0], hike.multiData[0][1]),
+                        : mapbox.LatLng(hike.multiData[0][0], hike.multiData[0][1]),
                     zoom: 13),
             accessToken: mapboxToken,
             styleString: oldMapStyle,
             myLocationEnabled: true,
             myLocationTrackingMode: mapbox.MyLocationTrackingMode.None,
-            myLocationRenderMode: {
-              MapCenterState.none: mapbox.MyLocationRenderMode.NORMAL,
-              MapCenterState.centered: mapbox.MyLocationRenderMode.NORMAL,
-              MapCenterState.gps: mapbox.MyLocationRenderMode.GPS,
-              MapCenterState.compass: mapbox.MyLocationRenderMode.COMPASS,
-            }[mapState.mapCenterState],
+            myLocationRenderMode: kIsWeb
+                ? mapbox.MyLocationRenderMode.NORMAL
+                : {
+                    MapCenterState.none: mapbox.MyLocationRenderMode.NORMAL,
+                    MapCenterState.centered: mapbox.MyLocationRenderMode.NORMAL,
+                    MapCenterState.gps: mapbox.MyLocationRenderMode.GPS,
+                    MapCenterState.compass: mapbox.MyLocationRenderMode.COMPASS,
+                  }[mapState.mapCenterState],
             onCameraIdle: () {
-              if (mapboxMapController.cameraPosition != null)
-                lastCameraPosition = mapboxMapController.cameraPosition;
+              if (mapboxMapController.cameraPosition != null) lastCameraPosition = mapboxMapController.cameraPosition;
             },
             onMapCreated: (mapbox.MapboxMapController controller) async {
-              for (var i = 0; i < 10; i++) {
+              for (var i = 0; i < 5; i++) {
                 await Future.delayed(Duration(seconds: 1));
                 tryAddTracks(controller);
               }
               mapboxMapController = controller;
               tracks.forEach((track) {
-                controller.addLine(mapbox.LineOptions(
-                    geometry: track, lineColor: 'red', lineWidth: 2));
+                controller.addLine(mapbox.LineOptions(geometry: track, lineColor: 'red', lineWidth: 2));
               });
-              line = await controller.addLine(mapbox.LineOptions(
-                  geometry: mapState.track
-                      .map((e) => mapbox.LatLng(e.lat, e.lng))
-                      .toList(),
-                  lineColor: 'blue',
-                  lineWidth: 2));
+              print(isPro());
+              if (isPro())
+                line = await controller.addLine(mapbox.LineOptions(
+                    geometry: mapState.track.map((e) => mapbox.LatLng(e.lat, e.lng)).toList(),
+                    lineColor: 'blue',
+                    lineWidth: 2));
+
+              if (kIsWeb)
+                locationCircle = await controller.addCircle(mapbox.CircleOptions(
+                    circleColor: 'blue',
+                    geometry: mapbox.LatLng(mapState.track.last.lat, mapState.track.last.lng),
+                    circleRadius: 6,
+                    circleStrokeColor: 'white',
+                    circleStrokeWidth: 3));
+
               setState(() {
                 showLoader = false;
               });
@@ -230,8 +336,7 @@ class MapboxState extends State<Map> {
   void tryAddTracks(mapbox.MapboxMapController controller) {
     controller.clearLines();
     tracks.forEach((track) {
-      controller.addLine(
-          mapbox.LineOptions(geometry: track, lineColor: 'red', lineWidth: 2));
+      controller.addLine(mapbox.LineOptions(geometry: track, lineColor: 'red', lineWidth: 2));
     });
   }
 }

@@ -10,6 +10,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ihikepakistan/MapState.dart';
 import 'package:ihikepakistan/ShareTile.dart';
 import 'package:ihikepakistan/main.dart';
+import 'package:ihikepakistan/purchase.dart';
 import 'package:provider/provider.dart';
 import 'package:search_page/search_page.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
@@ -27,8 +28,7 @@ class HomeState extends State<HomeScreen> {
   CarouselController controller = CarouselController();
   String testText;
   final FirebaseAnalytics analytics = FirebaseAnalytics();
-  final FirebaseMessaging _firebaseMessaging =
-      kIsWeb ? null : FirebaseMessaging();
+  final FirebaseMessaging _firebaseMessaging = kIsWeb ? null : FirebaseMessaging();
   Future<RemoteConfig> myRemoteConfigFuture;
 
   Future<dynamic> onPushMessage(Map<String, dynamic> message) async {
@@ -58,8 +58,7 @@ class HomeState extends State<HomeScreen> {
           return Scaffold(
             //backgroundColor: Color(0xfffff3d6),
             appBar: AppBar(
-              title: Text('Ihike Pakistan' +
-                  (prefs.containsKey('payCode') ? ' Pro' : '')),
+              title: Text('Ihike Pakistan' + (prefs.containsKey('payCode') ? ' Pro' : '')),
               actions: <Widget>[
                 IconButton(
                   icon: Icon(Icons.search),
@@ -107,6 +106,23 @@ class HomeState extends State<HomeScreen> {
                 PopupMenuButton<String>(
                   icon: Icon(Icons.map),
                   onSelected: (value) {
+                    if (value == 'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al' && !isPro()) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        elevation: 5,
+                        backgroundColor: Color(0xfffff3d6),
+                        content: Text(
+                          'Satellite Contours is only available in Ihike Pakistan Pro.',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        action: SnackBarAction(
+                          onPressed: () {
+                            purchase();
+                          },
+                          label: 'Upgrade!',
+                        ),
+                      ));
+                      return;
+                    }
                     MapState mapState = context.read<MapState>();
                     mapState.changeMapStyle(value);
                   },
@@ -132,8 +148,7 @@ class HomeState extends State<HomeScreen> {
                       child: Text('Dark'),
                     ),
                     PopupMenuItem(
-                      value:
-                      'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al',
+                      value: 'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al',
                       child: Text('Satellite Contours'),
                     ),
                   ],
@@ -141,6 +156,9 @@ class HomeState extends State<HomeScreen> {
                 PopupMenuButton<String>(
                   onSelected: (String item) async {
                     switch (item) {
+                      case 'buy':
+                        purchase();
+                        break;
                       case 'officialMaps':
                         Navigator.push(
                           context,
@@ -150,21 +168,19 @@ class HomeState extends State<HomeScreen> {
                         );
                         break;
                       case 'addhike':
-                        url_launcher
-                            .launch('https://forms.gle/CU2bSZ6DQ2BAZhs17');
+                        url_launcher.launch('https://forms.gle/CU2bSZ6DQ2BAZhs17');
                         break;
                       case 'rate':
-                        if (await url_launcher.canLaunch(
-                            'https://play.google.com/store/apps/details?id=com.ihikepakistan')) {
-                          url_launcher.launch(
-                              'https://play.google.com/store/apps/details?id=com.ihikepakistan');
+                        if (await url_launcher
+                            .canLaunch('https://play.google.com/store/apps/details?id=com.ihikepakistan')) {
+                          url_launcher.launch('https://play.google.com/store/apps/details?id=com.ihikepakistan');
                         }
                         break;
                       case 'about':
                         showAboutDialog(
                           context: context,
                           applicationName: 'Ihike Pakistan',
-                          applicationVersion: '1.0.1',
+                          applicationVersion: '1.0.3',
                           applicationIcon: Image.asset(
                             'assets/icon_small.png',
                             height: 70,
@@ -181,10 +197,8 @@ class HomeState extends State<HomeScreen> {
                               subtitle: Text('ihikepakistan.com'),
                               trailing: Icon(Icons.launch),
                               onTap: () async {
-                                if (await url_launcher.canLaunch(
-                                    'https://www.ihikepakistan.com/')) {
-                                  await url_launcher
-                                      .launch('https://www.ihikepakistan.com/');
+                                if (await url_launcher.canLaunch('https://www.ihikepakistan.com/')) {
+                                  await url_launcher.launch('https://www.ihikepakistan.com/');
                                 }
                               },
                             ),
@@ -193,10 +207,8 @@ class HomeState extends State<HomeScreen> {
                               subtitle: Text('Joran Mulderij'),
                               trailing: Icon(Icons.launch),
                               onTap: () async {
-                                if (await url_launcher.canLaunch(
-                                    'https://github.com/joranmulderij')) {
-                                  await url_launcher.launch(
-                                      'https://github.com/joranmulderij');
+                                if (await url_launcher.canLaunch('https://github.com/joranmulderij')) {
+                                  await url_launcher.launch('https://github.com/joranmulderij');
                                 }
                               },
                             ),
@@ -212,6 +224,10 @@ class HomeState extends State<HomeScreen> {
                   icon: Icon(Icons.more_vert),
                   itemBuilder: (BuildContext context) {
                     return [
+                      PopupMenuItem(
+                        child: Text('Upgrade to Pro'),
+                        value: 'buy',
+                      ),
                       PopupMenuItem(
                         child: Text('Official MHNP Maps'),
                         value: 'officialMaps',
