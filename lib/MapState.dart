@@ -41,6 +41,7 @@ class MapState with ChangeNotifier {
   List<List<double>> multiData;
   bool notificationsAreOn = false;
   bool onTrack = true;
+  bool alarmIsSounding = false;
 
   MapState() {
     if (!kIsWeb) locationManager = LocationManager.instance;
@@ -101,11 +102,10 @@ class MapState with ChangeNotifier {
     locationManager.interval = 1;
     locationManager.distanceFilter = 2;
     locationManager.notificationTitle = 'Ihike Pakistan is Running';
-    locationManager.notificationMsg = 'Ihike Pakistan is Running';
+    locationManager.notificationMsg = '';
     dtoStream = locationManager.dtoStream;
     dtoSubscription = dtoStream.listen((data) {
       if (canAddLocation(data.latitude, data.longitude)) {
-        print('add');
         if (track.isNotEmpty)
           totalDistance += mp.SphericalUtil.computeDistanceBetween(
               mp.LatLng(data.latitude, data.longitude), mp.LatLng(track.last.lat, track.last.lng));
@@ -114,9 +114,10 @@ class MapState with ChangeNotifier {
       checkAlarm();
       notifyListeners();
     });
+    locationManager.start();
   }
 
-  void toggleNotifications(){
+  void toggleNotifications() {
     notificationsAreOn = !notificationsAreOn;
     notifyListeners();
     checkAlarm();
@@ -125,22 +126,29 @@ class MapState with ChangeNotifier {
   void checkAlarm() {
     bool isOnTrack = false;
     for (List<double> trail in multiData) {
-      for (int i = 0; i < trail.length-1; i+=2){
+      for (int i = 0; i < trail.length - 1; i += 2) {
         if (mp.SphericalUtil.computeDistanceBetween(
-            mp.LatLng(trail[i], trail[i+1]), mp.LatLng(track.last.lat, track.last.lng)) < 40) isOnTrack = true;
+                mp.LatLng(trail[i], trail[i + 1]), mp.LatLng(track.last.lat, track.last.lng)) <
+            40) isOnTrack = true;
       }
     }
-    if(onTrack != isOnTrack){
+    if (onTrack != isOnTrack) {
       onTrack = isOnTrack;
       notifyListeners();
     }
-    if((!isOnTrack) && notificationsAreOn){
-      FlutterRingtonePlayer.playAlarm(
-        looping: true,
-        asAlarm: true,
-      );
-    } else if(isOnTrack || (!notificationsAreOn)){
-      FlutterRingtonePlayer.stop();
+    if ((!isOnTrack) && notificationsAreOn) {
+      if (!alarmIsSounding){
+        alarmIsSounding = true;
+        FlutterRingtonePlayer.playAlarm(
+          looping: true,
+          asAlarm: true,
+        );
+      }
+    } else if (isOnTrack || (!notificationsAreOn)) {
+      if (alarmIsSounding) {
+        alarmIsSounding = false;
+        FlutterRingtonePlayer.stop();
+      }
     }
   }
 

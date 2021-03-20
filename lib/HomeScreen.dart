@@ -48,6 +48,21 @@ class HomeState extends State<HomeScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    context.read<MapState>().multiData = () {
+      List<List<double>> data = [];
+      Hikes.all.forEach((hike) {
+        hike.multiData.forEach((track) {
+          data.add(track);
+        });
+      });
+      return data;
+    }();
+  }
+
+  @override
   void initState() {
     super.initState();
     analytics.setCurrentScreen(screenName: '/home');
