@@ -4,36 +4,39 @@ import 'package:flutter/material.dart';
 import 'package:ihikepakistan/DefaultHikes.dart';
 import 'package:ihikepakistan/HomeScreen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:ihikepakistan/MapState.dart';
+import 'MapState.dart';
+import 'package:ihikepakistan/purchase.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 SharedPreferences prefs;
-List<PurchaseDetails> purchases = [];
+Function() reload;
+bool hasPurchased;
 
-bool isPro(){
-  return kIsWeb || purchases.isNotEmpty;
+bool isPro() {
+  return kIsWeb || hasPurchased;
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if(!kIsWeb){
+
+  prefs = await SharedPreferences.getInstance();
+  hasPurchased = prefs.getBool('has_pro') ?? false;
+  if (!kIsWeb) {
     InAppPurchaseConnection.enablePendingPurchases();
-    final QueryPurchaseDetailsResponse response = await InAppPurchaseConnection.instance.queryPastPurchases();
-    if (response.error != null) {
-      // Handle the error.
-    }
-    print(response.pastPurchases);
-    purchases = response.pastPurchases;
-    final Stream purchaseUpdates =
-        InAppPurchaseConnection.instance.purchaseUpdatedStream;
+    final Stream<List<PurchaseDetails>> purchaseUpdates = InAppPurchaseConnection.instance.purchaseUpdatedStream;
     purchaseUpdates.listen((newPurchases) {
-      purchases = newPurchases;
+      if (justDidPurchase && newPurchases.length > 0) InAppPurchaseConnection.instance.completePurchase(newPurchases[0]);
+      if (newPurchases.length > 0){
+        if(hasPurchased == false){
+          hasPurchased = true;
+          reload();
+        }
+      }
     });
   }
-  prefs = await SharedPreferences.getInstance();
   if (!prefs.containsKey('hikes'))
     await http.get('https://repo.ihikepakistan.com/hikes.json').then((res) {
       prefs.setString('hikes', res.body);
@@ -50,10 +53,23 @@ void main() async {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-//  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  final FirebaseAnalytics analytics = FirebaseAnalytics();
+class MyApp extends StatefulWidget {
   MyApp();
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final FirebaseAnalytics analytics = FirebaseAnalytics();
+
+  _reload(){
+    setState(() {});
+  }
+
+  _MyAppState(){
+    reload = _reload;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,8 +84,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.amber,
           primaryColor: Color(0xff006600),
           accentColor: Color(0xff478e00),
-          floatingActionButtonTheme:
-              FloatingActionButtonThemeData(backgroundColor: Colors.orange),
+          floatingActionButtonTheme: FloatingActionButtonThemeData(backgroundColor: Colors.orange),
         ),
         home: HomeScreen(),
       ),

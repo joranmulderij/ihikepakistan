@@ -1,6 +1,9 @@
 
 import 'package:flutter/foundation.dart';
+import 'package:ihikepakistan/main.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+
+bool justDidPurchase = false;
 
 void purchase() async {
   if(kIsWeb) return;
@@ -12,7 +15,11 @@ void purchase() async {
   }
   List<ProductDetails> products = response.productDetails;
   final PurchaseParam purchaseParam = PurchaseParam(productDetails: products[0]);
-  InAppPurchaseConnection.instance.buyNonConsumable(purchaseParam: purchaseParam);
+  if(await InAppPurchaseConnection.instance.buyNonConsumable(purchaseParam: purchaseParam)) {
+    justDidPurchase = true;
+    prefs.setBool('has_pro', true);
+    reload();
+  }
 }
 
 

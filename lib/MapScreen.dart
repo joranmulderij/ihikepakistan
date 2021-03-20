@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
-// import 'package:ihikepakistan/MapBottomSheet.dart';
 import 'package:flutter/material.dart';
-import 'package:ihikepakistan/MapState.dart';
+import 'MapState.dart';
 import 'package:ihikepakistan/main.dart';
 import 'package:ihikepakistan/mapboxToken.dart';
 import 'package:ihikepakistan/purchase.dart';
 import 'package:provider/provider.dart';
 import 'Hike.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
+import 'showUpgradeSnackbar.dart';
 
 BuildContext cardContext;
 
@@ -21,17 +21,27 @@ class MapScreen extends StatefulWidget {
   MapScreen({this.hike});
 
   @override
-  _MapScreenState createState() => _MapScreenState();
+  _MapScreenState createState() => _MapScreenState(hike);
 }
 
 class _MapScreenState extends State<MapScreen> {
   bool showBottomSheet = true;
+  final Hike hike;
+  
+  _MapScreenState(this.hike);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    context.read<MapState>().multiData = hike.multiData;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.hike.title),
+        title: Text(hike.title),
         actions: [
           if (!kIsWeb)
             Builder(
@@ -66,20 +76,7 @@ class _MapScreenState extends State<MapScreen> {
               icon: Icon(Icons.map),
               onSelected: (value) {
                 if (value == 'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al' && !isPro()) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    elevation: 5,
-                    backgroundColor: Color(0xfffff3d6),
-                    content: Text(
-                      'Satellite Contours is only available in Ihike Pakistan Pro.',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    action: SnackBarAction(
-                      onPressed: () {
-                        purchase();
-                      },
-                      label: 'Upgrade!',
-                    ),
-                  ));
+                  showUpgradeSnackbar(context, 'Satellite Contours is only available in Ihike Pakistan Pro.');
                   return;
                 }
                 MapState mapState = context.read<MapState>();
@@ -115,13 +112,44 @@ class _MapScreenState extends State<MapScreen> {
           )
         ],
       ),
-      body: Map(
-        hike: widget.hike,
-        mapStyle: context.watch<MapState>().mapStyle,
+      body: Stack(
+        children: [
+          Map(
+            hike: hike,
+            mapStyle: context.watch<MapState>().mapStyle,
+          ),
+          if (showBottomSheet)
+            Consumer<MapState>(
+              builder: (context, mapState, _) => Positioned(
+                left: 10,
+                right: 10,
+                top: 10,
+                child: Card(
+                  color: mapState.onTrack ? Colors.green : Colors.red,
+                  elevation: 5,
+                  child: ListTile(
+                    title: Text(mapState.onTrack ? 'You\'re on track!' : 'You left the path!'),
+                    subtitle: mapState.notificationsAreOn ? Text('Notifications are on') : null,
+                    trailing: IconButton(
+                      icon: mapState.notificationsAreOn ? Icon(Icons.notifications_active) : Icon(Icons.notifications_outlined),
+                      onPressed: (){
+                        if(isPro())
+                          mapState.toggleNotifications();
+                        else {
+                          showUpgradeSnackbar(context, 'Notifications are only available in Ihike Pakistan Pro.');
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
       floatingActionButton: Builder(
         builder: (context) => FloatingActionButton(
-          child: Icon(Icons.stacked_bar_chart),
+          mini: true,
+          child: Icon(showBottomSheet ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up),
           onPressed: () {
             setState(() {
               showBottomSheet = !showBottomSheet;
@@ -143,7 +171,7 @@ class _MapScreenState extends State<MapScreen> {
                           _infoCard(
                               title: 'Av Speed:',
                               statistic:
-                                  '${(mapState.totalDistance / DateTime.now().difference(mapState.startTime).inSeconds).round()}km/h'),
+                                  '${(mapState.totalDistance / DateTime.now().difference(mapState.startTime).inSeconds * 3.6).round()}km/h'),
                           StreamBuilder(
                               stream: Stream.periodic(Duration(seconds: 1)),
                               builder: (context, snapshot) {

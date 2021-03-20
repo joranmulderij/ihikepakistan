@@ -14,6 +14,7 @@ import 'dart:async';
 import 'package:carp_background_location/carp_background_location.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:maps_toolkit/maps_toolkit.dart' as mp;
@@ -37,9 +38,12 @@ class MapState with ChangeNotifier {
   double climb = 0;
   DateTime startTime = DateTime.now();
   double totalDistance = 0;
+  List<List<double>> multiData;
+  bool notificationsAreOn = false;
+  bool onTrack = true;
 
   MapState() {
-    if(!kIsWeb) locationManager = LocationManager.instance;
+    if (!kIsWeb) locationManager = LocationManager.instance;
     getLocation();
   }
 
@@ -74,7 +78,6 @@ class MapState with ChangeNotifier {
     }
 
     locationStreamSub = location.onLocationChanged.listen((data) {
-      print('location!!');
       if (canAddLocation(data.latitude, data.longitude)) {
         if (currentAlt != null) {
           if (data.altitude > currentAlt) {
@@ -86,15 +89,15 @@ class MapState with ChangeNotifier {
           totalDistance += mp.SphericalUtil.computeDistanceBetween(
               mp.LatLng(data.latitude, data.longitude), mp.LatLng(track.last.lat, track.last.lng));
         track.add(IhikeLatLng(data.latitude, data.longitude));
+        notifyListeners();
+        checkAlarm();
       }
-      notifyListeners();
     });
 
-    if(!kIsWeb)
-      startCarpLocation();
+    if (!kIsWeb) startCarpLocation();
   }
 
-  startCarpLocation(){
+  startCarpLocation() {
     locationManager.interval = 1;
     locationManager.distanceFilter = 2;
     locationManager.notificationTitle = 'Ihike Pakistan is Running';
@@ -108,12 +111,42 @@ class MapState with ChangeNotifier {
               mp.LatLng(data.latitude, data.longitude), mp.LatLng(track.last.lat, track.last.lng));
         track.add(IhikeLatLng(data.latitude, data.longitude));
       }
+      checkAlarm();
+      notifyListeners();
     });
+  }
+
+  void toggleNotifications(){
+    notificationsAreOn = !notificationsAreOn;
+    notifyListeners();
+    checkAlarm();
+  }
+
+  void checkAlarm() {
+    bool isOnTrack = false;
+    for (List<double> trail in multiData) {
+      for (int i = 0; i < trail.length-1; i+=2){
+        if (mp.SphericalUtil.computeDistanceBetween(
+            mp.LatLng(trail[i], trail[i+1]), mp.LatLng(track.last.lat, track.last.lng)) < 40) isOnTrack = true;
+      }
+    }
+    if(onTrack != isOnTrack){
+      onTrack = isOnTrack;
+      notifyListeners();
+    }
+    if((!isOnTrack) && notificationsAreOn){
+      FlutterRingtonePlayer.playAlarm(
+        looping: true,
+        asAlarm: true,
+      );
+    } else if(isOnTrack || (!notificationsAreOn)){
+      FlutterRingtonePlayer.stop();
+    }
   }
 
   bool canAddLocation(double lat, double lng) {
     for (IhikeLatLng latLng in track) {
-      if ((latLng.lat - lat).abs() < 0.00002 && (latLng.lng - lng).abs() < 0.00002) {
+      if (mp.SphericalUtil.computeDistanceBetween(mp.LatLng(lat, lng), mp.LatLng(latLng.lat, latLng.lng)) < 2) {
         return false;
       }
     }

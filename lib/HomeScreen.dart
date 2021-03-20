@@ -7,7 +7,7 @@ import 'package:ihikepakistan/Hike.dart';
 import 'package:ihikepakistan/InfoScreen.dart';
 import 'package:ihikepakistan/MHNPMapsScreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:ihikepakistan/MapState.dart';
+import 'MapState.dart';
 import 'package:ihikepakistan/ShareTile.dart';
 import 'package:ihikepakistan/main.dart';
 import 'package:ihikepakistan/purchase.dart';
@@ -19,6 +19,7 @@ import 'MapScreen.dart' as mapScreen;
 import 'HikeTiles.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 import 'package:ihikepakistan/MyImageView.dart';
+import 'package:ihikepakistan/showUpgradeSnackbar.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeState createState() => HomeState();
@@ -30,6 +31,7 @@ class HomeState extends State<HomeScreen> {
   final FirebaseAnalytics analytics = FirebaseAnalytics();
   final FirebaseMessaging _firebaseMessaging = kIsWeb ? null : FirebaseMessaging();
   Future<RemoteConfig> myRemoteConfigFuture;
+  bool expanded = true;
 
   Future<dynamic> onPushMessage(Map<String, dynamic> message) async {
     print(message);
@@ -58,7 +60,7 @@ class HomeState extends State<HomeScreen> {
           return Scaffold(
             //backgroundColor: Color(0xfffff3d6),
             appBar: AppBar(
-              title: Text('Ihike Pakistan' + (prefs.containsKey('payCode') ? ' Pro' : '')),
+              title: Text('Ihike Pakistan' + (isPro() ? ' Pro' : '')),
               actions: <Widget>[
                 IconButton(
                   icon: Icon(Icons.search),
@@ -107,20 +109,7 @@ class HomeState extends State<HomeScreen> {
                   icon: Icon(Icons.map),
                   onSelected: (value) {
                     if (value == 'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al' && !isPro()) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        elevation: 5,
-                        backgroundColor: Color(0xfffff3d6),
-                        content: Text(
-                          'Satellite Contours is only available in Ihike Pakistan Pro.',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        action: SnackBarAction(
-                          onPressed: () {
-                            purchase();
-                          },
-                          label: 'Upgrade!',
-                        ),
-                      ));
+                      showUpgradeSnackbar(context, 'Satellite Contours is only available in Ihike Pakistan Pro.');
                       return;
                     }
                     MapState mapState = context.read<MapState>();
@@ -268,22 +257,61 @@ class HomeState extends State<HomeScreen> {
                     return data;
                   }()),
                 ),
-                CarouselSlider.builder(
-                  itemCount: Hikes.allListed.length,
-                  carouselController: controller,
-                  itemBuilder: (BuildContext context, int index) => HikeTile(
-                    hike: Hikes.allListed[index],
+                if(expanded)
+                  Consumer<MapState>(
+                    builder: (context, mapState, _) => Positioned(
+                      left: 10,
+                      right: 10,
+                      top: 10,
+                      child: Card(
+                        color: mapState.onTrack ? Colors.green : Colors.red,
+                        elevation: 5,
+                        child: ListTile(
+                          title: Text(mapState.onTrack ? 'You\'re on track!' : 'You left the path!'),
+                          subtitle: mapState.notificationsAreOn ? Text('Notifications are on') : null,
+                          trailing: IconButton(
+                            icon: mapState.notificationsAreOn ? Icon(Icons.notifications_active) : Icon(Icons.notifications_outlined),
+                            onPressed: (){
+                              if(isPro())
+                                mapState.toggleNotifications();
+                              else {
+                                showUpgradeSnackbar(context, 'Notifications are only available in Ihike Pakistan Pro.');
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                  options: CarouselOptions(
-                      scrollDirection: Axis.horizontal,
-                      enableInfiniteScroll: false,
-                      autoPlayInterval: Duration(seconds: 10),
-                      initialPage: 0,
-                      viewportFraction: 0.9,
-                      height: 180,
-                      autoPlay: true),
-                ),
+                if (expanded)
+                  CarouselSlider.builder(
+                    itemCount: Hikes.allListed.length,
+                    carouselController: controller,
+                    itemBuilder: (BuildContext context, int index) => HikeTile(
+                      hike: Hikes.allListed[index],
+                    ),
+                    options: CarouselOptions(
+                        scrollDirection: Axis.horizontal,
+                        enableInfiniteScroll: false,
+                        autoPlayInterval: Duration(seconds: 10),
+                        initialPage: 0,
+                        viewportFraction: 0.9,
+                        height: 180,
+                        autoPlay: true),
+                  ),
               ],
+            ),
+            floatingActionButton: Padding(
+              padding: EdgeInsets.only(bottom: expanded ? 110 : 0),
+              child: FloatingActionButton(
+                mini: true,
+                onPressed: (){
+                  setState(() {
+                    expanded = !expanded;
+                  });
+                },
+                child: Icon(expanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up),
+              ),
             ),
           );
         });
