@@ -33,15 +33,18 @@ class MapState with ChangeNotifier {
   LocationManager locationManager;
   Stream<LocationDto> dtoStream;
   StreamSubscription<LocationDto> dtoSubscription;
+  StreamSubscription timeSub;
   List<IhikeLatLng> track = [];
   double currentAlt;
   double climb = 0;
-  DateTime startTime = DateTime.now();
+  DateTime startTime;
   double totalDistance = 0;
   List<List<double>> multiData;
   bool notificationsAreOn = false;
   bool onTrack = true;
   bool alarmIsSounding = false;
+  bool running = false;
+  bool hasRun = false;
 
   MapState() {
     if (!kIsWeb) locationManager = LocationManager.instance;
@@ -54,6 +57,21 @@ class MapState with ChangeNotifier {
 
     locationStreamSub.cancel();
     if (!kIsWeb) dtoSubscription.cancel();
+  }
+
+  void togglePlay(){
+    if(!hasRun && !running){
+      hasRun = true;
+      running = true;
+      timeSub = Stream.periodic(Duration(seconds: 1)).listen((event) {notifyListeners();});
+      startTime = DateTime.now().subtract(Duration(seconds: 1));
+      if(!kIsWeb) startCarpLocation();
+    } else if(hasRun && running){
+      running = false;
+      timeSub.cancel();
+      if(!kIsWeb) stopCarpLocation();
+    }
+    notifyListeners();
   }
 
   void getLocation() async {
@@ -79,7 +97,7 @@ class MapState with ChangeNotifier {
     }
 
     locationStreamSub = location.onLocationChanged.listen((data) {
-      if (canAddLocation(data.latitude, data.longitude)) {
+      if (canAddLocation(data.latitude, data.longitude) && running) {
         if (currentAlt != null) {
           if (data.altitude > currentAlt) {
             climb += data.altitude - currentAlt;
@@ -94,8 +112,6 @@ class MapState with ChangeNotifier {
         checkAlarm();
       }
     });
-
-    if (!kIsWeb) startCarpLocation();
   }
 
   startCarpLocation() {
@@ -105,7 +121,7 @@ class MapState with ChangeNotifier {
     locationManager.notificationMsg = '';
     dtoStream = locationManager.dtoStream;
     dtoSubscription = dtoStream.listen((data) {
-      if (canAddLocation(data.latitude, data.longitude)) {
+      if (canAddLocation(data.latitude, data.longitude) && running) {
         if (track.isNotEmpty)
           totalDistance += mp.SphericalUtil.computeDistanceBetween(
               mp.LatLng(data.latitude, data.longitude), mp.LatLng(track.last.lat, track.last.lng));
@@ -115,6 +131,11 @@ class MapState with ChangeNotifier {
       notifyListeners();
     });
     locationManager.start();
+  }
+
+  void stopCarpLocation() async {
+    dtoSubscription.cancel();
+    await locationManager.stop();
   }
 
   void toggleNotifications() {

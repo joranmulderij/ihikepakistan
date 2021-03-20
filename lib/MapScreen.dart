@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 import 'MapState.dart';
 import 'package:ihikepakistan/main.dart';
 import 'package:ihikepakistan/mapboxToken.dart';
-import 'package:ihikepakistan/purchase.dart';
 import 'package:provider/provider.dart';
 import 'Hike.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 import 'showUpgradeSnackbar.dart';
+import 'StatsBottomSheet.dart';
 
 BuildContext cardContext;
 
@@ -147,76 +147,30 @@ class _MapScreenState extends State<MapScreen> {
         ],
       ),
       floatingActionButton: Builder(
-        builder: (context) => FloatingActionButton(
-          mini: true,
-          child: Icon(showBottomSheet ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up),
-          onPressed: () {
-            setState(() {
-              showBottomSheet = !showBottomSheet;
-            });
-          },
+        builder: (context) => Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FloatingActionButton(
+              mini: true,
+              backgroundColor: context.watch<MapState>().running ? Colors.red : Colors.green,
+              child: Icon(context.watch<MapState>().running ? Icons.pause : Icons.play_arrow),
+              onPressed: () {
+                context.read<MapState>().togglePlay();
+              },
+            ),
+            FloatingActionButton(
+              mini: true,
+              child: Icon(showBottomSheet ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up),
+              onPressed: () {
+                setState(() {
+                  showBottomSheet = !showBottomSheet;
+                });
+              },
+            ),
+          ],
         ),
       ),
-      bottomSheet: showBottomSheet
-          ? Consumer<MapState>(
-              builder: (context, mapState, _) => Container(
-                color: Color(0xfffff3d6),
-                height: 100,
-                child: isPro()
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _infoCard(title: 'Climb:', statistic: '${mapState.climb.toInt()}m'),
-                          _infoCard(title: 'Distance:', statistic: '${mapState.totalDistance.toInt()}m'),
-                          _infoCard(
-                              title: 'Av Speed:',
-                              statistic:
-                                  '${(mapState.totalDistance / DateTime.now().difference(mapState.startTime).inSeconds * 3.6).round()}km/h'),
-                          StreamBuilder(
-                              stream: Stream.periodic(Duration(seconds: 1)),
-                              builder: (context, snapshot) {
-                                return _infoCard(
-                                    title: 'Time:',
-                                    statistic: '${_printDuration(DateTime.now().difference(mapState.startTime))}');
-                              }),
-                        ],
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.only(right: 50),
-                        child: Center(
-                          child: ListTile(
-                            title: Text(
-                                'To see all statistics and trace yourself on the map, Click Here to Upgrade to Ihike Pakistan Pro.'),
-                            onTap: () {
-                              purchase();
-                            },
-                          ),
-                        ),
-                      ),
-              ),
-            )
-          : null,
-    );
-  }
-
-  String _printDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
-  }
-
-  Widget _infoCard({String title, String statistic}) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(title),
-        Text(
-          statistic,
-          style: TextStyle(fontSize: 24),
-        ),
-      ],
+      bottomSheet: showBottomSheet ? StatsBottomSheet() : null,
     );
   }
 }

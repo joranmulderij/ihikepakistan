@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -20,6 +22,7 @@ import 'HikeTiles.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 import 'package:ihikepakistan/MyImageView.dart';
 import 'package:ihikepakistan/showUpgradeSnackbar.dart';
+import 'StatsBottomSheet.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeState createState() => HomeState();
@@ -77,49 +80,49 @@ class HomeState extends State<HomeScreen> {
             appBar: AppBar(
               title: Text('Ihike Pakistan' + (isPro() ? ' Pro' : '')),
               actions: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () => showSearch(
-                    context: context,
-                    delegate: SearchPage<Hike>(
-                      builder: (hike) => ListTile(
-                        leading: ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          child: MyImageView(hike.photo),
-                        ),
-                        title: Text(
-                          hike.title,
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        subtitle: Text(
-                          hike.difficulty,
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => InfoScreen(
-                                hike: hike,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      filter: (hike) => [
-                        hike.title,
-                        hike.tags,
-                        hike.difficulty,
-                      ],
-                      showItemsOnEmpty: true,
-                      items: Hikes.allListed,
-                      searchLabel: 'Search Hikes',
-                      failure: ListTile(
-                        title: Text('We could not find any Hikes...'),
-                      ),
-                    ),
-                  ),
-                ),
+                // IconButton(
+                //   icon: Icon(Icons.search),
+                //   onPressed: () => showSearch(
+                //     context: context,
+                //     delegate: SearchPage<Hike>(
+                //       builder: (hike) => ListTile(
+                //         leading: ClipRRect(
+                //           borderRadius: BorderRadius.all(Radius.circular(5)),
+                //           child: MyImageView(hike.photo),
+                //         ),
+                //         title: Text(
+                //           hike.title,
+                //           style: TextStyle(color: Colors.black),
+                //         ),
+                //         subtitle: Text(
+                //           hike.difficulty,
+                //           style: TextStyle(color: Colors.grey),
+                //         ),
+                //         onTap: () {
+                //           Navigator.push(
+                //             context,
+                //             MaterialPageRoute(
+                //               builder: (context) => InfoScreen(
+                //                 hike: hike,
+                //               ),
+                //             ),
+                //           );
+                //         },
+                //       ),
+                //       filter: (hike) => [
+                //         hike.title,
+                //         hike.tags,
+                //         hike.difficulty,
+                //       ],
+                //       showItemsOnEmpty: true,
+                //       items: Hikes.allListed,
+                //       searchLabel: 'Search Hikes',
+                //       failure: ListTile(
+                //         title: Text('We could not find any Hikes...'),
+                //       ),
+                //     ),
+                //   ),
+                // ),
                 PopupMenuButton<String>(
                   icon: Icon(Icons.map),
                   onSelected: (value) {
@@ -298,7 +301,7 @@ class HomeState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                if (expanded)
+                if (expanded && !context.watch<MapState>().hasRun)
                   CarouselSlider.builder(
                     itemCount: Hikes.allListed.length,
                     carouselController: controller,
@@ -316,18 +319,34 @@ class HomeState extends State<HomeScreen> {
                   ),
               ],
             ),
-            floatingActionButton: Padding(
-              padding: EdgeInsets.only(bottom: expanded ? 110 : 0),
-              child: FloatingActionButton(
-                mini: true,
-                onPressed: (){
-                  setState(() {
-                    expanded = !expanded;
-                  });
-                },
-                child: Icon(expanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up),
+            floatingActionButton: Builder(
+              builder: (context) => Padding(
+                padding: EdgeInsets.only(bottom: (context.watch<MapState>().hasRun || !expanded) ? 0.0 : 115.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FloatingActionButton(
+                      mini: true,
+                      backgroundColor: context.watch<MapState>().running ? Colors.red : (context.watch<MapState>().hasRun ? Colors.grey : Colors.green),
+                      child: Icon(context.watch<MapState>().running ? Icons.stop : Icons.play_arrow),
+                      onPressed: (context.watch<MapState>().hasRun && !context.watch<MapState>().running) ? null : () {
+                        context.read<MapState>().togglePlay();
+                      },
+                    ),
+                    FloatingActionButton(
+                      mini: true,
+                      child: Icon(expanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up),
+                      onPressed: () {
+                        setState(() {
+                          expanded = !expanded;
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
+            bottomSheet: (context.watch<MapState>().hasRun && expanded) ? StatsBottomSheet() : null,
           );
         });
   }
