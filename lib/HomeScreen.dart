@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -6,7 +5,6 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ihikepakistan/Hike.dart';
-import 'package:ihikepakistan/InfoScreen.dart';
 import 'package:ihikepakistan/MHNPMapsScreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'MapState.dart';
@@ -14,13 +12,11 @@ import 'package:ihikepakistan/ShareTile.dart';
 import 'package:ihikepakistan/main.dart';
 import 'package:ihikepakistan/purchase.dart';
 import 'package:provider/provider.dart';
-import 'package:search_page/search_page.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 import 'Hikes.dart';
 import 'MapScreen.dart' as mapScreen;
 import 'HikeTiles.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
-import 'package:ihikepakistan/MyImageView.dart';
 import 'package:ihikepakistan/showUpgradeSnackbar.dart';
 import 'StatsBottomSheet.dart';
 
@@ -78,7 +74,7 @@ class HomeState extends State<HomeScreen> {
           return Scaffold(
             //backgroundColor: Color(0xfffff3d6),
             appBar: AppBar(
-              title: Text('Ihike Pakistan' + (isPro() ? ' Pro' : '')),
+              title: Text('Ihike Pakistan' + (isPro() && !kIsWeb ? ' Pro' : '')),
               actions: <Widget>[
                 // IconButton(
                 //   icon: Icon(Icons.search),
@@ -259,7 +255,7 @@ class HomeState extends State<HomeScreen> {
             body: Stack(
               alignment: Alignment.bottomCenter,
               children: [
-                mapScreen.Map(
+                mapScreen.MyMap(
                   mapStyle: mapbox.MapboxStyles.OUTDOORS,
                   cameraPosition: mapbox.CameraPosition(
                     target: mapbox.LatLng(33.693056, 73.063889),
@@ -287,7 +283,7 @@ class HomeState extends State<HomeScreen> {
                         child: ListTile(
                           title: Text(mapState.onTrack ? 'You\'re on track!' : 'You left the path!'),
                           subtitle: mapState.notificationsAreOn ? Text('Notifications are on') : null,
-                          trailing: IconButton(
+                          trailing: kIsWeb ? null : IconButton(
                             icon: mapState.notificationsAreOn ? Icon(Icons.notifications_active) : Icon(Icons.notifications_outlined),
                             onPressed: (){
                               if(isPro())
@@ -326,6 +322,7 @@ class HomeState extends State<HomeScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     FloatingActionButton(
+                      heroTag: null,
                       mini: true,
                       backgroundColor: context.watch<MapState>().running ? Colors.red : (context.watch<MapState>().hasRun ? Colors.grey : Colors.green),
                       child: Icon(context.watch<MapState>().running ? Icons.stop : Icons.play_arrow),
@@ -333,7 +330,9 @@ class HomeState extends State<HomeScreen> {
                         context.read<MapState>().togglePlay();
                       },
                     ),
+                    SizedBox(width: 20,),
                     FloatingActionButton(
+                      heroTag: null,
                       mini: true,
                       child: Icon(expanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up),
                       onPressed: () {

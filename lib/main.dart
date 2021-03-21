@@ -16,7 +16,6 @@ Function() reload;
 bool hasPurchased;
 
 bool isPro() {
-  return true;
   return kIsWeb || hasPurchased;
 }
 

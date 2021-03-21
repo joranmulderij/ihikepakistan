@@ -3,7 +3,6 @@ import 'package:ihikepakistan/MapState.dart';
 import 'package:ihikepakistan/main.dart';
 import 'package:ihikepakistan/purchase.dart';
 import 'package:provider/provider.dart';
-import '';
 
 class StatsBottomSheet extends StatelessWidget {
   @override
