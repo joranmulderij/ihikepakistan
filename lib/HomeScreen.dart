@@ -1,4 +1,3 @@
-
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -28,7 +27,8 @@ class HomeState extends State<HomeScreen> {
   CarouselController controller = CarouselController();
   String testText;
   final FirebaseAnalytics analytics = FirebaseAnalytics();
-  final FirebaseMessaging _firebaseMessaging = kIsWeb ? null : FirebaseMessaging();
+  final FirebaseMessaging _firebaseMessaging =
+      kIsWeb ? null : FirebaseMessaging();
   Future<RemoteConfig> myRemoteConfigFuture;
   bool expanded = true;
 
@@ -74,7 +74,8 @@ class HomeState extends State<HomeScreen> {
           return Scaffold(
             //backgroundColor: Color(0xfffff3d6),
             appBar: AppBar(
-              title: Text('Ihike Pakistan' + (isPro() && !kIsWeb ? ' Pro' : '')),
+              title:
+                  Text('Ihike Pakistan' + (isPro() && !kIsWeb ? ' Pro' : '')),
               actions: <Widget>[
                 // IconButton(
                 //   icon: Icon(Icons.search),
@@ -122,8 +123,11 @@ class HomeState extends State<HomeScreen> {
                 PopupMenuButton<String>(
                   icon: Icon(Icons.map),
                   onSelected: (value) {
-                    if (value == 'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al' && !isPro()) {
-                      showUpgradeSnackbar(context, 'Satellite Contours is only available in Ihike Pakistan Pro.');
+                    if (value ==
+                            'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al' &&
+                        !isPro()) {
+                      showUpgradeSnackbar(context,
+                          'Satellite Contours is only available in Ihike Pakistan Pro.');
                       return;
                     }
                     MapState mapState = context.read<MapState>();
@@ -151,7 +155,8 @@ class HomeState extends State<HomeScreen> {
                       child: Text('Dark'),
                     ),
                     PopupMenuItem(
-                      value: 'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al',
+                      value:
+                          'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al',
                       child: Text('Satellite Contours'),
                     ),
                   ],
@@ -171,19 +176,21 @@ class HomeState extends State<HomeScreen> {
                         );
                         break;
                       case 'addhike':
-                        url_launcher.launch('https://forms.gle/CU2bSZ6DQ2BAZhs17');
+                        url_launcher
+                            .launch('https://forms.gle/CU2bSZ6DQ2BAZhs17');
                         break;
                       case 'rate':
-                        if (await url_launcher
-                            .canLaunch('https://play.google.com/store/apps/details?id=com.ihikepakistan')) {
-                          url_launcher.launch('https://play.google.com/store/apps/details?id=com.ihikepakistan');
+                        if (await url_launcher.canLaunch(
+                            'https://play.google.com/store/apps/details?id=com.ihikepakistan')) {
+                          url_launcher.launch(
+                              'https://play.google.com/store/apps/details?id=com.ihikepakistan');
                         }
                         break;
                       case 'about':
                         showAboutDialog(
                           context: context,
                           applicationName: 'Ihike Pakistan',
-                          applicationVersion: '1.2.2',
+                          applicationVersion: '1.2.3',
                           applicationIcon: Image.asset(
                             'assets/icon_small.png',
                             height: 70,
@@ -200,8 +207,10 @@ class HomeState extends State<HomeScreen> {
                               subtitle: Text('ihikepakistan.com'),
                               trailing: Icon(Icons.launch),
                               onTap: () async {
-                                if (await url_launcher.canLaunch('https://www.ihikepakistan.com/')) {
-                                  await url_launcher.launch('https://www.ihikepakistan.com/');
+                                if (await url_launcher.canLaunch(
+                                    'https://www.ihikepakistan.com/')) {
+                                  await url_launcher
+                                      .launch('https://www.ihikepakistan.com/');
                                 }
                               },
                             ),
@@ -210,8 +219,10 @@ class HomeState extends State<HomeScreen> {
                               subtitle: Text('Joran Mulderij'),
                               trailing: Icon(Icons.launch),
                               onTap: () async {
-                                if (await url_launcher.canLaunch('https://github.com/joranmulderij')) {
-                                  await url_launcher.launch('https://github.com/joranmulderij');
+                                if (await url_launcher.canLaunch(
+                                    'https://github.com/joranmulderij')) {
+                                  await url_launcher.launch(
+                                      'https://github.com/joranmulderij');
                                 }
                               },
                             ),
@@ -271,7 +282,7 @@ class HomeState extends State<HomeScreen> {
                     return data;
                   }()),
                 ),
-                if(expanded)
+                if (expanded)
                   Consumer<MapState>(
                     builder: (context, mapState, _) => Positioned(
                       left: 10,
@@ -281,18 +292,27 @@ class HomeState extends State<HomeScreen> {
                         color: mapState.onTrack ? Colors.green : Colors.red,
                         elevation: 5,
                         child: ListTile(
-                          title: Text(mapState.onTrack ? 'You\'re on track!' : 'You left the path!'),
-                          subtitle: mapState.notificationsAreOn ? Text('Notifications are on') : null,
-                          trailing: kIsWeb ? null : IconButton(
-                            icon: mapState.notificationsAreOn ? Icon(Icons.notifications_active) : Icon(Icons.notifications_outlined),
-                            onPressed: (){
-                              if(isPro())
-                                mapState.toggleNotifications();
-                              else {
-                                showUpgradeSnackbar(context, 'Notifications are only available in Ihike Pakistan Pro.');
-                              }
-                            },
-                          ),
+                          title: Text(mapState.onTrack
+                              ? 'You\'re on track!'
+                              : 'You left the path!'),
+                          subtitle: mapState.notificationsAreOn
+                              ? Text('Notifications are on')
+                              : null,
+                          trailing: kIsWeb
+                              ? null
+                              : IconButton(
+                                  icon: mapState.notificationsAreOn
+                                      ? Icon(Icons.notifications_active)
+                                      : Icon(Icons.notifications_outlined),
+                                  onPressed: () {
+                                    if (isPro())
+                                      mapState.toggleNotifications();
+                                    else {
+                                      showUpgradeSnackbar(context,
+                                          'Notifications are only available in Ihike Pakistan Pro.');
+                                    }
+                                  },
+                                ),
                         ),
                       ),
                     ),
@@ -317,24 +337,40 @@ class HomeState extends State<HomeScreen> {
             ),
             floatingActionButton: Builder(
               builder: (context) => Padding(
-                padding: EdgeInsets.only(bottom: (context.watch<MapState>().hasRun || !expanded) ? 0.0 : 115.0),
+                padding: EdgeInsets.only(
+                    bottom: (context.watch<MapState>().hasRun || !expanded)
+                        ? 0.0
+                        : 115.0),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     FloatingActionButton(
                       heroTag: null,
                       mini: true,
-                      backgroundColor: context.watch<MapState>().running ? Colors.red : (context.watch<MapState>().hasRun ? Colors.grey : Colors.green),
-                      child: Icon(context.watch<MapState>().running ? Icons.stop : Icons.play_arrow),
-                      onPressed: (context.watch<MapState>().hasRun && !context.watch<MapState>().running) ? null : () {
-                        context.read<MapState>().togglePlay();
-                      },
+                      backgroundColor: context.watch<MapState>().running
+                          ? Colors.red
+                          : (context.watch<MapState>().hasRun
+                              ? Colors.grey
+                              : Colors.green),
+                      child: Icon(context.watch<MapState>().running
+                          ? Icons.stop
+                          : Icons.play_arrow),
+                      onPressed: (context.watch<MapState>().hasRun &&
+                              !context.watch<MapState>().running)
+                          ? null
+                          : () {
+                              context.read<MapState>().togglePlay(context);
+                            },
                     ),
-                    SizedBox(width: 20,),
+                    SizedBox(
+                      width: 20,
+                    ),
                     FloatingActionButton(
                       heroTag: null,
                       mini: true,
-                      child: Icon(expanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up),
+                      child: Icon(expanded
+                          ? Icons.keyboard_arrow_down
+                          : Icons.keyboard_arrow_up),
                       onPressed: () {
                         setState(() {
                           expanded = !expanded;
@@ -345,7 +381,9 @@ class HomeState extends State<HomeScreen> {
                 ),
               ),
             ),
-            bottomSheet: (context.watch<MapState>().hasRun && expanded) ? StatsBottomSheet() : null,
+            bottomSheet: (context.watch<MapState>().hasRun && expanded)
+                ? StatsBottomSheet()
+                : null,
           );
         });
   }

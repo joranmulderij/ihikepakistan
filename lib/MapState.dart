@@ -14,7 +14,9 @@ import 'dart:async';
 import 'package:carp_background_location/carp_background_location.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import 'package:ihikepakistan/main.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:maps_toolkit/maps_toolkit.dart' as mp;
@@ -59,17 +61,36 @@ class MapState with ChangeNotifier {
     if (!kIsWeb) dtoSubscription.cancel();
   }
 
-  void togglePlay(){
-    if(!hasRun && !running){
+  void togglePlay(BuildContext context) async {
+    // await showDialog(
+    //   context: context,
+    //   builder: (context) => AlertDialog(
+    //     title: Text('Background Location'),
+    //     content: Text('This app collects location data to make sure you stay on the path even when the app is closed or not in use.'),
+    //   ),
+    // );
+    if (!prefs.containsKey('has_showed_disclaimer') && !kIsWeb) {
+      await ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(
+            content: Text(
+                'This app collects location data to make sure you stay on the path even when the app is closed or not in use.'),
+            behavior: SnackBarBehavior.floating,
+          ))
+          .closed;
+      prefs.setBool('has_showed_disclaimer', true);
+    }
+    if (!hasRun && !running) {
       hasRun = true;
       running = true;
-      timeSub = Stream.periodic(Duration(seconds: 1)).listen((event) {notifyListeners();});
+      timeSub = Stream.periodic(Duration(seconds: 1)).listen((event) {
+        notifyListeners();
+      });
       startTime = DateTime.now().subtract(Duration(seconds: 1));
-      if(!kIsWeb) startCarpLocation();
-    } else if(hasRun && running){
+      if (!kIsWeb) startCarpLocation();
+    } else if (hasRun && running) {
       running = false;
       timeSub.cancel();
-      if(!kIsWeb) stopCarpLocation();
+      if (!kIsWeb) stopCarpLocation();
     }
     notifyListeners();
   }
@@ -106,7 +127,8 @@ class MapState with ChangeNotifier {
         currentAlt = data.altitude;
         if (track.isNotEmpty)
           totalDistance += mp.SphericalUtil.computeDistanceBetween(
-              mp.LatLng(data.latitude, data.longitude), mp.LatLng(track.last.lat, track.last.lng));
+              mp.LatLng(data.latitude, data.longitude),
+              mp.LatLng(track.last.lat, track.last.lng));
         track.add(IhikeLatLng(data.latitude, data.longitude));
         notifyListeners();
         checkAlarm();
@@ -124,7 +146,8 @@ class MapState with ChangeNotifier {
       if (canAddLocation(data.latitude, data.longitude) && running) {
         if (track.isNotEmpty)
           totalDistance += mp.SphericalUtil.computeDistanceBetween(
-              mp.LatLng(data.latitude, data.longitude), mp.LatLng(track.last.lat, track.last.lng));
+              mp.LatLng(data.latitude, data.longitude),
+              mp.LatLng(track.last.lat, track.last.lng));
         track.add(IhikeLatLng(data.latitude, data.longitude));
       }
       checkAlarm();
@@ -149,7 +172,8 @@ class MapState with ChangeNotifier {
     for (List<double> trail in multiData) {
       for (int i = 0; i < trail.length - 1; i += 2) {
         if (mp.SphericalUtil.computeDistanceBetween(
-                mp.LatLng(trail[i], trail[i + 1]), mp.LatLng(track.last.lat, track.last.lng)) <
+                mp.LatLng(trail[i], trail[i + 1]),
+                mp.LatLng(track.last.lat, track.last.lng)) <
             40) isOnTrack = true;
       }
     }
@@ -158,7 +182,7 @@ class MapState with ChangeNotifier {
       notifyListeners();
     }
     if ((!isOnTrack) && notificationsAreOn) {
-      if (!alarmIsSounding){
+      if (!alarmIsSounding) {
         alarmIsSounding = true;
         FlutterRingtonePlayer.playAlarm(
           looping: true,
@@ -175,7 +199,9 @@ class MapState with ChangeNotifier {
 
   bool canAddLocation(double lat, double lng) {
     for (IhikeLatLng latLng in track) {
-      if (mp.SphericalUtil.computeDistanceBetween(mp.LatLng(lat, lng), mp.LatLng(latLng.lat, latLng.lng)) < 2) {
+      if (mp.SphericalUtil.computeDistanceBetween(
+              mp.LatLng(lat, lng), mp.LatLng(latLng.lat, latLng.lng)) <
+          2) {
         return false;
       }
     }

@@ -15,17 +15,23 @@ class StatsBottomSheet extends StatelessWidget {
             ? Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _infoCard(title: 'Climb:', statistic: '${mapState.climb.toInt()}m'),
-                  _infoCard(title: 'Distance:', statistic: '${mapState.totalDistance.toInt()}m'),
+                  _infoCard(
+                      title: 'Climb:', statistic: '${mapState.climb.toInt()}m'),
+                  _infoCard(
+                      title: 'Distance:',
+                      statistic: '${mapState.totalDistance.toInt()}m'),
                   _infoCard(
                       title: 'Av Speed:',
-                      statistic:
-                          mapState.startTime == null ? '0km/h' : '${(mapState.totalDistance / DateTime.now().difference(mapState.startTime).inSeconds * 3.6).toStringAsFixed(1)}km/h'),
+                      statistic: mapState.startTime == null
+                          ? '0km/h'
+                          : '${(mapState.totalDistance / DateTime.now().difference(mapState.startTime).inSeconds * 3.6).toStringAsFixed(1)}km/h'),
                   _infoCard(
                       title: 'Time:',
-                      statistic: mapState.startTime == null ? '00:00:00' : '${_printDuration(
-                        DateTime.now().difference(mapState.startTime),
-                      )}'),
+                      statistic: mapState.startTime == null
+                          ? '00:00:00'
+                          : '${_printDuration(
+                              DateTime.now().difference(mapState.startTime),
+                            )}'),
                 ],
               )
             : Padding(

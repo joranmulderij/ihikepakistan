@@ -1,9 +1,4 @@
-
-
-
-
-
-class LocationPlus{
+class LocationPlus {
   final double latitude;
   final double longitude;
   final double altitude;
@@ -25,5 +20,25 @@ class LocationPlus{
   final double percentageTimeMoving;
   final double distanceWalked;
 
-  LocationPlus({this.distanceWalked, this.pauseTime, this.percentageTimeMoving, this.averageAltitude, this.movingTime, this.time, this.wayPoints, this.maxSpeed, this.averageSpeedWhileMoving, this.accuracy, this.altitude, this.ascent, this.averageSpeed, this.descent, this.latitude, this.longitude, this.maxAltitude, this.minAltitude, this.speed, this.speedAccuracy});
+  LocationPlus(
+      {this.distanceWalked,
+      this.pauseTime,
+      this.percentageTimeMoving,
+      this.averageAltitude,
+      this.movingTime,
+      this.time,
+      this.wayPoints,
+      this.maxSpeed,
+      this.averageSpeedWhileMoving,
+      this.accuracy,
+      this.altitude,
+      this.ascent,
+      this.averageSpeed,
+      this.descent,
+      this.latitude,
+      this.longitude,
+      this.maxAltitude,
+      this.minAltitude,
+      this.speed,
+      this.speedAccuracy});
 }

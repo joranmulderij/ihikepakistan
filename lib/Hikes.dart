@@ -6,8 +6,7 @@ import 'dart:convert' as convert;
 class Hikes {
   static List<Hike> get all {
     List<Hike> toReturn = [];
-    dynamic json =
-        convert.json.decode(prefs.getString('hikes'));
+    dynamic json = convert.json.decode(prefs.getString('hikes'));
     for (var i = 0; i < json.length; i++) {
       toReturn.add(Hike(
         height: json[i]['climb'].toString(),
@@ -33,7 +32,7 @@ class Hikes {
     return toReturn;
   }
 
-  static List<Hike> get allListed{
+  static List<Hike> get allListed {
     return all.where((hike) => !hike.unlisted).toList();
   }
 }

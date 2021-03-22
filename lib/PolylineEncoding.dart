@@ -4,9 +4,9 @@ import 'dart:math' as math;
 class PolylineEncoding {
   static String encodeList(List<double> dataPoints) {
     String polylineString = encode(dataPoints[0]) + encode(dataPoints[1]);
-    for (int i = 1; i < dataPoints.length/2; i++) {
-      polylineString += encode(dataPoints[i*2] - dataPoints[i*2 - 2]);
-      polylineString += encode(dataPoints[i*2 + 1] - dataPoints[i*2 - 1]);
+    for (int i = 1; i < dataPoints.length / 2; i++) {
+      polylineString += encode(dataPoints[i * 2] - dataPoints[i * 2 - 2]);
+      polylineString += encode(dataPoints[i * 2 + 1] - dataPoints[i * 2 - 1]);
     }
     return polylineString;
   }
@@ -32,16 +32,18 @@ class PolylineEncoding {
     return AsciiCodec().decode(byteList);
   }
 
-  static List<double> decodeList(String value){
+  static List<double> decodeList(String value) {
     String valueString = '';
     List<double> finalList = [];
     for (var i = 0; i < value.length; ++i) {
       var o = value[i];
-      if(o.allMatches('_`abcdefghijklmnopqrstuvwxyz{|}~').length == 1){
+      if (o.allMatches('_`abcdefghijklmnopqrstuvwxyz{|}~').length == 1) {
         valueString += o;
       } else {
         valueString += o;
-        finalList.add(((finalList.length < 2) ? 0 : finalList[finalList.length-2]) + decode(valueString));
+        finalList.add(
+            ((finalList.length < 2) ? 0 : finalList[finalList.length - 2]) +
+                decode(valueString));
         /*print(((finalList.length < 2) ? 0 : finalList[finalList.length-2]) + decode(valueString));
         print(valueString);
         print(o.allMatches('[_`abcdefghijklmnopqrstuvwxyz{|}~]').length);
@@ -56,7 +58,7 @@ class PolylineEncoding {
     return finalList;
   }
 
-  static double decode(String string){
+  static double decode(String string) {
     List<int> values = AsciiCodec().encode(string).map((e) => e - 63).toList();
     for (var i = 0; i < string.length - 1; ++i) {
       values[i] -= 32;
@@ -66,17 +68,17 @@ class PolylineEncoding {
     for (var i = 0; i < string.length; ++i) {
       r += values[i] * math.pow(32, i);
     }
-    if(r % 2 == 1) r = ~r;
+    if (r % 2 == 1) r = ~r;
     r = r >> 1;
 
     return (r / 100000);
   }
 
-  getGpx(List<double> dataPoints){
+  getGpx(List<double> dataPoints) {
     return 'gpx file';
   }
 
-  getKml(List<double> dataPoints){
+  getKml(List<double> dataPoints) {
     return 'kml file';
   }
 }

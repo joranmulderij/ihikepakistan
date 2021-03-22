@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:ihikepakistan/purchase.dart';
 
-void showUpgradeSnackbar(BuildContext context, String text){
+void showUpgradeSnackbar(BuildContext context, String text) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     behavior: SnackBarBehavior.floating,
     elevation: 5,
@@ -19,4 +18,3 @@ void showUpgradeSnackbar(BuildContext context, String text){
     ),
   ));
 }
-

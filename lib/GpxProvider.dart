@@ -1,10 +1,8 @@
-
-
-class GpxProvider{
-  static getSingleItem(double lat, double lon){
+class GpxProvider {
+  static getSingleItem(double lat, double lon) {
     return '<trkpt lat="$lat" lon="$lon"></trkpt>\n';
-
   }
+
   static const String begin = '''
 <?xml version='1.0' encoding='UTF-8'?>
 <gpx version="1.1" creator="JOSM GPX export" xmlns="http://www.topografix.com/GPX/1/1"
@@ -15,7 +13,7 @@ class GpxProvider{
   </metadata>
   <trk>
     <name>Trail 2</name>''';
-  static String getGpx(List<double> track, String name){
+  static String getGpx(List<double> track, String name) {
     String begin = '''
 <?xml version='1.0' encoding='UTF-8'?>
 <gpx version="1.1" creator="Ihike Pakistan Gpx Export" xmlns="http://www.topografix.com/GPX/1/1"
@@ -28,8 +26,8 @@ class GpxProvider{
   </trk>
 </gpx>''';
     String trackseg = '';
-    for(int i = 0; i < track.length-1; i+=2){
-      String item = getSingleItem(track[i], track[i+1]);
+    for (int i = 0; i < track.length - 1; i += 2) {
+      String item = getSingleItem(track[i], track[i + 1]);
       trackseg += item;
     }
     return begin + trackseg + end;

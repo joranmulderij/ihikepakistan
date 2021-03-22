@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-
-
 class AddMarkerDialog extends StatefulWidget {
   @override
   _AddMarkerDialogState createState() => _AddMarkerDialogState();
@@ -52,14 +50,14 @@ class _AddMarkerDialogState extends State<AddMarkerDialog> {
           padding: EdgeInsets.all(10),
           child: ListView(
             scrollDirection: Axis.horizontal,
-            children: (){
+            children: () {
               List<Widget> widgets = [];
-              for (int i = 0; i < icons.length; i++){
+              for (int i = 0; i < icons.length; i++) {
                 widgets.add(IconButton(
                   icon: Icon(icons[i]),
                   tooltip: tooltips[i],
                   color: (i == iconIndex) ? Colors.amber : Colors.grey,
-                  onPressed: (){
+                  onPressed: () {
                     setState(() {
                       iconIndex = i;
                     });
@@ -90,14 +88,14 @@ class _AddMarkerDialogState extends State<AddMarkerDialog> {
         ButtonBar(
           children: <Widget>[
             FlatButton(
-              onPressed: (){
+              onPressed: () {
                 Navigator.pop(context);
               },
               child: Text('Cancel'),
             ),
             RaisedButton(
               child: Text('Add'),
-              onPressed: (){},
+              onPressed: () {},
               color: Colors.amber,
             ),
           ],

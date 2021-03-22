@@ -26,11 +26,13 @@ void main() async {
   hasPurchased = prefs.getBool('has_pro') ?? false;
   if (!kIsWeb) {
     InAppPurchaseConnection.enablePendingPurchases();
-    final Stream<List<PurchaseDetails>> purchaseUpdates = InAppPurchaseConnection.instance.purchaseUpdatedStream;
+    final Stream<List<PurchaseDetails>> purchaseUpdates =
+        InAppPurchaseConnection.instance.purchaseUpdatedStream;
     purchaseUpdates.listen((newPurchases) {
-      if (justDidPurchase && newPurchases.length > 0) InAppPurchaseConnection.instance.completePurchase(newPurchases[0]);
-      if (newPurchases.length > 0){
-        if(hasPurchased == false){
+      if (justDidPurchase && newPurchases.length > 0)
+        InAppPurchaseConnection.instance.completePurchase(newPurchases[0]);
+      if (newPurchases.length > 0) {
+        if (hasPurchased == false) {
           hasPurchased = true;
           reload();
         }
@@ -63,11 +65,11 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final FirebaseAnalytics analytics = FirebaseAnalytics();
 
-  _reload(){
+  _reload() {
     setState(() {});
   }
 
-  _MyAppState(){
+  _MyAppState() {
     reload = _reload;
   }
 
@@ -84,7 +86,8 @@ class _MyAppState extends State<MyApp> {
           primarySwatch: Colors.amber,
           primaryColor: Color(0xff006600),
           accentColor: Color(0xff478e00),
-          floatingActionButtonTheme: FloatingActionButtonThemeData(backgroundColor: Colors.orange),
+          floatingActionButtonTheme:
+              FloatingActionButtonThemeData(backgroundColor: Colors.orange),
         ),
         home: HomeScreen(),
       ),

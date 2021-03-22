@@ -75,8 +75,11 @@ class _MapScreenState extends State<MapScreen> {
             builder: (context) => PopupMenuButton<String>(
               icon: Icon(Icons.map),
               onSelected: (value) {
-                if (value == 'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al' && !isPro()) {
-                  showUpgradeSnackbar(context, 'Satellite Contours is only available in Ihike Pakistan Pro.');
+                if (value ==
+                        'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al' &&
+                    !isPro()) {
+                  showUpgradeSnackbar(context,
+                      'Satellite Contours is only available in Ihike Pakistan Pro.');
                   return;
                 }
                 MapState mapState = context.read<MapState>();
@@ -104,7 +107,8 @@ class _MapScreenState extends State<MapScreen> {
                   child: Text('Dark'),
                 ),
                 PopupMenuItem(
-                  value: 'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al',
+                  value:
+                      'mapbox://styles/joran-mulderij/ckf52g8c627vf19o1yn0j72al',
                   child: Text('Satellite Contours'),
                 ),
               ],
@@ -128,20 +132,27 @@ class _MapScreenState extends State<MapScreen> {
                   color: mapState.onTrack ? Colors.green : Colors.red,
                   elevation: 5,
                   child: ListTile(
-                    title: Text(mapState.onTrack ? 'You\'re on track!' : 'You left the path!'),
-                    subtitle: mapState.notificationsAreOn ? Text('Notifications are on') : null,
-                    trailing: kIsWeb ? null : IconButton(
-                      icon: mapState.notificationsAreOn
-                          ? Icon(Icons.notifications_active)
-                          : Icon(Icons.notifications_outlined),
-                      onPressed: () {
-                        if (isPro())
-                          mapState.toggleNotifications();
-                        else {
-                          showUpgradeSnackbar(context, 'Notifications are only available in Ihike Pakistan Pro.');
-                        }
-                      },
-                    ),
+                    title: Text(mapState.onTrack
+                        ? 'You\'re on track!'
+                        : 'You left the path!'),
+                    subtitle: mapState.notificationsAreOn
+                        ? Text('Notifications are on')
+                        : null,
+                    trailing: kIsWeb
+                        ? null
+                        : IconButton(
+                            icon: mapState.notificationsAreOn
+                                ? Icon(Icons.notifications_active)
+                                : Icon(Icons.notifications_outlined),
+                            onPressed: () {
+                              if (isPro())
+                                mapState.toggleNotifications();
+                              else {
+                                showUpgradeSnackbar(context,
+                                    'Notifications are only available in Ihike Pakistan Pro.');
+                              }
+                            },
+                          ),
                   ),
                 ),
               ),
@@ -155,17 +166,24 @@ class _MapScreenState extends State<MapScreen> {
             FloatingActionButton(
               heroTag: null,
               mini: true,
-              backgroundColor: context.watch<MapState>().running ? Colors.red : Colors.green,
-              child: Icon(context.watch<MapState>().running ? Icons.pause : Icons.play_arrow),
+              backgroundColor:
+                  context.watch<MapState>().running ? Colors.red : Colors.green,
+              child: Icon(context.watch<MapState>().running
+                  ? Icons.pause
+                  : Icons.play_arrow),
               onPressed: () {
-                context.read<MapState>().togglePlay();
+                context.read<MapState>().togglePlay(context);
               },
             ),
-            SizedBox(width: 20,),
+            SizedBox(
+              width: 20,
+            ),
             FloatingActionButton(
               heroTag: null,
               mini: true,
-              child: Icon(showBottomSheet ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up),
+              child: Icon(showBottomSheet
+                  ? Icons.keyboard_arrow_down
+                  : Icons.keyboard_arrow_up),
               onPressed: () {
                 setState(() {
                   showBottomSheet = !showBottomSheet;
@@ -190,7 +208,8 @@ class MyMap extends StatefulWidget {
   }
 
   @override
-  MapboxState createState() => MapboxState(hike: hike, lastCameraPosition: cameraPosition, oldMapStyle: mapStyle);
+  MapboxState createState() => MapboxState(
+      hike: hike, lastCameraPosition: cameraPosition, oldMapStyle: mapStyle);
 }
 
 class MapboxState extends State<MyMap> {
@@ -234,24 +253,31 @@ class MapboxState extends State<MyMap> {
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
-        Consumer(builder: (BuildContext context, MapState mapState, Widget widget) {
+        Consumer(
+            builder: (BuildContext context, MapState mapState, Widget widget) {
           if (mapboxMapController != null && (!showLoader)) {
             mapboxMapController.updateMyLocationTrackingMode({
               MapCenterState.none: mapbox.MyLocationTrackingMode.None,
               MapCenterState.centered: mapbox.MyLocationTrackingMode.Tracking,
               MapCenterState.gps: mapbox.MyLocationTrackingMode.TrackingGPS,
-              MapCenterState.compass: mapbox.MyLocationTrackingMode.TrackingCompass,
+              MapCenterState.compass:
+                  mapbox.MyLocationTrackingMode.TrackingCompass,
             }[mapState.mapCenterState]);
             if (line != null)
               mapboxMapController.updateLine(
-                  line, mapbox.LineOptions(geometry: mapState.track.map((e) => mapbox.LatLng(e.lat, e.lng)).toList()));
+                  line,
+                  mapbox.LineOptions(
+                      geometry: mapState.track
+                          .map((e) => mapbox.LatLng(e.lat, e.lng))
+                          .toList()));
             if (locationCircle != null)
               mapboxMapController.updateCircle(
                   locationCircle,
                   mapbox.CircleOptions(
                       geometry: mapState.track.isEmpty
                           ? mapbox.LatLng(0, 0)
-                          : mapbox.LatLng(mapState.track.last.lat, mapState.track.last.lng)));
+                          : mapbox.LatLng(mapState.track.last.lat,
+                              mapState.track.last.lng)));
           }
           if (oldMapStyle != mapState.mapStyle && (!showLoader)) {
             oldMapStyle = mapState.mapStyle;
@@ -270,7 +296,8 @@ class MapboxState extends State<MyMap> {
                 mapbox.CameraPosition(
                     target: (hike.multiData?.length ?? 0) == 0
                         ? mapbox.LatLng(33.693056, 73.063889)
-                        : mapbox.LatLng(hike.multiData[0][0], hike.multiData[0][1]),
+                        : mapbox.LatLng(
+                            hike.multiData[0][0], hike.multiData[0][1]),
                     zoom: 13),
             accessToken: mapboxToken,
             styleString: oldMapStyle,
@@ -285,13 +312,15 @@ class MapboxState extends State<MyMap> {
                     MapCenterState.compass: mapbox.MyLocationRenderMode.COMPASS,
                   }[mapState.mapCenterState],
             onCameraIdle: () {
-              if (mapboxMapController.cameraPosition != null) lastCameraPosition = mapboxMapController.cameraPosition;
+              if (mapboxMapController.cameraPosition != null)
+                lastCameraPosition = mapboxMapController.cameraPosition;
             },
             onMapCreated: (mapbox.MapboxMapController controller) async {
               mapboxMapController = controller;
 
               int tried = 0;
-              while (controller.lines.isEmpty || controller.circles.isEmpty && tried++ < 5) {
+              while (controller.lines.isEmpty ||
+                  controller.circles.isEmpty && tried++ < 5) {
                 await Future.delayed(Duration(seconds: 1));
                 tryAddTracks(controller, mapState);
               }
@@ -309,15 +338,20 @@ class MapboxState extends State<MyMap> {
     );
   }
 
-  void tryAddTracks(mapbox.MapboxMapController controller, MapState mapState) async {
+  void tryAddTracks(
+      mapbox.MapboxMapController controller, MapState mapState) async {
     controller.clearLines();
     controller.clearCircles();
     tracks.forEach((track) async {
-      controller.addLine(mapbox.LineOptions(geometry: track, lineColor: 'red', lineWidth: 2));
+      controller.addLine(
+          mapbox.LineOptions(geometry: track, lineColor: 'red', lineWidth: 2));
     });
     if (isPro())
       line = await controller.addLine(mapbox.LineOptions(
-          geometry: mapState.track.map((e) => mapbox.LatLng(e.lat, e.lng)).toList(), lineColor: 'blue', lineWidth: 2));
+          geometry:
+              mapState.track.map((e) => mapbox.LatLng(e.lat, e.lng)).toList(),
+          lineColor: 'blue',
+          lineWidth: 2));
 
     if (kIsWeb)
       locationCircle = await controller.addCircle(mapbox.CircleOptions(

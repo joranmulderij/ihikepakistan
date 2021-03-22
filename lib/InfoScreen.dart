@@ -1,4 +1,3 @@
-
 import 'package:ihikepakistan/MyImageView.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -113,19 +112,17 @@ class InfoBody extends StatelessWidget {
     return CustomScrollView(
       slivers: <Widget>[
         SliverList(
-          delegate: SliverChildListDelegate(
-            [
-              GestureDetector(
-                onTap: () => onMapClicked(context),
-                onHorizontalDragStart: (_) => onMapClicked(context),
-                onPanStart: (_) => onMapClicked(context),
-                child: MyImageView(
-                  hike.photo,
-                  height: 300,
-                ),
+          delegate: SliverChildListDelegate([
+            GestureDetector(
+              onTap: () => onMapClicked(context),
+              onHorizontalDragStart: (_) => onMapClicked(context),
+              onPanStart: (_) => onMapClicked(context),
+              child: MyImageView(
+                hike.photo,
+                height: 300,
               ),
-            ]
-          ),
+            ),
+          ]),
         ),
         SliverList(
           delegate: SliverChildBuilderDelegate(

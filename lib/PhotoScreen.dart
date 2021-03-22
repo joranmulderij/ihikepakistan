@@ -34,7 +34,10 @@ class PhotoScreen extends StatelessWidget {
               child: CarouselSlider.builder(
                 itemCount: hike.photos.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return MyImageView(hike.photos[index], shouldCover: false,);
+                  return MyImageView(
+                    hike.photos[index],
+                    shouldCover: false,
+                  );
                 },
                 options: CarouselOptions(
                   viewportFraction: 1,
