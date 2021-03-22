@@ -290,7 +290,8 @@ class MapboxState extends State<MyMap> {
             onMapCreated: (mapbox.MapboxMapController controller) async {
               mapboxMapController = controller;
 
-              while (controller.lines.isEmpty || controller.circles.isEmpty) {
+              int tried = 0;
+              while (controller.lines.isEmpty || controller.circles.isEmpty && tried++ < 5) {
                 await Future.delayed(Duration(seconds: 1));
                 tryAddTracks(controller, mapState);
               }

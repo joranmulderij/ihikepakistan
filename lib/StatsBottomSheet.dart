@@ -20,7 +20,7 @@ class StatsBottomSheet extends StatelessWidget {
                   _infoCard(
                       title: 'Av Speed:',
                       statistic:
-                          mapState.startTime == null ? '0km/h' : '${(mapState.totalDistance / DateTime.now().difference(mapState.startTime).inSeconds * 3.6).round()}km/h'),
+                          mapState.startTime == null ? '0km/h' : '${(mapState.totalDistance / DateTime.now().difference(mapState.startTime).inSeconds * 3.6).toStringAsFixed(1)}km/h'),
                   _infoCard(
                       title: 'Time:',
                       statistic: mapState.startTime == null ? '00:00:00' : '${_printDuration(
