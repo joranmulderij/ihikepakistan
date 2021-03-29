@@ -49,8 +49,10 @@ class MapState with ChangeNotifier {
   bool hasRun = false;
 
   MapState() {
-    if (!kIsWeb) locationManager = LocationManager.instance;
-    getLocation();
+    if (!kIsWeb) {
+      locationManager = LocationManager.instance;
+      Location().requestPermission();
+    }
   }
 
   @override
@@ -69,7 +71,7 @@ class MapState with ChangeNotifier {
     //     content: Text('This app collects location data to make sure you stay on the path even when the app is closed or not in use.'),
     //   ),
     // );
-    if (!prefs.containsKey('has_showed_disclaimer') && !kIsWeb) {
+    //if (!prefs.containsKey('has_showed_disclaimer') && !kIsWeb) {
       await ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(
             content: Text(
@@ -78,7 +80,7 @@ class MapState with ChangeNotifier {
           ))
           .closed;
       prefs.setBool('has_showed_disclaimer', true);
-    }
+    //}
     if (!hasRun && !running) {
       hasRun = true;
       running = true;
@@ -108,6 +110,8 @@ class MapState with ChangeNotifier {
         return null;
       }
     }
+
+
 
     _permissionGranted = await location.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
@@ -140,7 +144,7 @@ class MapState with ChangeNotifier {
     locationManager.interval = 1;
     locationManager.distanceFilter = 2;
     locationManager.notificationTitle = 'Ihike Pakistan is Running';
-    locationManager.notificationMsg = '';
+    locationManager.notificationMsg = 'Ihike Pakistan collects location data to make sure you stay on the path even when the app is closed or not in use.';
     dtoStream = locationManager.dtoStream;
     dtoSubscription = dtoStream.listen((data) {
       if (canAddLocation(data.latitude, data.longitude) && running) {
@@ -154,10 +158,12 @@ class MapState with ChangeNotifier {
       notifyListeners();
     });
     locationManager.start();
+    getLocation();
   }
 
   void stopCarpLocation() async {
     dtoSubscription.cancel();
+    locationStreamSub.cancel();
     await locationManager.stop();
   }
 
