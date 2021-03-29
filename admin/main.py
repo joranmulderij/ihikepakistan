@@ -29,12 +29,19 @@ def getfromscript(path, name):
     url = f'https://script.google.com/macros/s/AKfycbxqX6BM9i5QGWuaisLyQYfwckSOh29K9Xi4oTyUNgY1N6Vcai4WEzAn/exec?path={",".join(str(i) for i in p)}&name={name}'
     e = get(url).text
     l = e.split('<break>')
+    if(len(l) != 3):
+        print(url)
     return l[0], float(l[1]), l[2]
 
 def getLength(path):
     p = [(i.latitude, i.longitude) for i in path]
     return geodesic(*p).kilometers
 
+def boolToString(value):
+    if value:
+        return '   '
+    else:
+        return '---'
 
 number_of_hikes = 0
 number_of_segments = 0
@@ -42,7 +49,7 @@ number_of_segments = 0
 hikes = []
 for hike in hikesdoc:
     hikedict = hike.to_dict()
-    db.collection('hikes_lock').document(hike.id).set(hikedict)
+    oldhikedict = db.collection('hikes_lock').document(hike.id).get().to_dict()
     path = []
     for p in hikedict['path']:
         path.append(p.latitude)
@@ -76,20 +83,35 @@ for hike in hikesdoc:
         "length": str(round(length, 2)),
         "unlisted": hikedict.get('unlisted') is True,
     }
+    equal = True
+    for key in hikedict:
+        if (key in oldhikedict and hikedict[key] == oldhikedict[key]):
+            pass
+        elif key == 'images':
+            pass
+        else:
+            print(key)
+            equal = False
     if len(path) > 20 and not hikedict['difficulty'] is None:
         if hikedict.get('unlisted') is True:
-            print('Segment:  ', hikedict['name'])
+            print(boolToString(equal), 'Segment:  ', hikedict['name'])
             number_of_segments += 1
         else:
-            print('  Valid:  ', hikedict['name'])
+            print(boolToString(equal), '  Valid:  ', hikedict['name'])
             number_of_hikes += 1
         hikes.append(hikejson)
     else:
-        print('Invalid:  ', hikedict['name'])
+        print(boolToString(equal), 'Invalid:  ', hikedict['name'])
+
 
 # print(json.dumps(hikes))
 print("Number of Hikes:", number_of_hikes)
 print("Number of Segments:", number_of_segments)
+
+if input('Override update? (y/n): ') == 'y':
+    for hike in hikesdoc:
+        hikedict = hike.to_dict()
+        db.collection('hikes_lock').document(hike.id).set(hikedict)
 
 with open("sample.json", "w+") as outfile:
     json.dump(hikes, outfile)
