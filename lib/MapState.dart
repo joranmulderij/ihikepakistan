@@ -49,10 +49,8 @@ class MapState with ChangeNotifier {
   bool hasRun = false;
 
   MapState() {
-    if (!kIsWeb) {
-      locationManager = LocationManager.instance;
-      Location().requestPermission();
-    }
+    if (!kIsWeb) locationManager = LocationManager.instance;
+    getLocation();
   }
 
   @override
@@ -71,7 +69,7 @@ class MapState with ChangeNotifier {
     //     content: Text('This app collects location data to make sure you stay on the path even when the app is closed or not in use.'),
     //   ),
     // );
-    //if (!prefs.containsKey('has_showed_disclaimer') && !kIsWeb) {
+    if (!prefs.containsKey('has_showed_disclaimer') && !kIsWeb) {
       await ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(
             content: Text(
@@ -80,7 +78,7 @@ class MapState with ChangeNotifier {
           ))
           .closed;
       prefs.setBool('has_showed_disclaimer', true);
-    //}
+    }
     if (!hasRun && !running) {
       hasRun = true;
       running = true;
@@ -158,12 +156,10 @@ class MapState with ChangeNotifier {
       notifyListeners();
     });
     locationManager.start();
-    getLocation();
   }
 
   void stopCarpLocation() async {
     dtoSubscription.cancel();
-    locationStreamSub.cancel();
     await locationManager.stop();
   }
 
