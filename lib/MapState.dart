@@ -17,6 +17,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:ihikepakistan/main.dart';
+import 'package:ihikepakistan/showUpgradeSnackbar.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:maps_toolkit/maps_toolkit.dart' as mp;
@@ -43,7 +44,7 @@ class MapState with ChangeNotifier {
   double totalDistance = 0;
   List<List<double>> multiData;
   bool notificationsAreOn = false;
-  bool onTrack = true;
+  bool onTrack;
   bool alarmIsSounding = false;
   bool running = false;
   bool hasRun = false;
@@ -101,20 +102,17 @@ class MapState with ChangeNotifier {
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
 
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return null;
-      }
-    }
-
-
-
     _permissionGranted = await location.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
       _permissionGranted = await location.requestPermission();
       if (_permissionGranted != PermissionStatus.granted) {
+        return null;
+      }
+    }
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
         return null;
       }
     }
@@ -224,6 +222,39 @@ class MapState with ChangeNotifier {
     }[value];
     notifyListeners();
   }
+
+  Widget getOnPathTile(BuildContext context) => hasRun ? Positioned(
+    left: 10,
+    right: 10,
+    top: 10,
+    child: Card(
+      color: onTrack != null ? (onTrack ? Colors.green : Colors.red) : Colors.amber,
+      elevation: 5,
+      child: ListTile(
+        title: Text(onTrack != null ? (onTrack
+            ? 'You\'re on track!'
+            : 'You left the path!') : 'No Location'),
+        subtitle: notificationsAreOn
+            ? Text('Notifications are on')
+            : null,
+        trailing: kIsWeb
+            ? null
+            : IconButton(
+          icon: notificationsAreOn
+              ? Icon(Icons.notifications_active)
+              : Icon(Icons.notifications_outlined),
+          onPressed: () {
+            if (isPro())
+              toggleNotifications();
+            else {
+              showUpgradeSnackbar(context,
+                  'Notifications are only available in Ihike Pakistan Pro.');
+            }
+          },
+        ),
+      ),
+    ),
+  ) : Container();
 }
 
 // class MapState with ChangeNotifier {

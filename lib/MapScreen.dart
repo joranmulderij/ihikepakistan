@@ -124,38 +124,7 @@ class _MapScreenState extends State<MapScreen> {
           ),
           if (showBottomSheet)
             Consumer<MapState>(
-              builder: (context, mapState, _) => Positioned(
-                left: 10,
-                right: 10,
-                top: 10,
-                child: Card(
-                  color: mapState.onTrack ? Colors.green : Colors.red,
-                  elevation: 5,
-                  child: ListTile(
-                    title: Text(mapState.onTrack
-                        ? 'You\'re on track!'
-                        : 'You left the path!'),
-                    subtitle: mapState.notificationsAreOn
-                        ? Text('Notifications are on')
-                        : null,
-                    trailing: kIsWeb
-                        ? null
-                        : IconButton(
-                            icon: mapState.notificationsAreOn
-                                ? Icon(Icons.notifications_active)
-                                : Icon(Icons.notifications_outlined),
-                            onPressed: () {
-                              if (isPro())
-                                mapState.toggleNotifications();
-                              else {
-                                showUpgradeSnackbar(context,
-                                    'Notifications are only available in Ihike Pakistan Pro.');
-                              }
-                            },
-                          ),
-                  ),
-                ),
-              ),
+              builder: (context, mapState, _) => mapState.getOnPathTile(context),
             ),
         ],
       ),
